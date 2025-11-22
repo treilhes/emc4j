@@ -1,0 +1,27 @@
+emc4j:
+  loader:
+    defaultLoadType: LocalUpdateOnly
+  platform:
+    rootPath: ./target/devapp
+  registry:
+    snapshotsAllowed: true
+  maven:
+    directory: ${user.home}/.m2/repository
+    redirectionsEnabled: true
+    repository:
+      - url: https://XXXXXXX.treilhes.com/nexYYYus/content/repositories/releases/
+        user: XXXXXXXXX
+        password: YYYY
+
+server:
+  port: 8080
+
+spring:
+  h2:
+    console:
+      enabled: false
+  jpa:
+    show-sql: true
+
+springdoc:
+  show-actuator: true

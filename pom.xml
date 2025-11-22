@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.treilhes.emc4j</groupId>
+    <artifactId>parent</artifactId>
+    <packaging>pom</packaging>
+    <version>${emc4j.version}</version>
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>
+        Emc4j stands for Extensible Modular Context for Java.
+        Emc4j allows to define modular applications using a declarative xml
+        approach defining an extension tree.
+        When launching the application, emc4j will load the modules and their
+        dependencies from defined repositories
+        and load each extensions into a dedicated module layer and Spring
+        context.
+    </description>
+    <inceptionYear>2021</inceptionYear>
+    <url>https://github.com/treilhes/emc4j</url>
+
+    <organization>
+        <name>Treilhes</name>
+        <url>https://www.treilhes.com</url>
+    </organization>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/treilhes/emc4j/issues</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>BSD 3-Clause</name>
+            <url>https://opensource.org/licenses/BSD-3-Clause</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Pascal Treilhes</name>
+            <email>pascal@treilhes.com</email>
+            <organization>Treilhes</organization>
+            <organizationUrl>https://www.treilhes.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/treilhes/emc4j</url>
+        <connection>scm:git:git://github.com/treilhes/emc4j.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:treilhes/emc4j.git</developerConnection>
+    </scm>
+
+    <modules>
+        <module>emc4j.boot</module>
+        <module>emc4j.registry</module>
+        <module>emc4j.utils</module>
+        <module>emc4j.delivery</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
+        <!--<java.version>25</java.version>-->
+
+        <!-- exporting a package from system module java.base is not allowed with release -->
+        <!--<maven.compiler.release>24</maven.compiler.release> -->
+        <!--<maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>-->
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
+        <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>${maven-failsafe-plugin.version}</maven-surefire-plugin.version>
+        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
+        <groovy-maven-plugin.version>2.1.1</groovy-maven-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+        <maven-invoker-plugin.version>3.8.0</maven-invoker-plugin.version>
+        <versions-maven-plugin.version>2.9.0</versions-maven-plugin.version>
+        <maven-project-info-reports-plugin.version>2.6</maven-project-info-reports-plugin.version>
+        <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
+        <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+        <flatten-maven-plugin.version>1.7.4-SNAPSHOT</flatten-maven-plugin.version>
+
+        <spring.boot.version>4.0.0-RC2</spring.boot.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- emc4j.boot -->
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.aop</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.api</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.context</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.jpa</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>java.base.patch</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>java.base.patch.link</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>spring.core.patch</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>spring.core.patch.link</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>org.hibernate.orm.core.patch</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>org.hibernate.orm.core.patch.link</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.layer</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.loader</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.main</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.maven</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.platform</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.registry</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.splash</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.starter</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.starter.test</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.web</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+
+            <!-- emc4j.registry -->
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.registry.model</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+
+            <!-- emc4j.utils -->
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-dependency-plugin</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${org.mapstruct.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- dependencies below are required due to their version missing from spring boot dependencies 
+                RC must be removed when a final version is released -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>4.0.0-M2</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.springframework/spring-aop -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>7.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>javadoc</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <version>${maven-clean-plugin.version}</version>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>${basedir}/docs/apidocs</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <show>private</show>
+                            <!-- This property does not work for the aggregate goal, doc-files are not 
+                                present in the generated javadoc, see workaround below -->
+                            <docfilessubdirs>true</docfilessubdirs>
+                            <javadocDirectory>${basedir}/src/main/java</javadocDirectory>
+                            <outputDirectory>${basedir}/docs/apidocs</outputDirectory>
+                            <reportOutputDirectory>${basedir}/docs/apidocs</reportOutputDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>aggregation</id>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                                <configuration>
+                                    <aggregate>true</aggregate>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <!-- Workaround for docfilessubdirs: this script copy doc-files content into 
+                            javadoc output directory in github_pages -->
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <version>${groovy-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>aggregated_javadoc_fix.groovy</source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <build>
+		<plugins>
+			<plugin>
+				<!-- This plugin has 2 internal usages: - generate a flattened version of the pom.xml 
+                    in the repository, maven actions will use the flattened pom.xml as the effective pom reducing the number 
+                    of roundtrip during dependency resolution and download - manage a centralized version for the project -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>${flatten-maven-plugin.version}</version>
+				<configuration>
+					<flattenDependencyMode>all</flattenDependencyMode>
+					<flattenMode>bom</flattenMode> <!-- Resolve properties like ${emc4j.version} -->
+					<!--<updatePomFile>true</updatePomFile> Ensures the POM file is updated -->
+				</configuration>
+				<executions>
+					<!-- enable flattening -->
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<!-- ensure proper cleanup -->
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.treilhes.emc4j</groupId>
+                    <artifactId>emc4j-registry-maven-plugin</artifactId>
+                    <version>${emc4j.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.treilhes.emc4j</groupId>
+                    <artifactId>emc4j-dependency-plugin</artifactId>
+                    <version>${emc4j.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
+                </plugin>
+                <!-- Build KIT wherever parent is cleaned -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.plugin.version}</version>
+                    <configuration>
+                        <!--<useIncrementalCompilation>false</useIncrementalCompilation> -->
+                        <compilerArgs>
+                            <arg>--add-exports</arg>
+                            <arg>spring.core/org.springframework.core.patch=emc4j.boot.layer</arg>
+                        </compilerArgs>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${org.mapstruct.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>test</id>
+                            <phase>test-compile</phase>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+
+
+                <!-- Deploy to Maven Central -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${maven-deploy-plugin.version}</version>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                    <inherited>false</inherited>
+                </plugin>
+
+                <!-- Testing -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <java.awt.headless>true</java.awt.headless>
+                        </systemPropertyVariables>
+                        <useModulePath>false</useModulePath>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <java.awt.headless>true</java.awt.headless>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-invoker-plugin</artifactId>
+                    <version>${maven-invoker-plugin.version}</version>
+                    <configuration>
+                        <javaHome>${java.home}</javaHome>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>${maven-project-info-reports-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${versions-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-debt-report</id>
+                            <goals>
+                                <goal>dependency-updates-report</goal>
+                            </goals>
+                            <phase>prepare-package</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.treilhes.emc4j</groupId>
+                                        <artifactId>emc4j-dependency-plugin</artifactId>
+                                        <versionRange>[0.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>properties</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute>
+                                            <runOnConfiguration>true</runOnConfiguration>
+                                        </execute>
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-dependency-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>properties</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute>
+                                            <runOnConfiguration>true</runOnConfiguration>
+                                        </execute>
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>flatten-maven-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>flatten</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-jar-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>jar</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-invoker-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>run</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.treilhes.emc4j</groupId>
+                                        <artifactId>emc4j-registry-maven-plugin</artifactId>
+                                        <versionRange>[0.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>emc4jRegistry</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-plugin-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>descriptor</goal>
+                                            <goal>helpmojo</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+</project>

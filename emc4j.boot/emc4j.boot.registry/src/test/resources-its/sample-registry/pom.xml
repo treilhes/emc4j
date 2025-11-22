@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>it.boot.registry</groupId>
+    <artifactId>sample-registry</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
+        <!-- compiler -->
+        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>parent</artifactId>
+                <version>${emc4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-registry-maven-plugin</artifactId>
+                <version>${emc4j.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-registry-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>emc4jRegistry</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <format>json</format>
+                    <registry>
+                    	<uuid>feda298c-4a63-450d-8c59-8cb43241baaa</uuid>
+                        <applications>
+                            <application>
+                                <uuid>feda298c-4a63-450d-8c59-8cb43241ba3d</uuid>
+                                <splash>fake_image.png</splash>
+                                <dependency>
+                                    <groupId>com.treilhes.emc4j</groupId>
+                                    <version>${project.version}</version>
+                                    <artifactId>emc4j.app.fxmlrunner.main</artifactId>
+                                </dependency>
+                                <description>
+                                    <image>fake_image.png</image>
+                                    <title>FXML Runner</title>
+                                    <text>App that run fxml files</text>
+                                </description>
+                            </application>
+                        </applications>
+                    </registry>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,1 @@
+package com.treilhes.emc4j.boot.loader.internal.jpa.model;

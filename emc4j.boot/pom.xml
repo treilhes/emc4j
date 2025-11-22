@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.treilhes.emc4j</groupId>
+		<artifactId>parent</artifactId>
+		<version>${emc4j.version}</version>
+	</parent>
+	<artifactId>emc4j.boot</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>emc4j.boot.loader</module>
+		<module>emc4j.boot.context</module>
+		<module>emc4j.boot.maven</module>
+		<module>emc4j.boot.main</module>
+		<module>emc4j.boot.starter</module>
+		<module>emc4j.boot.starter.test</module>
+		<module>emc4j.boot.platform</module>
+		<module>emc4j.boot.registry</module>
+		<module>emc4j.boot.layer</module>
+		<module>emc4j.boot.jpa</module>
+
+		<module>emc4j.boot.jpms.patches</module>
+		<module>emc4j.boot.api</module>
+
+		<module>emc4j.boot.web</module>
+		<module>emc4j.boot.aop</module>
+		<module>emc4j.boot.splash</module>
+	</modules>
+</project>

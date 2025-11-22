@@ -1,0 +1,76 @@
+# main links
+main:
+  - title: "Dev Guide"
+    url: /devguide/quick-start-guide/
+  - title: "Packaging"
+    url: /packaging/registries/
+  - title: "Javadoc"
+    url: /apidocs/index.html
+    target: _blank
+  - title: "About"
+    url: /about/
+  - title: "Terms &amp; Privacy Policy"
+    url: /terms/
+
+# packaging links
+packaging:
+  - title: Disclaimer
+    url: /packaging/registries/
+
+# devguide links
+devguide:
+  - title: Getting Started
+    children:
+      - title: "Quick-Start Guide"
+        url: /devguide/quick-start-guide/
+      - title: "Structure"
+        url: /devguide/structure/
+      - title: "Installation"
+        url: /devguide/installation/
+      - title: "Upgrading"
+        url: /devguide/upgrading/
+  - title: Customization
+    children:
+      - title: "Configuration"
+        url: /devguide/configuration/
+      - title: "Overriding Theme Defaults"
+        url: /devguide/overriding-theme-defaults/
+      - title: "Navigation"
+        url: /devguide/navigation/
+      - title: "UI Text"
+        url: /devguide/ui-text/
+      - title: "Authors"
+        url: /devguide/authors/
+      - title: "Layouts"
+        url: /devguide/layouts/
+  - title: Content
+    children:
+      - title: "Working with Posts"
+        url: /devguide/posts/
+      - title: "Working with Pages"
+        url: /devguide/pages/
+      - title: "Working with Collections"
+        url: /devguide/collections/
+      - title: "Helpers"
+        url: /devguide/helpers/
+      - title: "Utility Classes"
+        url: /devguide/utility-classes/
+  - title: Extras
+    children:
+      - title: "Stylesheets"
+        url: /devguide/stylesheets/
+      - title: "JavaScript"
+        url: /devguide/javascript/
+  - title: Meta
+    children:
+      - title: "History"
+        url: /devguide/history/
+      - title: "Contributing"
+        url: /devguide/contributing/
+      - title: "Old 2.2 Docs"
+        url: /devguide/docs-2-2/
+      - title: "License"
+        url: /devguide/license/
+      - title: "Terms &amp; Privacy Policy"
+        url: /terms/
+

@@ -1,0 +1,41 @@
+# Gradle
+.gradle/
+app/build/
+kit/build/
+
+# Maven
+target/
+
+# IDEA
+.theia/
+
+# IDEA
+.idea/
+*.iml
+out/
+
+# Eclipse
+.factorypath
+.classpath
+.project
+.checkstyle
+.settings/
+bin/
+
+# Netbeans
+.nb-gradle/
+
+# Miscellaneous
+.DS_Store
+lib/
+scenicView.properties
+*.class
+*.log
+dist/
+package/
+/build/
+.flattened-pom.xml
+.interpolated-pom.xml
+
+# EMC4J specific
+_site

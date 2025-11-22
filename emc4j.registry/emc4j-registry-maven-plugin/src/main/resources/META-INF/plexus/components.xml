@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-set>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.configurator.ComponentConfigurator</role>
+      <role-hint>emc4j-mojo-component-configurator</role-hint>
+      <implementation>com.treilhes.emc4j.registry.plugin.EmcRegistryConfigurator</implementation>
+    </component>
+  </components>
+</component-set>

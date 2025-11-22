@@ -1,0 +1,14 @@
+stages:
+  - build
+
+before_script:
+  - mkdir -p ~/.m2
+  - echo "$MVN_SETTINGS_NEXUS" > ~/.m2/settings.xml
+
+build-job:
+  image: maven:3.9-eclipse-temurin-25
+  tags:
+    - linux
+  stage: build
+  script:
+    - mvn -B -ntp clean deploy
