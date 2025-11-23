@@ -8,9 +8,9 @@ header:
   actions:
     - label: "<i class='fas fa-download'></i> Install now"
       url: "/userguide/install/"
-excerpt: >
+excerpt: >	
   Emc4j stand for Extensible Modular Context For Java <br />
-  <small><a href="https://github.com/treilhes/emc4j/tree/master">Latest release vX.X.X</a></small>
+  <small><a href="https://github.com/treilhes/emc4j">Source on Github</a></small>
 feature_row:
   - image_path: /assets/images/mm-devguide.png
     alt: "Development Guide"

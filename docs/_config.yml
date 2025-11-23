@@ -13,10 +13,10 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 locale                   : "en-US"
 title                    : "Emc4j"
 title_separator          : "-"
-subtitle                 : "Extensible Modular Contaxt For Java"
+subtitle                 : "Extensible Modular Context For Java"
 name                     : &name "Emc4j" # &name is a YAML anchor which can be *referenced later
-description              : &description "Extensible Modular Contaxt For Java."
-url                      : https://treilhes.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+description              : &description "Extensible Modular Context For Java."
+url                      : https://emc4j.treilhes.com # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "/emc4j" # the subpath of your site, e.g. "/blog"
 repository               : "treilhes/emc4j"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
@@ -45,8 +45,8 @@ reCaptcha:
 atom_feed:
   path                   : # blank (default) uses feed.xml
 
-search                   : true # true, false (default)
-search_full_content      : true # true, false (default)
+search                   : false # true, false (default)
+search_full_content      : false # true, false (default)
 search_provider          : algolia # lunr (default), algolia
 algolia:
   application_id         : MYF2PLB8VZ # YOUR_APPLICATION_ID
@@ -91,7 +91,7 @@ analytics:
 author:
   name             : *name # *name is a YAML reference pointing to the &anchor earlier
   avatar           : "/assets/images/avatar_160x160.png"
-  bio              : "Emc4j is a framework allwing to load an extension tree from maven into dedicated module layer and context"
+  bio              : "Emc4j is a framework allowing to load an extension tree from maven into dedicated module layer and context"
   location         : #"Buffalo, NY"
   links:
     - label: "Emc4j"
