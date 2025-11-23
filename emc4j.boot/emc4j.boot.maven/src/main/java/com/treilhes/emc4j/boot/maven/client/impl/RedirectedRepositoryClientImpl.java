@@ -48,6 +48,7 @@ import com.treilhes.emc4j.boot.api.maven.RepositoryType;
 import com.treilhes.emc4j.boot.api.maven.ResolvedArtifact;
 import com.treilhes.emc4j.boot.api.maven.UniqueArtifact;
 import com.treilhes.emc4j.boot.api.maven.MavenConfig.Redirect;
+import com.treilhes.emc4j.boot.maven.api.RepositoryMapper;
 
 
 public class RedirectedRepositoryClientImpl implements RepositoryClient {

@@ -39,6 +39,13 @@ import com.treilhes.emc4j.boot.api.maven.Repository.Content;
 import com.treilhes.emc4j.boot.maven.client.type.Maven;
 import com.treilhes.emc4j.boot.maven.client.type.Nexus;
 
+/**
+ * Preset Maven repositories
+ * @deprecated Preset repositories are deprecated and will be removed in future releases.
+ * Users should define their own default repositories explicitly in configuration file.
+ * @author Pascal Treilhes
+ */
+@Deprecated(forRemoval = true, since = "2025-11-23")
 public class MavenPresets {
 
     public static final String MAVEN = "Maven Central";

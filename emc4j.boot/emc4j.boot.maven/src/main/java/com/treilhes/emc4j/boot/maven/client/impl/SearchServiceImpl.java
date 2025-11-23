@@ -46,13 +46,15 @@ import org.slf4j.LoggerFactory;
 import com.treilhes.emc4j.boot.api.maven.Artifact;
 import com.treilhes.emc4j.boot.api.maven.Repository;
 import com.treilhes.emc4j.boot.api.maven.RepositoryType;
+import com.treilhes.emc4j.boot.maven.api.SearchService;
 
-public class SearchService {
+public class SearchServiceImpl implements SearchService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SearchService.class);
+    private static final Logger logger = LoggerFactory.getLogger(SearchServiceImpl.class);
 
-    public SearchService() {}
+    public SearchServiceImpl() {}
 
+    @Override
     public void cancelSearch() {
 //        if (tasks != null) {
 //            tasks.forEach(Task::cancel);
@@ -60,6 +62,7 @@ public class SearchService {
 //        searching.set(false);
     }
 
+    @Override
     public Set<Artifact> search(String query, List<Repository> repositories) {
 
         logger.info("Searching '{}' on {} repositories [{}]", query, repositories.size(), repositories);

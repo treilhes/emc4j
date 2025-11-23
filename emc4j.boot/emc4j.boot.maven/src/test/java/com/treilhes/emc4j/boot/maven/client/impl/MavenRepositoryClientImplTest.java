@@ -39,8 +39,6 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -58,6 +56,8 @@ import com.treilhes.emc4j.boot.api.maven.RepositoryManager;
 import com.treilhes.emc4j.boot.api.maven.ResolvedArtifact;
 import com.treilhes.emc4j.boot.api.maven.UniqueArtifact;
 import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
+import com.treilhes.emc4j.boot.maven.api.RepositoryConnectionCheck;
+import com.treilhes.emc4j.boot.maven.api.SearchService;
 import com.treilhes.emc4j.boot.maven.client.preset.MavenPresets;
 
 /**
@@ -87,13 +87,21 @@ class MavenRepositoryClientImplTest {
     @Mock
     MavenConfig config;
 
+    @Mock
+    RepositoryConnectionCheck repoCheck;
+
+
+    SearchService searchService = new SearchServiceImpl();
+
     @BeforeEach
     public void beforeEach() {
         Mockito.when(platform.defaultUserM2Repository()).thenReturn(tempRepoDir);
+        Mockito.when(repoCheck.connectionOk()).thenReturn(true);
         System.out.println(tempRepoDir.getAbsolutePath());
 
         client = new MavenRepositoryClientImpl(platform,
-                RepositoryManager.readOnlyManager(MavenPresets.getPresetRepositories()), config, Optional.empty());
+                RepositoryManager.readOnlyManager(MavenPresets.getPresetRepositories()), config, repoCheck,
+                searchService, Optional.empty());
         // client = new MavenClientImpl(MavenClient.getDefaultUserM2Repository(),
         // MavenPresets.getPresetRepositories());
         // client.favorizeLocalResolution();
@@ -102,22 +110,22 @@ class MavenRepositoryClientImplTest {
     @Test
     void shouldFindSomeVersions() {
 
-        List<UniqueArtifact> versions = client.getAvailableVersions(testArtifact);
+        var versions = client.getAvailableVersions(testArtifact);
         assertTrue(versions.size() > 0, "should find some versions");
     }
 
     @Test
     void shouldFindLatestVersions() {
-        Optional<UniqueArtifact> version = client.getLatestVersion(testArtifact);
+        var version = client.getLatestVersion(testArtifact);
         assertTrue(version.isPresent(), "should find some versions");
     }
 
     @Test
     void shouldResolveJarOfSomeVersion() {
-        List<UniqueArtifact> versions = client.getAvailableVersions(testArtifact);
-        UniqueArtifact artefact = versions.get(0);
+        var versions = client.getAvailableVersions(testArtifact);
+        var artefact = versions.get(0);
 
-        Optional<ResolvedArtifact> resolved = client.resolve(artefact);
+        var resolved = client.resolve(artefact);
 
         assertTrue(resolved.isPresent(), "should return a path");
         assertTrue(Files.exists(resolved.get().getPath()), "path should exists");
@@ -126,10 +134,10 @@ class MavenRepositoryClientImplTest {
 
     @Test
     void shouldResolveJarAndSourceOfSomeVersion() {
-        List<UniqueArtifact> versions = client.getAvailableVersions(testArtifact);
-        UniqueArtifact artefact = versions.get(0);
+        var versions = client.getAvailableVersions(testArtifact);
+        var artefact = versions.get(0);
 
-        Map<Classifier, Optional<ResolvedArtifact>> resolved = client.resolve(artefact,
+        var resolved = client.resolve(artefact,
                 Arrays.asList(Classifier.DEFAULT, Classifier.JAVADOC));
 
         resolved.values().forEach(item -> {
@@ -144,10 +152,10 @@ class MavenRepositoryClientImplTest {
         var search = Artifact.builder().groupId("org.apache.maven").artifactId("maven-resolver-provider")
                 .build();
 
-        UniqueArtifact version = client.getLatestVersion(search).get();
-        UniqueArtifact artefact = version;
+        var version = client.getLatestVersion(search).get();
+        var artefact = version;
 
-        Optional<ResolvedArtifact> resolved = client.resolveWithDependencies(artefact);
+        var resolved = client.resolveWithDependencies(artefact);
 
         assertTrue(resolved.isPresent(), "should be resolved");
         assertTrue(resolved.get().getDependencies().size() > 1, "should contains more than one jar");
@@ -175,7 +183,7 @@ class MavenRepositoryClientImplTest {
 
         assertTrue(result, "should be successfull");
 
-        File target = new File(tempRepoDir, "some/group/some.id/1.0.0/some.id-1.0.0.jar");
+        var target = new File(tempRepoDir, "some/group/some.id/1.0.0/some.id-1.0.0.jar");
 
         assertTrue(target.exists(), "file exists in repository");
         assertTrue(target.length() > 0, "file must not be empty");
@@ -200,7 +208,7 @@ class MavenRepositoryClientImplTest {
 
         assertTrue(result, "should be successfull");
 
-        File target = new File(tempRepoDir, "some/group/some.id/1.0.0/some.id-1.0.0-xxx.aaa");
+        var target = new File(tempRepoDir, "some/group/some.id/1.0.0/some.id-1.0.0-xxx.aaa");
 
         assertTrue(target.exists(), "file exists in repository");
         assertTrue(target.length() > 0, "file must not be empty");

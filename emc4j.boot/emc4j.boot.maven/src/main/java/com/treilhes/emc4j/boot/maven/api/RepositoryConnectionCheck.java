@@ -29,45 +29,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.treilhes.emc4j.boot.maven;
+package com.treilhes.emc4j.boot.maven.api;
 
-import java.util.List;
-
-import com.treilhes.emc4j.boot.api.loader.BootContextConfigClasses;
-import com.treilhes.emc4j.boot.api.maven.MavenConfig;
-import com.treilhes.emc4j.boot.maven.api.RepositoryMapperImpl;
-import com.treilhes.emc4j.boot.maven.client.impl.RepositoryConnectionCheckImpl;
-import com.treilhes.emc4j.boot.maven.client.impl.MavenRepositoryClientImpl;
-import com.treilhes.emc4j.boot.maven.client.impl.RedirectedRepositoryBeanPostProcessor;
-import com.treilhes.emc4j.boot.maven.client.impl.RepositoryManagerImpl;
-import com.treilhes.emc4j.boot.maven.client.impl.SearchServiceImpl;
-import com.treilhes.emc4j.boot.maven.client.model.Repository;
-import com.treilhes.emc4j.boot.maven.client.repository.RepositoryRepository;
-import com.treilhes.emc4j.boot.maven.client.type.Maven;
-import com.treilhes.emc4j.boot.maven.client.type.Nexus;
-
-public class MavenBootClasses implements BootContextConfigClasses {
-
-    @Override
-    public List<Class<?>> classes() {
-        return List.of(
-                MavenConfig.class,
-                MavenRepositoryClientImpl.class,
-                RedirectedRepositoryBeanPostProcessor.class,
-                RepositoryManagerImpl.class,
-                RepositoryMapperImpl.class,
-
-                RepositoryConnectionCheckImpl.class,
-                SearchServiceImpl.class,
-                Maven.class,
-                Nexus.class,
-
-                //model
-                Repository.class,
-
-                //repository
-                RepositoryRepository.class
-                );
-    }
-
+/**
+ * When no connection is available, the client wait for some timeouts which cause an extremely slow startup
+ * This interface is used to check if the connection is ok or not to switch to offline mode asap
+ * Performance is critical here, the implementation must be as fast as possible
+ */
+public interface RepositoryConnectionCheck {
+    /**
+     * Check if at least one repository is reachable
+     * @return true if at least one repository is reachable, false otherwise
+     */
+    boolean connectionOk();
 }

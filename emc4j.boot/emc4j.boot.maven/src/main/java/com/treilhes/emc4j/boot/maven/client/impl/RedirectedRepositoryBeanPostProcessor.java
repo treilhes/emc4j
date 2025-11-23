@@ -40,6 +40,7 @@ import org.springframework.stereotype.Component;
 
 import com.treilhes.emc4j.boot.api.maven.MavenConfig;
 import com.treilhes.emc4j.boot.api.maven.RepositoryClient;
+import com.treilhes.emc4j.boot.maven.api.RepositoryMapper;
 
 /**
  * When the property emc4j.repository.redirect is provided, this component is

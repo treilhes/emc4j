@@ -46,6 +46,7 @@ import com.treilhes.emc4j.boot.api.context.annotation.Lazy;
 import com.treilhes.emc4j.boot.api.maven.MavenConfig;
 import com.treilhes.emc4j.boot.api.maven.Repository;
 import com.treilhes.emc4j.boot.api.maven.RepositoryManager;
+import com.treilhes.emc4j.boot.maven.api.RepositoryMapper;
 import com.treilhes.emc4j.boot.maven.client.model.Repository.Content;
 import com.treilhes.emc4j.boot.maven.client.preset.MavenPresets;
 import com.treilhes.emc4j.boot.maven.client.prompt.CredentialPrompt;
