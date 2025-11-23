@@ -74,7 +74,7 @@ Emc4j is open source, and it is freely licensed under the BSD license.
 
 The best way to get started with Emc4j is the documentation
 
-See the [documentation](https://ecm4j.treilhes.com).
+See the [documentation](https://emc4j.treilhes.com).
 
 For community support, go to [StackOverflow](https://stackoverflow.com/questions/tagged/emc4j).
 
