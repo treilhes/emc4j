@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.treilhes.emc4j.boot.maven.client.impl;
+package com.treilhes.emc4j.boot.maven.api;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -40,8 +40,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import com.treilhes.emc4j.boot.api.maven.MavenConfig;
-import com.treilhes.emc4j.boot.api.maven.ResolvedArtifact;
 import com.treilhes.emc4j.boot.api.maven.MavenConfig.Redirect;
+import com.treilhes.emc4j.boot.api.maven.ResolvedArtifact;
 import com.treilhes.emc4j.boot.maven.client.model.Repository;
 
 @Mapper(componentModel = "spring")

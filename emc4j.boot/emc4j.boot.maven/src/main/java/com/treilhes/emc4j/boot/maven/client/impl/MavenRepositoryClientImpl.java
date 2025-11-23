@@ -32,8 +32,6 @@
 package com.treilhes.emc4j.boot.maven.client.impl;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +55,8 @@ import com.treilhes.emc4j.boot.api.maven.RepositoryType;
 import com.treilhes.emc4j.boot.api.maven.ResolvedArtifact;
 import com.treilhes.emc4j.boot.api.maven.UniqueArtifact;
 import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
+import com.treilhes.emc4j.boot.maven.api.RepositoryConnectionCheck;
+import com.treilhes.emc4j.boot.maven.api.SearchService;
 import com.treilhes.emc4j.boot.maven.client.type.Maven;
 import com.treilhes.emc4j.boot.maven.client.type.Nexus;
 
@@ -77,38 +77,36 @@ public class MavenRepositoryClientImpl implements RepositoryClient {
 
 
 
+    //@formatter:off
     @Autowired
-    protected MavenRepositoryClientImpl(EmcPlatform platform, RepositoryManager repositoryManager, MavenConfig config, Optional<ApplicationStartup> startup) {
+    protected MavenRepositoryClientImpl(
+            EmcPlatform platform,
+            RepositoryManager repositoryManager,
+            MavenConfig config,
+            RepositoryConnectionCheck connectionCheck,
+            SearchService searchService,
+            Optional<ApplicationStartup> startup) {
+        //@formatter:on
         this.config = config;
-        this.repositoryFolder = config.getDirectory() != null ? config.getDirectory() : platform.defaultUserM2Repository();
+        this.repositoryFolder = config.getDirectory() != null ? config.getDirectory()
+                : platform.defaultUserM2Repository();
         this.repositoryManager = repositoryManager;
         this.startup = startup == null ? Optional.empty() : startup;
-        this.searchService = new SearchService();
+        this.searchService = new SearchServiceImpl();
 
         log.info("Using maven repository at {}", this.repositoryFolder.getAbsolutePath());
 
-        // FIXME: offline mode should be set to true when no connection is available
-        // when no connection is available, the client wait for some timeouts which cause an extremely slow startup
-        // i think it must be some automatic detection of the connection status and the status must be periodicaly checked
-        // to switch back to online mode asap
-
-        var step = startup.map(s -> s.start("maven.repository.online.ugly.test"));
-        try {
-            InetAddress address = InetAddress.getByName("8.8.8.8"); // Google's public DNS server
-            this.offline = !address.isReachable(2000); // Timeout in milliseconds
-        } catch (IOException e) {
-            // Handle exceptions, possibly log them
-        } finally {
-            if (this.offline) {
-                log.info("Unable to reach google dns fallback to Offline mode");
-            }
+        // offline mode should be set to true when no connection is available
+        this.offline = !connectionCheck.connectionOk();
+        if (this.offline) {
+            log.warn("Maven client fallback to Offline mode");
         }
-        step.ifPresent(s -> s.end());
 
         this.maven = new MavenRepositorySystem(repositoryFolder, repositoryManager, this.offline, this.startup);
     }
 
-    private MavenRepositoryClientImpl(MavenRepositoryClientImpl client, RepositoryManager repositoryManager, File storage, boolean offline) {
+    private MavenRepositoryClientImpl(MavenRepositoryClientImpl client, RepositoryManager repositoryManager,
+            File storage, boolean offline) {
         super();
         this.config = client.config;
         this.repositoryFolder = storage != null ? storage : client.repositoryFolder;
@@ -121,19 +119,20 @@ public class MavenRepositoryClientImpl implements RepositoryClient {
     @Override
     public RepositoryClient localOnly() {
         if (this.localOnly == null) {
-            this.localOnly = new MavenRepositoryClientImpl(this, this.repositoryManager,  this.repositoryFolder, true);
+            this.localOnly = new MavenRepositoryClientImpl(this, this.repositoryManager, this.repositoryFolder, true);
         }
         return this.localOnly;
     }
 
     @Override
     public RepositoryClient repositories(List<Repository> repositories) {
-        return new MavenRepositoryClientImpl(this, RepositoryManager.readOnlyManager(repositories),  this.repositoryFolder, false);
+        return new MavenRepositoryClientImpl(this, RepositoryManager.readOnlyManager(repositories),
+                this.repositoryFolder, false);
     }
 
     @Override
     public RepositoryClient localPath(File path) {
-        return new MavenRepositoryClientImpl(this, this.repositoryManager,  path, this.offline);
+        return new MavenRepositoryClientImpl(this, this.repositoryManager, path, this.offline);
     }
 
     @Override
@@ -142,7 +141,7 @@ public class MavenRepositoryClientImpl implements RepositoryClient {
     }
 
     @Override
-    public List<UniqueArtifact> getAvailableVersions(Artifact artifact,  VersionType scope) {
+    public List<UniqueArtifact> getAvailableVersions(Artifact artifact, VersionType scope) {
         return switch (scope) {
         case RELEASE -> maven.findReleases(artifact);
         case RELEASE_SNAPHOT -> maven.findVersions(artifact);
@@ -166,12 +165,13 @@ public class MavenRepositoryClientImpl implements RepositoryClient {
 
     @Override
     public Map<Classifier, Optional<ResolvedArtifact>> resolve(UniqueArtifact artifact,
-            List<Classifier> classifiers){
+            List<Classifier> classifiers) {
         return maven.resolveArtifacts(artifact, classifiers);
     }
 
     @Override
-    public Map<Classifier, Optional<ResolvedArtifact>> resolve(ResolvedArtifact artifact, List<Classifier> classifiers) {
+    public Map<Classifier, Optional<ResolvedArtifact>> resolve(ResolvedArtifact artifact,
+            List<Classifier> classifiers) {
         return maven.resolveArtifacts(artifact.getUniqueArtifact(), classifiers);
     }
 
