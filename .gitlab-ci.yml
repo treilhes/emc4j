@@ -9,7 +9,7 @@ stages:
   - build-sonar
 
 before_script:
-  - mkdir -p ~/.m2
+  - mkdir -p /repository
   - echo "$MVN_SETTINGS_NEXUS" > ~/.m2/settings.xml
 
 build-job:
@@ -19,9 +19,9 @@ build-job:
   cache:
     - key: cache-$CI_COMMIT_REF_SLUG
       paths:
-          - ~/.m2/repository
+          - /repository
   script:
-    - mvn -B -ntp clean deploy
+    - mvn -Dmaven.repo.local=/repository -B -ntp clean deploy
 
 build-sonar:
   tags:
@@ -36,10 +36,10 @@ build-sonar:
         - sonar-scanner/
     - key: cache-$CI_COMMIT_REF_SLUG
       paths:
-        - ~/.m2/repository
+        - ~/repository
       
   script: 
-    - mvn -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+    - mvn -Dmaven.repo.local=/repository -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
