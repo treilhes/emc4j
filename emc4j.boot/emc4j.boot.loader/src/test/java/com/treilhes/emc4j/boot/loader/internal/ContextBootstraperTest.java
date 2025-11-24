@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -63,10 +63,9 @@ import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
 import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper;
-import com.treilhes.emc4j.boot.loader.internal.context.LayerNotFoundException;
 import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper.ServiceLoader;
+import com.treilhes.emc4j.boot.loader.internal.context.LayerNotFoundException;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ContextBootstraperTest.
  */
@@ -136,7 +135,7 @@ class ContextBootstraperTest {
     @Test
     void must_throw_if_module_layer_parentLayer_does_not_exists() {
         Assertions.assertThrows(LayerNotFoundException.class, () -> {
-            ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
     }
@@ -149,7 +148,7 @@ class ContextBootstraperTest {
         when(parentExtensionModel.getId()).thenReturn(parentId);
 
         Assertions.assertThrows(LayerNotFoundException.class, () -> {
-            ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
     }
@@ -182,13 +181,13 @@ class ContextBootstraperTest {
 
         // test
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
         verify(contextManager).create(contextConfigCaptor.capture());
 
-        ContextConfiguration config = contextConfigCaptor.getValue();
+        var config = contextConfigCaptor.getValue();
 
         assertThat(config.getClasses()).contains(LocalParentComponent.class,
                 parentExtensionLoaded.getClass());
@@ -227,13 +226,13 @@ class ContextBootstraperTest {
 
         // test
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.create(ctx, childExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
         verify(contextManager).create(contextConfigCaptor.capture());
 
-        ContextConfiguration config = contextConfigCaptor.getValue();
+        var config = contextConfigCaptor.getValue();
 
         assertThat(config.getClasses()).contains(LocalChildComponent.class,
                 childExtensionLoaded.getClass());
@@ -268,13 +267,13 @@ class ContextBootstraperTest {
 
         // test
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.create(ctx, childExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
         verify(contextManager).create(contextConfigCaptor.capture());
 
-        ContextConfiguration config = contextConfigCaptor.getValue();
+        var config = contextConfigCaptor.getValue();
 
         assertThat(config.getClasses()).contains(LocalChildComponent.class,
                 childExtensionLoaded.getClass());
@@ -309,13 +308,13 @@ class ContextBootstraperTest {
 
         // test
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.create(ctx, childExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
         verify(contextManager).create(contextConfigCaptor.capture());
 
-        ContextConfiguration config = contextConfigCaptor.getValue();
+        var config = contextConfigCaptor.getValue();
 
         assertThat(config.getClasses()).contains(LocalChildComponent.class,
                 WindowParentComponent.class, EditorSingletonParentComponent.class,
@@ -373,13 +372,13 @@ class ContextBootstraperTest {
 
         // test
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
         verify(contextManager).create(contextConfigCaptor.capture());
 
-        ContextConfiguration config = contextConfigCaptor.getValue();
+        var config = contextConfigCaptor.getValue();
 
         assertThat(config.getClasses()).contains(LocalParentComponent.class,
                 ExportedChildComponent.class);
@@ -395,7 +394,7 @@ class ContextBootstraperTest {
     @Test
     void exists_call_must_check_context_exist() throws Exception {
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.exists(parentExtensionModel);
 
@@ -410,7 +409,7 @@ class ContextBootstraperTest {
     @Test
     void get_call_must_get_context() throws Exception {
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.get(parentExtensionModel);
 
@@ -426,7 +425,7 @@ class ContextBootstraperTest {
     @Test
     void clear_call_must_clear_context() throws Exception {
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.clear();
 
@@ -442,7 +441,7 @@ class ContextBootstraperTest {
     @Test
     void close_call_must_close_context() throws Exception {
 
-        ContextBootstraper ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
 
         ctxBoot.close(parentExtensionModel);
 

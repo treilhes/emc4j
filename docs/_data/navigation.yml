@@ -4,9 +4,6 @@ main:
     url: /devguide/quick-start-guide/
   - title: "Packaging"
     url: /packaging/registries/
-  - title: "Javadoc"
-    url: /apidocs/index.html
-    target: _blank
   - title: "About"
     url: /about/
   - title: "Terms &amp; Privacy Policy"

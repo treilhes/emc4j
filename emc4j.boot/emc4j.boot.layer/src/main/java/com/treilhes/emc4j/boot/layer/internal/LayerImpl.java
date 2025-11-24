@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -35,8 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.lang.module.ModuleDescriptor;
-import java.lang.module.ModuleReader;
 import java.lang.module.ModuleReference;
 import java.lang.ref.WeakReference;
 import java.net.JarURLConnection;
@@ -71,7 +69,6 @@ import org.slf4j.LoggerFactory;
 
 import com.treilhes.emc4j.boot.api.layer.Layer;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class LayerImpl.
  */
@@ -137,17 +134,17 @@ public class LayerImpl implements Layer {
         this.paths = paths != null ? new ArrayList<>(paths) : Collections.emptyList();
         this.tempDirectory = tempDirectory;
         this.moduleLayerLock = moduleLayer;
-        this.moduleLayer = new WeakReference<ModuleLayer>(moduleLayer);
+        this.moduleLayer = new WeakReference<>(moduleLayer);
 
         this.parents = new HashSet<>();
         this.children = new HashSet<>();
         this.moduleReferences = new HashMap<>();
-        moduleReferences.forEach((k, v) -> this.moduleReferences.put(k, new WeakReference<ModuleReference>(v)));
+        moduleReferences.forEach((k, v) -> this.moduleReferences.put(k, new WeakReference<>(v)));
 
-        var clsLoader = moduleLayer.modules().stream().map(m -> m.getClassLoader()).filter(Objects::nonNull)
+        var clsLoader = moduleLayer.modules().stream().map(Module::getClassLoader).filter(Objects::nonNull)
                 .findFirst().orElse(this.getClass().getClassLoader());
 
-        this.classloader = new WeakReference<ClassLoader>(clsLoader);
+        this.classloader = new WeakReference<>(clsLoader);
     }
 
     /**
@@ -265,7 +262,7 @@ public class LayerImpl implements Layer {
      */
     @Override
     public Optional<URI> getLocation(Module module) {
-        WeakReference<ModuleReference> ref = moduleReferences.get(module.getName());
+        var ref = moduleReferences.get(module.getName());
 
         if (ref == null || ref.get() == null) {
             return null;
@@ -290,7 +287,7 @@ public class LayerImpl implements Layer {
 
         System.gc();
 
-        FutureTask<Boolean> task = new FutureTask<>(() -> {
+        var task = new FutureTask<>(() -> {
             while (true) {
                 logger.debug("checking layer lock state");
                 try {
@@ -347,11 +344,11 @@ public class LayerImpl implements Layer {
         if (onlyJarsInTempDirectory().test(jarPath)) {
             try {
 
-                URL jarResourceUrl = new URL("jar", "", jarPath.toUri() + "!/META-INF");
-                URLConnection connection = jarResourceUrl.openConnection();
+                var jarResourceUrl = new URL("jar", "", jarPath.toUri() + "!/META-INF");
+                var connection = jarResourceUrl.openConnection();
 
                 if (connection instanceof JarURLConnection juc) {
-                    JarFile jf = juc.getJarFile();
+                    var jf = juc.getJarFile();
                     jf.close();
                 }
 
@@ -364,7 +361,7 @@ public class LayerImpl implements Layer {
     }
 
     private Predicate<Path> onlyJarsInTempDirectory() {
-        return (j) -> tempDirectory != null && j != null && j.startsWith(tempDirectory) && Files.exists(j);
+        return j -> tempDirectory != null && j != null && j.startsWith(tempDirectory) && Files.exists(j);
     }
 
     /**
@@ -374,10 +371,10 @@ public class LayerImpl implements Layer {
      * @return true, if successful
      */
     private static boolean fileLockedCheck(Path path) {
-        boolean locked = false;
-        File file = path.toFile();
+        var locked = false;
+        var file = path.toFile();
 
-        try (RandomAccessFile fis = new RandomAccessFile(file, "rw")) {
+        try (var fis = new RandomAccessFile(file, "rw")) {
             fis.getChannel().lock().release();
         } catch (Exception ex) {
         	logger.info("Unable to exclusively lock file {}", file, ex);
@@ -388,8 +385,8 @@ public class LayerImpl implements Layer {
         }
 
         // try further with rename
-        String parent = file.getParent();
-        File newName = new File(parent, file.getName() + "_lockcheck");
+        var parent = file.getParent();
+        var newName = new File(parent, file.getName() + "_lockcheck");
         if (file.renameTo(newName)) {
             newName.renameTo(file);
         } else {
@@ -409,11 +406,11 @@ public class LayerImpl implements Layer {
             unnamedModules = new HashSet<>();
 
             for (Module m : allModules()) {
-                ModuleDescriptor descriptor = m.getDescriptor();
+                var descriptor = m.getDescriptor();
 
-                final Manifest manifest = new Manifest();
-                try (ModuleReader reader = moduleReferences.get(m.getName()).get().open()) {
-                    Optional<InputStream> iso = reader.open(META_INF_MANIFEST_MF);
+                final var manifest = new Manifest();
+                try (var reader = moduleReferences.get(m.getName()).get().open()) {
+                    var iso = reader.open(META_INF_MANIFEST_MF);
 
                     iso.ifPresent(is -> {
                         try {
@@ -427,9 +424,9 @@ public class LayerImpl implements Layer {
                     });
                 }
 
-                boolean automatic = descriptor.isAutomatic();
+                var automatic = descriptor.isAutomatic();
 
-                boolean hasAutomaticAttribute = manifest.getMainAttributes().get(MODULE_NAME_ATTRIBUTE) != null;
+                var hasAutomaticAttribute = manifest.getMainAttributes().get(MODULE_NAME_ATTRIBUTE) != null;
 
                 if (!automatic) { // module
                     modules.add(new WeakReference<>(m));

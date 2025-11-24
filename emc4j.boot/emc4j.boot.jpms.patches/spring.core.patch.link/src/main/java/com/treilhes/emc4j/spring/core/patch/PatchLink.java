@@ -35,12 +35,6 @@ package com.treilhes.emc4j.spring.core.patch;
 public class PatchLink {
 
     public static void addRead(Module module) {
-        try {
-            PatchLink.class.getClassLoader().loadClass("org.springframework.core.Patch");
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         org.springframework.core.Patch.addRead(module);
     }
 

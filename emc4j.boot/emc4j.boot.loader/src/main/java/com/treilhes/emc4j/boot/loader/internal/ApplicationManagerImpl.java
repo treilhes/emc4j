@@ -63,7 +63,6 @@ import com.treilhes.emc4j.boot.loader.internal.layer.LayerBootstraper;
 import com.treilhes.emc4j.boot.loader.model.LoadState;
 import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ApplicationManagerImpl.
  */
@@ -151,7 +150,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	public void startApplication(UUID applicationId) {
 		Objects.requireNonNull(applicationId, "applicationId is null");
 
-		LoadType loadType = loaderProperties.getDefaultLoadType();
+		var loadType = loaderProperties.getDefaultLoadType();
 
 		if (!isStarted(applicationId)) {
 
@@ -162,7 +161,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 			var loadProgress = steps.map(s -> s.get(1));
 			var launchProgress = steps.map(s -> s.get(2));
 
-			stateProgress.ifPresent(s -> s.notifyStart());
+			stateProgress.ifPresent(ProgressListener::notifyStart);
 
 			var appDef = startup.map(s -> s.start("application.manager.main.state"));
 			var application = stateProvider.applicationState(applicationId, loadType);
@@ -173,15 +172,15 @@ public class ApplicationManagerImpl implements ApplicationManager {
 			}
 			var appLoad = startup.map(s -> s.start("application.manager.main.load"));
 
-			stateProgress.ifPresent(s -> s.notifyFinish());
-			loadProgress.ifPresent(s -> s.notifyStart());
+			stateProgress.ifPresent(ProgressListener::notifyFinish);
+			loadProgress.ifPresent(ProgressListener::notifyStart);
 
 			// load all layers
 			loadApplication(application, loadType, loadProgress.orElse(null));
 			appLoad.ifPresent(s -> s.tag("Load Context", applicationId.toString()).end());
 
-			loadProgress.ifPresent(s -> s.notifyFinish());
-			launchProgress.ifPresent(s -> s.notifyStart());
+			loadProgress.ifPresent(ProgressListener::notifyFinish);
+			launchProgress.ifPresent(ProgressListener::notifyStart);
 
 			var appStart = startup.map(s -> s.start("application.manager.main.start"));
 
@@ -194,7 +193,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 			}
 			appStart.ifPresent(s -> s.tag("Boot Context", applicationId.toString()).end());
 
-			launchProgress.ifPresent(s -> s.notifyFinish());
+			launchProgress.ifPresent(ProgressListener::notifyFinish);
 
 			stateProvider.saveState(application.getExtension());
 			startedApplications.put(applicationId, application);
@@ -208,7 +207,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	 */
 	@Override
 	public void stop() {
-		LoadableContent root = startedApplications.get(ROOT_ID);
+		var root = startedApplications.get(ROOT_ID);
 
 		// stop all applications
 		startedApplications.values().stream().filter(a -> a != root).forEach(e -> stopApplication(e.getId()));
@@ -229,7 +228,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	@Override
 	public void stopApplication(UUID editorId) {
 
-		LoadableContent application = startedApplications.get(editorId);
+		var application = startedApplications.get(editorId);
 
 		if (application == null) {
 			logger.warn("Application not started for {}", editorId);
@@ -255,17 +254,17 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	public void loadApplication(LoadableContent application, LoadType loadType, ProgressListener progressListener) {
 		Objects.nonNull(application);
 
-		UUID applicationId = application.getId();
+		var applicationId = application.getId();
 
-		MultipleProgressListener listener = new MultipleProgressListener(progressListener);
+		var listener = new MultipleProgressListener(progressListener);
 
-		Layer parentLayer = ROOT_ID.equals(applicationId) ? null : layers.get(ROOT_ID);
+		var parentLayer = ROOT_ID.equals(applicationId) ? null : layers.get(ROOT_ID);
 
 		if (parentLayer == null && !ROOT_ID.equals(applicationId)) {
 			throw new RuntimeException("Root layer not found");
 		}
 
-		GroupTaskExecutor executor = new GroupTaskExecutor(platform.getAvailableProcessors());
+		var executor = new GroupTaskExecutor(platform.getAvailableProcessors());
 		loadExtensionTree(executor, parentLayer, Set.of(application), listener);
 		executor.shutdown();
 
@@ -281,7 +280,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	private void loadExtensionTree(GroupTaskExecutor executor, Layer parentLayer,
 			Set<? extends LoadableContent> extensionSet, MultipleProgressListener progressListener) {
 
-		List<Runnable> extensionLoadings = extensionSet.stream().map(ext -> {
+		var extensionLoadings = extensionSet.stream().map(ext -> {
 			Runnable runnable = () -> {
 				if (ext.getLoadState() != LoadState.Deleted && ext.getLoadState() != LoadState.Disabled) {
 					logger.info("Loading extension layer {}", ext.getId());
@@ -306,7 +305,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 		}).toList();
 
 		try {
-			String loadKey = parentLayer == null ? "ROOT" : parentLayer.getId().toString();
+			var loadKey = parentLayer == null ? "ROOT" : parentLayer.getId().toString();
 			executor.submitGroupTasks(loadKey, extensionLoadings);
 		} catch (InterruptedException e) {
 			logger.error("Unable to load extension, interrupted", e);
@@ -324,7 +323,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
 		Objects.requireNonNull(application, "application is null");
 
-		MultipleProgressListener listener = new MultipleProgressListener(progressListener);
+		var listener = new MultipleProgressListener(progressListener);
 
 		if (application.getLoadState() != LoadState.Loaded) {
 			throw new RuntimeException("Application layer not loaded for " + application.getId());
@@ -342,11 +341,11 @@ public class ApplicationManagerImpl implements ApplicationManager {
 			parentContext = contexts.get(ROOT_ID);
 		}
 
-		GroupTaskExecutor executor = new GroupTaskExecutor(platform.getAvailableProcessors());
+		var executor = new GroupTaskExecutor(platform.getAvailableProcessors());
 		launchExtensionTree(executor, parentContext, Set.of(application), listener);
 		executor.shutdown();
 
-		ExtensionReport rootReport = getReport(application.getId());
+		var rootReport = getReport(application.getId());
 		if (rootReport.hasError()) {
 			throw new BootException("Unable to boot root extension", rootReport);
 		}
@@ -362,7 +361,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	private void launchExtensionTree(GroupTaskExecutor executor, EmContext parentContext,
 			Set<? extends LoadableContent> extensionSet, MultipleProgressListener progressListener) {
 
-		List<Runnable> extensionStartings = extensionSet.stream().map(ext -> {
+		var extensionStartings = extensionSet.stream().map(ext -> {
 			Runnable runnable = () -> {
 				try {
 					//List<Object> singletonInstances = List.of(this);
@@ -401,7 +400,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	 * Unload.
 	 */
 	public void unload() {
-		LoadableContent root = startedApplications.get(ROOT_ID);
+		var root = startedApplications.get(ROOT_ID);
 
 		startedApplications.values().stream().filter(a -> a != root).forEach(e -> unloadApplication(e.getId()));
 
@@ -415,7 +414,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	 */
 	public void unloadApplication(UUID applicationId) {
 
-		LoadableContent application = startedApplications.get(applicationId);
+		var application = startedApplications.get(applicationId);
 
 		if (application == null) {
 			logger.warn("Application not started for {}", applicationId);
@@ -441,7 +440,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 				throw new ExtensionStateException("Can't unload extension, stop it first!");
 			}
 			unloadExtensionTree(ext.getExtensions());
-			Layer layer = layers.get(ext.getId());
+			var layer = layers.get(ext.getId());
 			if (layer != null) {
 				layers.close(layer.getId());
 				ext.setLoadState(LoadState.Unloaded);
@@ -468,9 +467,9 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	 */
 	public void printState(LoadableContent ext) {
 
-		Layer layer = layerManager.get(ext.getId());
+		var layer = layerManager.get(ext.getId());
 
-		StringBuilder builder = new StringBuilder();
+		var builder = new StringBuilder();
 
 		builder.append(String.format("%s : %s", ext.getClass().getName(), ext.getId())).append("\n");
 		builder.append(String.format("> state : %s", ext.getLoadState())).append("\n");
@@ -498,7 +497,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 					.ifPresent(e -> builder.append(String.format(">> error : %s", e.getMessage(), e)).append("\n"));
 		}
 
-		EmContext ctx = contexts.get(ext);
+		var ctx = contexts.get(ext);
 
 		builder.append(String.format("> context : %s", ctx)).append("\n");
 		if (ctx != null) {
@@ -556,7 +555,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	@Override
 	public void send(OpenCommandEvent parameters) {
 
-		UUID target = ROOT_ID;
+		var target = ROOT_ID;
 
 		if (parameters.getTarget() != null) {
 			target = parameters.getTarget();

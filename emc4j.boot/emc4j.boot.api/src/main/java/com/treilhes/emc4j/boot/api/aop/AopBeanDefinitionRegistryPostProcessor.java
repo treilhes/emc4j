@@ -47,20 +47,64 @@ import com.treilhes.emc4j.boot.api.aop.internal.AopBeanNameGenerator;
 import com.treilhes.emc4j.boot.api.aop.internal.AopComponentProvider;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 
+/**
+ * BeanDefinitionRegistryPostProcessor for registering AOP beans in the Spring context.
+ * <p>
+ * This abstract class is responsible for scanning and registering AOP-related bean definitions
+ * using a custom {@link AopComponentProvider} and {@link AopBeanFactoryDefinitionRegistrar}.
+ * It works with an {@link EmContext} to retrieve registered classes and uses a custom
+ * {@link AopBeanNameGenerator} for bean naming. Subclasses should provide an {@link AopContext}
+ * to configure AOP behavior.
+ * </p>
+ * <ul>
+ *   <li>Scans for candidate components using {@link AopComponentProvider}.</li>
+ *   <li>Registers bean definitions for AOP beans via {@link AopBeanFactoryDefinitionRegistrar}.</li>
+ *   <li>Integrates with Spring's {@link ApplicationContext} and {@link BeanDefinitionRegistry}.</li>
+ * </ul>
+ *
+ * @author Pascal Treilhes
+ * @since 1.0
+ */
 public abstract class AopBeanDefinitionRegistryPostProcessor
         implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(AopBeanDefinitionRegistryPostProcessor.class);
 
+    /**
+     * The AOP context used for processing and configuration.
+     */
     private final AopContext aopContext;
+    /**
+     * Bean name generator for Spring beans, defaults to {@link AnnotationBeanNameGenerator}.
+     */
     private final BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
+    /**
+     * The Spring application context, set via {@link #setApplicationContext(ApplicationContext)}.
+     */
     private ApplicationContext context;
 
+    /**
+     * Constructor accepting an AopContext.
+     *
+     * @param aopContext the AOP context to be used for processing
+     */
     public AopBeanDefinitionRegistryPostProcessor(AopContext aopContext) {
         super();
         this.aopContext = aopContext;
     }
 
+
+    /**
+     * Scans and registers AOP bean definitions in the provided {@link BeanDefinitionRegistry}.
+     * <p>
+     * Uses {@link AopComponentProvider} to find candidate components and
+     * {@link AopBeanFactoryDefinitionRegistrar} to register them. Only operates if the
+     * {@link ApplicationContext} is an instance of {@link EmContext}.
+     * </p>
+     *
+     * @param registry the bean definition registry
+     * @throws BeansException if an error occurs during bean definition registration
+     */
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
 
@@ -87,6 +131,12 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
 
     }
 
+    /**
+     * Sets the Spring {@link ApplicationContext} for this post processor.
+     *
+     * @param applicationContext the application context to set
+     * @throws BeansException if context cannot be set
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;

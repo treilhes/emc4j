@@ -31,5 +31,8 @@
  */
 package com.treilhes.emc4j.boot.api.context;
 
+/**
+ * Marker interface for application main classes.
+ */
 public interface Application {
 }

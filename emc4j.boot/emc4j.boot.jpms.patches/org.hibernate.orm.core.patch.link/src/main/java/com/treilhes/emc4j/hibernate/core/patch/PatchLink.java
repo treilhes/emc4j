@@ -31,15 +31,13 @@
  */
 package com.treilhes.emc4j.hibernate.core.patch;
 
-import org.hibernate.Patch;
-
 public class PatchLink {
 
     public static void addRead(Module module) {
-        Patch.addRead(module);
+        org.hibernate.Patch.addRead(module);
     }
 
     public static boolean addOpen(Module module, String packageName) {
-        return Patch.addOpen(module, packageName);
+        return org.hibernate.Patch.addOpen(module, packageName);
     }
 }

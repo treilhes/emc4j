@@ -71,6 +71,7 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
      * Creates a new {@link AopFactoryBean} for the given bean class
      *
      * @param beanClass must not be {@literal null}.
+     * @param aopContext the AOP context
      */
     public AopFactoryBean(Class<?> beanClass, AopContext<M, ?, META> aopContext) {
         Assert.notNull(beanClass, "Bean class must not be null");
@@ -79,8 +80,13 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
         this.beanMetadata = aopContext.loadMetadata(beanClass);
     }
 
+    /**
+     * Creates the {@link AopFactory} to be used to create the bean class proxy.
+     *
+     * @return the bean class factory
+     */
     protected AopFactory createBeanFactory() {
-        AopFactory beanClassFactory = new AopFactory(aopContext);
+        var beanClassFactory = new AopFactory(aopContext);
         beanClassFactory.setBeanClassLoader(classLoader);
         beanClassFactory.setBeanFactory(beanFactory);
         beanClassFactory.setApplicationContext(context);

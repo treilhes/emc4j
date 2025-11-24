@@ -59,6 +59,8 @@ public abstract class AopMetadata<A extends Annotation, M> {
     /**
      * Creates a new {@link AopMetadata} for the given bean class.
      *
+     * @param annotationClass must not be {@literal null}.
+     * @param markerClass must not be {@literal null}.
      * @param beanClass must not be {@literal null}.
      */
     public AopMetadata(Class<A> annotationClass, Class<M> markerClass, Class<?> beanClass) {
@@ -71,7 +73,7 @@ public abstract class AopMetadata<A extends Annotation, M> {
 
         Assert.isTrue(markerClass.isAssignableFrom(beanClass), String.format(MUST_BE_A, markerClass));
 
-        List<TypeInformation<?>> arguments = TypeInformation.of(beanClass)
+        var arguments = TypeInformation.of(beanClass)
                 .getRequiredSuperTypeInformation(markerClass)
                 .getTypeArguments();
 
@@ -99,23 +101,48 @@ public abstract class AopMetadata<A extends Annotation, M> {
         return typeInformation;
     }
 
+    /**
+     * Returns the bean class.
+     *
+     * @return the bean class.
+     */
     public Class<?> getBeanClass() {
         return this.beanClass;
     }
 
+    /**
+     * Returns whether the bean class is annotated with the metadata annotation.
+     *
+     * @return {@literal true} if the bean class is annotated with the metadata annotation.
+     */
     public boolean hasAnnotation() {
         return hasAnnotation;
     }
 
+    /**
+     * Returns the scope of the bean class.
+     *
+     * @return the scope of the bean class.
+     */
     public String getScope() {
         return scope;
     }
 
 
+    /**
+     * Returns whether the bean class has a generic type.
+     *
+     * @return {@literal true} if the bean class has a generic type.
+     */
     public boolean hasGenericType() {
         return this.genericTypeInformation != null;
     }
 
+    /**
+     * Returns the generic content type information of the given class.
+     *
+     * @return the content type information.
+     */
     public TypeInformation<?> getGenericTypeInformation() {
         return this.genericTypeInformation;
     }
@@ -129,6 +156,14 @@ public abstract class AopMetadata<A extends Annotation, M> {
         return hasGenericType() ? getGenericTypeInformation().getType() : null;
     }
 
+    /**
+     * Resolves the type parameter at the given index from the given list of type information.
+     *
+     * @param arguments the list of type information
+     * @param index the index of the type parameter to resolve
+     * @param exceptionMessage the exception message supplier
+     * @return the resolved type information
+     */
     private static TypeInformation<?> resolveTypeParameter(List<TypeInformation<?>> arguments, int index,
             Supplier<String> exceptionMessage) {
 

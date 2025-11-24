@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -38,6 +38,13 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Extension of {@link Configuration} to mark application configuration classes.
+ * These classes are used to bootstrap the application context.
+ * Classes annotated with {@link ApplicationConfiguration} are automatically
+ * detected and migrate up to the application context.
+ * @see Configuration
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @Configuration

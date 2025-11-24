@@ -16,7 +16,7 @@ Maven musn't use an embedded  installation, you need to configure an external ma
 
 Building the project is pretty straightforward, a simple `mvn clean install` will build the project.
 
-### Javadoc build
+### Delivery build
 
- To generate the project aggregated javadoc execute `clean javadoc:aggregate -P javadoc`
- It will generate the up to date javadoc in "/docs/apidocs"
+ To generate the project javadoc and source artifacts execute `clean install -P delivery`
+ 

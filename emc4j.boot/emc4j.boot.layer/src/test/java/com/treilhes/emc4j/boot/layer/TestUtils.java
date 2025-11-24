@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import com.treilhes.emc4j.boot.api.layer.Layer;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TestUtils.
  */

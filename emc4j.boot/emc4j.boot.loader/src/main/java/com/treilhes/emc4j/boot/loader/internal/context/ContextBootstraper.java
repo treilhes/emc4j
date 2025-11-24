@@ -65,7 +65,6 @@ import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
 import com.treilhes.emc4j.boot.loader.extension.ExtensionValidator;
 import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ContextBootstraper.
  */
@@ -75,9 +74,15 @@ public class ContextBootstraper {
     /** The Constant logger. */
     private static final Logger logger = LoggerFactory.getLogger(ContextBootstraper.class);
 
-    private static final Set<Class<? extends Annotation>> deportableAnnotations = Set.of(ApplicationSingleton.class,
-            ApplicationPrototype.class, ApplicationInstanceSingleton.class, ApplicationInstancePrototype.class,
-            DeportedSingleton.class, ApplicationConfiguration.class);
+    //@formatter:off
+    private static final Set<Class<? extends Annotation>> deportableAnnotations = Set.of(
+            ApplicationConfiguration.class,
+            ApplicationSingleton.class,
+            ApplicationPrototype.class,
+            ApplicationInstanceSingleton.class,
+            ApplicationInstancePrototype.class,
+            DeportedSingleton.class);
+    //@formatter:on
 
     /** The context manager. */
     private final ContextManager contextManager;
