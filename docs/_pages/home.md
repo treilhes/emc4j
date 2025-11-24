@@ -10,6 +10,7 @@ header:
       url: "https://github.com/treilhes/emc4j"
 excerpt: >	
   Emc4j stand for Extensible Modular Context For Java <br />
+  <small>(this site is under construction)</small>
 feature_row:
   - image_path: /assets/images/mm-devguide.png
     alt: "Development Guide"
