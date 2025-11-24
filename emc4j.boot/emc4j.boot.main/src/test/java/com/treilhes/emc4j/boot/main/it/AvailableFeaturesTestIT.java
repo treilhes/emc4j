@@ -37,6 +37,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
@@ -105,7 +108,7 @@ import jakarta.inject.Inject;
 @ExtendWith({ SpringExtension.class, MockitoExtension.class })
 @SpringBootTest(classes = { AvailableFeaturesTestIT.Configuration.class }, webEnvironment = WebEnvironment.RANDOM_PORT, properties = {
                 "spring.mvc.servlet.path=/app", "server.servlet.context-path=/emc",
-                "emc4j.repository.directory=./target/it", "debug=true" })
+                "emc4j.repository.directory=./target/it"})
 @ContextConfiguration(loader = AvailableFeaturesTestIT.TestContextLoader.class)
 @ActiveProfiles({ "it", "dev" })
 @TestInstance(Lifecycle.PER_CLASS)
@@ -159,7 +162,7 @@ public class AvailableFeaturesTestIT {
         @Bean
         @Primary
         EmcPlatform emcPlatform() {
-            EmcPlatform emcPlatform = Mockito.mock(EmcPlatform.class);
+            var emcPlatform = Mockito.mock(EmcPlatform.class);
             when(emcPlatform.rootPath()).thenReturn(Paths.get("./target/it"));
             when(emcPlatform.getAvailableProcessors()).thenReturn(4);
             return emcPlatform;
@@ -172,7 +175,7 @@ public class AvailableFeaturesTestIT {
         @Bean
         @Primary
         StateProvider stateProvider() {
-            StateProvider stateProvider = Mockito.mock(StateProvider.class);
+            var stateProvider = Mockito.mock(StateProvider.class);
             when(stateProvider.applicationState(Mockito.eq(ROOT_ID) , Mockito.any())).thenReturn(rootApp());
             when(stateProvider.applicationState(Mockito.eq(APP1_ID) , Mockito.any())).thenReturn(testApp());
             return stateProvider;
@@ -182,18 +185,18 @@ public class AvailableFeaturesTestIT {
          * This is the test application and extensions
          */
         private LoadableContent rootApp() {
-            Path p_root = Path.of(RES_IT, "root/target/root-1.0.0-SNAPSHOT.jar");
-            Path p_root_ext1 = Path.of(RES_IT, "root-ext1/target/root-ext1-1.0.0-SNAPSHOT.jar");
-            Path p_root_ext1_ext1 = Path.of(RES_IT, "root-ext1-ext1/target/root-ext1-ext1-1.0.0-SNAPSHOT.jar");
+            var p_root = Path.of(RES_IT, "root/target/root-1.0.0-SNAPSHOT.jar");
+            var p_root_ext1 = Path.of(RES_IT, "root-ext1/target/root-ext1-1.0.0-SNAPSHOT.jar");
+            var p_root_ext1_ext1 = Path.of(RES_IT, "root-ext1-ext1/target/root-ext1-ext1-1.0.0-SNAPSHOT.jar");
 
-            LoadableContent root = new LoadableContent();
-            Extension rootExt = new Extension();
+            var root = new LoadableContent();
+            var rootExt = new Extension();
             rootExt.setId(ROOT_ID);
             root.setExtension(rootExt);
             root.setContentProvider(new FileExtensionProvider(p_root));
 
-            LoadableContent root_ext1 = new LoadableContent();
-            Extension rootExt_ext1 = new Extension();
+            var root_ext1 = new LoadableContent();
+            var rootExt_ext1 = new Extension();
             rootExt_ext1.setId(ROOT_EXT1_ID);
             root_ext1.setExtension(rootExt_ext1);
             root_ext1.setContentProvider(new FileExtensionProvider(p_root_ext1));
@@ -202,8 +205,8 @@ public class AvailableFeaturesTestIT {
             root.addExtension(root_ext1);
             rootExt_ext1.setParentExtension(rootExt);
 
-            LoadableContent root_ext1_ext1 = new LoadableContent();
-            Extension rootExt_ext1_ext1 = new Extension();
+            var root_ext1_ext1 = new LoadableContent();
+            var rootExt_ext1_ext1 = new Extension();
             rootExt_ext1_ext1.setId(ROOT_EXT1_EXT1_ID);
             root_ext1_ext1.setExtension(rootExt_ext1_ext1);
             root_ext1_ext1.setContentProvider(new FileExtensionProvider(p_root_ext1_ext1));
@@ -219,18 +222,18 @@ public class AvailableFeaturesTestIT {
          * This is the test application and extensions
          */
         private LoadableContent testApp() {
-            Path p_app1 = Path.of(RES_IT, "app1/target/app1-1.0.0-SNAPSHOT.jar");
-            Path p_app1_ext1 = Path.of(RES_IT, "app1-ext1/target/app1-ext1-1.0.0-SNAPSHOT.jar");
-            Path p_app1_ext1_ext1 = Path.of(RES_IT, "app1-ext1-ext1/target/app1-ext1-ext1-1.0.0-SNAPSHOT.jar");
+            var p_app1 = Path.of(RES_IT, "app1/target/app1-1.0.0-SNAPSHOT.jar");
+            var p_app1_ext1 = Path.of(RES_IT, "app1-ext1/target/app1-ext1-1.0.0-SNAPSHOT.jar");
+            var p_app1_ext1_ext1 = Path.of(RES_IT, "app1-ext1-ext1/target/app1-ext1-ext1-1.0.0-SNAPSHOT.jar");
 
-            LoadableContent app1 = new LoadableContent();
-            Extension app1Ext = new Extension();
+            var app1 = new LoadableContent();
+            var app1Ext = new Extension();
             app1Ext.setId(APP1_ID);
             app1.setExtension(app1Ext);
             app1.setContentProvider(new FileExtensionProvider(p_app1));
 
-            LoadableContent app1_ext1 = new LoadableContent();
-            Extension app1Ext_ext1 = new Extension();
+            var app1_ext1 = new LoadableContent();
+            var app1Ext_ext1 = new Extension();
             app1Ext_ext1.setId(APP1_EXT1_ID);
             app1_ext1.setExtension(app1Ext_ext1);
             app1_ext1.setContentProvider(new FileExtensionProvider(p_app1_ext1));
@@ -239,8 +242,8 @@ public class AvailableFeaturesTestIT {
             app1.addExtension(app1_ext1);
             app1Ext_ext1.setParentExtension(app1Ext);
 
-            LoadableContent app1_ext1_ext1 = new LoadableContent();
-            Extension app1Ext_ext1_ext1 = new Extension();
+            var app1_ext1_ext1 = new LoadableContent();
+            var app1Ext_ext1_ext1 = new Extension();
             app1Ext_ext1_ext1.setId(APP1_EXT1_EXT1_ID);
             app1_ext1_ext1.setExtension(app1Ext_ext1_ext1);
             app1_ext1_ext1.setContentProvider(new FileExtensionProvider(p_app1_ext1_ext1));
@@ -348,15 +351,15 @@ public class AvailableFeaturesTestIT {
     @MethodSource("allContextIds")
     public void jpa_repository_must_be_loaded_and_crud_functioning(UUID contextId) throws Exception {
 
-        TestModel postParam = new TestModel();
+        var postParam = new TestModel();
         postParam.setData("SOMEDATA");
         postParam.setOther("SOMEDATA");
 
-        TestModel postValue = internalClient.post(contextId, "models", jsonHeader, postParam)
+        var postValue = internalClient.post(contextId, "models", jsonHeader, postParam)
                 .on(200, JsonBodyHandler.of(TestModel.class), r -> assertTrue(r.body() != null && r.body().getId() > 0))
                 .ifNoneMatch(r -> fail(r.toString())).execute();
 
-        TestModel getValue = internalClient.get(contextId, InternalRestClient.pathOf("models", postValue.getId()))
+        var getValue = internalClient.get(contextId, InternalRestClient.pathOf("models", postValue.getId()))
                 .on(200, JsonBodyHandler.of(TestModel.class), r -> assertTrue(r.body() != null && r.body().getId() > 0))
                 .ifNoneMatch(r -> fail(r.toString())).execute();
 
@@ -375,7 +378,7 @@ public class AvailableFeaturesTestIT {
     @MethodSource("allContextIds")
     public void jpa_query_and_query_by_derivation_support(UUID contextId) throws Exception {
 
-        TestModel postParam = new TestModel();
+        var postParam = new TestModel();
         postParam.setData("SOMEDATA");
         postParam.setOther("SOMEDATA");
 
@@ -398,8 +401,8 @@ public class AvailableFeaturesTestIT {
     @ParameterizedTest
     @MethodSource("allContextIds")
     public void jpa_transaction_support_roolbacks_in_service(UUID contextId) throws Exception {
-        String trRemoved = "transaction_rollback_in_service";
-        TestModel posted = new TestModel();
+        var trRemoved = "transaction_rollback_in_service";
+        var posted = new TestModel();
         posted.setData(trRemoved);
         posted.setOther("objectIsValid");
         internalClient.post(contextId, "models/transaction_rollback_in_service", jsonHeaderNew, posted)
@@ -408,8 +411,8 @@ public class AvailableFeaturesTestIT {
                 .ifNoneMatch(r -> fail("500 should have matched," + r.toString())).execute();
 
         internalClient.get(contextId, "models").ifNoneMatch(JsonBodyHandler.listOf(TestModel.class), r -> {
-            List<TestModel> models = r.body();
-            boolean found = models.stream().filter(m -> trRemoved.equals(m.getData())).findAny().isPresent();
+            var models = r.body();
+            var found = models.stream().filter(m -> trRemoved.equals(m.getData())).findAny().isPresent();
             assertFalse(found);
         }).execute();
 
@@ -418,8 +421,8 @@ public class AvailableFeaturesTestIT {
     @ParameterizedTest
     @MethodSource("allContextIds")
     public void jpa_transaction_support_roolbacks_in_repository(UUID contextId) throws Exception {
-        String trRemoved = "transaction_rollback_in_repository";
-        TestModel posted = new TestModel();
+        var trRemoved = "transaction_rollback_in_repository";
+        var posted = new TestModel();
         posted.setData(trRemoved);
         posted.setOther("objectIsValid");
         internalClient.post(contextId, "models/transaction_rollback_in_repository", jsonHeaderNew, posted)
@@ -428,8 +431,8 @@ public class AvailableFeaturesTestIT {
                 .ifNoneMatch(r -> fail("500 should have matched, " + r.toString())).execute();
 
         internalClient.get(contextId, "models").ifNoneMatch(JsonBodyHandler.listOf(TestModel.class), r -> {
-            List<TestModel> models = r.body();
-            boolean found = models.stream().filter(m -> trRemoved.equals(m.getData())).findAny().isPresent();
+            var models = r.body();
+            var found = models.stream().filter(m -> trRemoved.equals(m.getData())).findAny().isPresent();
             assertFalse(found);
         }).execute();
     }
@@ -457,7 +460,7 @@ public class AvailableFeaturesTestIT {
     @ParameterizedTest
     @MethodSource("allContextIds")
     public void testing_validation_is_applied(UUID contextId) throws Exception {
-        TestModel posted = new TestModel(); // "other" is null, so 400 bad request is expected
+        var posted = new TestModel(); // "other" is null, so 400 bad request is expected
 
         internalClient.post(contextId, "models/testing_validation_is_applied", jsonHeaderNew, posted).on(400, r -> {
             assertTrue(r.body().toLowerCase().contains("validation failed"));
