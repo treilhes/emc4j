@@ -39,7 +39,7 @@ build-sonar:
         - ~/.m2/repository
       
   script: 
-    - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+    - mvn -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
