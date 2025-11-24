@@ -16,6 +16,10 @@ build-job:
   tags:
     - linux
   stage: build
+  cache:
+    - key: cache-$CI_COMMIT_REF_SLUG
+      paths:
+          - ~/.m2/repository
   script:
     - mvn -B -ntp clean deploy
 
@@ -25,11 +29,14 @@ build-sonar:
   stage: build-sonar
   
   cache:
-    policy: pull-push
-    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-    paths:
-      - "${SONAR_USER_HOME}/cache"
-      - sonar-scanner/
+    - key: "sonar-cache-$CI_COMMIT_REF_SLUG"
+      policy: pull-push
+      paths:
+        - "${SONAR_USER_HOME}/cache"
+        - sonar-scanner/
+    - key: cache-$CI_COMMIT_REF_SLUG
+      paths:
+        - ~/.m2/repository
       
   script: 
     - mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
