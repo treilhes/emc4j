@@ -31,13 +31,10 @@
  */
 package com.treilhes.emc4j.boot.main.it;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
@@ -355,11 +352,11 @@ public class AvailableFeaturesTestIT {
         postParam.setData("SOMEDATA");
         postParam.setOther("SOMEDATA");
 
-        var postValue = internalClient.post(contextId, "models", jsonHeader, postParam)
+        TestModel postValue = internalClient.post(contextId, "models", jsonHeader, postParam)
                 .on(200, JsonBodyHandler.of(TestModel.class), r -> assertTrue(r.body() != null && r.body().getId() > 0))
                 .ifNoneMatch(r -> fail(r.toString())).execute();
 
-        var getValue = internalClient.get(contextId, InternalRestClient.pathOf("models", postValue.getId()))
+        TestModel getValue = internalClient.get(contextId, InternalRestClient.pathOf("models", postValue.getId()))
                 .on(200, JsonBodyHandler.of(TestModel.class), r -> assertTrue(r.body() != null && r.body().getId() > 0))
                 .ifNoneMatch(r -> fail(r.toString())).execute();
 
