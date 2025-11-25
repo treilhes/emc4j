@@ -78,6 +78,7 @@
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
         <spring.boot.version>4.0.0</spring.boot.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
@@ -86,6 +87,7 @@
         <sonar.projectKey>jfxapps_emc4j_e51e66a2-effb-4712-a664-f6026b788d72</sonar.projectKey>
         <sonar.projectName>emc4j</sonar.projectName>
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.coverage.jacoco.xmlReportPaths>**/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencyManagement>
@@ -267,8 +269,8 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- FIXME allow missing javadoc comments, TEMPORARY-->
-                                    <failOnError>false</failOnError>
+                                    <!-- FIXME allow missing javadoc comments, TEMPORARY
+                                    <failOnError>false</failOnError>-->
                                 </configuration>
                             </execution>
                         </executions>
@@ -281,6 +283,38 @@
                                 <id>attach-sources</id>
                                 <goals>
                                     <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>prepare-agent-integration</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent-integration</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -453,6 +487,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>${maven-checkstyle-plugin.version}</version>
+                </plugin>
+                <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
