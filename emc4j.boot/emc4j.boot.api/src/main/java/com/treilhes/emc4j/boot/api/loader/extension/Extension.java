@@ -41,43 +41,79 @@ import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.layer.Layer;
 
 /**
+ * Represents an extension module in the EMC4J boot system.<br>
  * Some rules about extensions <br>
- * - Only one extension in the jar <br>
- * - No extensions in dependencies<br>
- * - The extended component library must have a provided scope<br>
+ * <ul>
+ *   <li>Only one extension in the jar</li>
+ *   <li>No extensions in dependencies</li>
+ *   <li>The extended extension maven dependency must have a provided scope or else emc4j will try to reload the module</li>
+ * </ul>
+ * Provides identification, context/layer initialization and finalization, and ordering for extensions.
  *
- * @author ptreilhes
- *
+ * @author Pascal Treilhes
  */
 public sealed interface Extension permits OpenExtension, SealedExtension, RootExtension {
 
+    /**
+     * Logger for internal extension operations.
+     */
     static final class PrivateLogger {
         private final static Logger logger = LoggerFactory.getLogger(Extension.class);
         private PrivateLogger() {
         }
     }
 
+    /**
+     * The UUID for the boot extension.
+     */
     public final static UUID BOOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    /**
+     * The UUID for the root extension.
+     */
     public final static UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    /**
+     * The UUID for the manager application extension.
+     */
     public final static UUID MANAGER_APP_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
+    /**
+     * Returns the unique identifier for this extension.
+     *
+     * @return the extension UUID
+     */
     UUID getId();
 
+    /**
+     * Returns the parent extension's unique identifier.
+     *
+     * @return the parent extension UUID
+     */
     UUID getParentId();
 
+    /**
+     * Returns the list of classes that define the local context for this extension.
+     *
+     * @return list of local context classes
+     */
     List<Class<?>> localContextClasses();
 
+    /**
+     * Initializes the module for this extension, adding required module reads.
+     *
+     * @param layer the layer to initialize
+     */
     public default void initializeModule(Layer layer) {
         var module = this.getClass().getModule();
-
         PrivateLogger.logger.info("Add read to spring.core for {}", module.getName());
-
         com.treilhes.emc4j.spring.core.patch.PatchLink.addRead(module);
         com.treilhes.emc4j.hibernate.core.patch.PatchLink.addRead(module);
     }
 
     /**
-     * @param context
+     * Initializes the context for this extension.
+     *
+     * @param context the context to initialize
+     * @throws UnsupportedOperationException if not implemented
      */
     //FIXME this method isn't called yet
     public default void initializeContext(EmContext context) {
@@ -85,31 +121,38 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
     }
 
     /**
-     * @param context
+     * Finalizes the context for this extension.
+     *
+     * @param context the context to finalize
+     * @throws UnsupportedOperationException if not implemented
      */
-  //FIXME this method isn't called yet
+    //FIXME this method isn't called yet
     public default void finalizeContext(EmContext context) {
         throw new UnsupportedOperationException("Never called yet");
     }
 
     /**
-     * @param layer
+     * Finalizes the layer for this extension.
+     *
+     * @param layer the layer to finalize
+     * @throws UnsupportedOperationException if not implemented
      */
-  //FIXME this method isn't called yet
+    //FIXME this method isn't called yet
     public default void finalizeLayer(Layer layer) {
         throw new UnsupportedOperationException("Never called yet");
     }
 
+    /**
+     * Returns the order value for this extension. Lower values have higher priority.
+     *
+     * @return the order value
+     */
     public default int getOrder() {
         return 0;
     }
 //    InputStream getLicense();
-//
 //    InputStream getDescription();
-//
 //    InputStream getLoadingImage();
-//
 //    InputStream getIcon();
-//
 //    InputStream getIconX2();
 }

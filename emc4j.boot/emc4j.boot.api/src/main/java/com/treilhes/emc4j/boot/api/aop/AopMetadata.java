@@ -95,8 +95,19 @@ public abstract class AopMetadata<A extends Annotation, M> {
 
     }
 
+    /**
+     * Loads the metadata from the given annotation.
+     *
+     * @param annotation the annotation instance, may be {@literal null} if the bean class is not annotated
+     *                   with the metadata annotation.
+     */
     protected abstract void loadMetadata(A annotation);
 
+    /**
+     * Returns the type information of the bean class.
+     *
+     * @return the type information of the bean class.
+     */
     public TypeInformation<?> getTypeInformation() {
         return typeInformation;
     }

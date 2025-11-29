@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.treilhes.emc4j</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>emc4j-parent</artifactId>
     <packaging>pom</packaging>
     <version>${emc4j.version}</version>
     <name>${project.groupId}:${project.artifactId}</name>
