@@ -68,7 +68,6 @@
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>${maven-failsafe-plugin.version}</maven-surefire-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
-        <groovy-maven-plugin.version>2.1.1</groovy-maven-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-invoker-plugin.version>3.8.0</maven-invoker-plugin.version>
         <versions-maven-plugin.version>2.9.0</versions-maven-plugin.version>
@@ -77,9 +76,10 @@
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
+        <flatten-maven-plugin.version>1.7.4-SNAPSHOT</flatten-maven-plugin.version>
+        
         <spring.boot.version>4.0.0</spring.boot.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
@@ -92,7 +92,6 @@
 
     <dependencyManagement>
         <dependencies>
-
             <!-- emc4j.boot -->
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
@@ -191,6 +190,11 @@
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j.boot.starter.test.dependencies</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.web</artifactId>
                 <version>${emc4j.version}</version>
             </dependency>
@@ -234,7 +238,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>7.0.0</version>
+                <version>7.0.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -326,10 +330,13 @@
     <build>
         <plugins>
             <plugin>
-                <!-- This plugin has 2 internal usages: - generate a flattened version of the pom.xml in the repository, 
-                    maven actions will use the flattened pom.xml as the effective pom reducing the number of roundtrip during dependency
-                resolution 
-                    and download - manage a centralized version for the project -->
+                <!--
+                This plugin has 2 internal usages:
+                - generate a flattened version of the pom.xml in the repository, maven actions
+                will use the flattened pom.xml as the effective pom reducing the
+                number of roundtrip during dependency resolution and download
+                - manage a centralize version for the project
+                -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
                 <version>${flatten-maven-plugin.version}</version>
@@ -489,9 +496,9 @@
                     <version>${maven-checkstyle-plugin.version}</version>
                 </plugin>
                 <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco-maven-plugin.version}</version>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>

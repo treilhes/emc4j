@@ -56,7 +56,7 @@ public class Repository {
     private Content contentType = Content.SNAPSHOT_RELEASE;
 
     public Repository() {
-        super();
+        super(); 
     }
 
     public String getId() {

@@ -27,5 +27,6 @@
         <module>emc4j.boot.web</module>
         <module>emc4j.boot.aop</module>
         <module>emc4j.boot.splash</module>
+        <module>emc4j.boot.starter.test.dependencies</module>
     </modules>
 </project>

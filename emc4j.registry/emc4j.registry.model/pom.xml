@@ -41,7 +41,7 @@
 
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>
-            <artifactId>emc4j.boot.starter.test</artifactId>
+            <artifactId>emc4j.boot.starter.test.dependencies</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -15,15 +15,6 @@
             <groupId>com.treilhes.emc4j</groupId>
             <artifactId>emc4j.boot.starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.treilhes.emc4j</groupId>
-            <artifactId>emc4j.boot.starter.test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.treilhes.emc4j</groupId>
-            <artifactId>emc4j.boot.context</artifactId>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 </project>
