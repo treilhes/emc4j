@@ -35,6 +35,7 @@ import java.util.List;
 
 import com.treilhes.emc4j.boot.api.loader.BootContextConfigClasses;
 import com.treilhes.emc4j.boot.context.impl.ContextManagerImpl;
+import com.treilhes.emc4j.boot.context.impl.EmContextFactoryImpl;
 
 public class ContextBootClasses implements BootContextConfigClasses {
 
@@ -42,8 +43,10 @@ public class ContextBootClasses implements BootContextConfigClasses {
     public List<Class<?>> classes() {
         return List.of(
                 org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration.class,
+                EmContextFactoryImpl.class,
+                ContextManagerImpl.class,
 
-                ContextManagerImpl.class
+                ContextExtensionClasses.class
                 );
     }
 

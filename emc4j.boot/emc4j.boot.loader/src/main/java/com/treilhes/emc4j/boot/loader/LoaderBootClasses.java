@@ -49,7 +49,7 @@ public class LoaderBootClasses implements BootContextConfigClasses {
     public List<Class<?>> classes() {
         return List.of(
         		LoaderProperties.class,
-        		
+
                 ApplicationManagerImpl.class,
                 LoaderMappersImpl.class,
                 StateProviderImpl.class,
@@ -60,7 +60,9 @@ public class LoaderBootClasses implements BootContextConfigClasses {
                 ExtensionRepository.class,
 
                 //model
-                Extension.class
+                Extension.class,
+
+                LoaderExtensionClasses.class
                 );
     }
 

@@ -38,6 +38,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -49,11 +50,12 @@ import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.api.web.client.InternalRestClient;
 import com.treilhes.emc4j.boot.context.boot.BootContext;
-import com.treilhes.emc4j.boot.context.impl.EmContextFactory;
-import com.treilhes.emc4j.boot.web.WebBootClasses;
+import com.treilhes.emc4j.boot.context.impl.EmContextFactoryImpl;
 import com.treilhes.emc4j.boot.web.controller.extension.WebExtensionConfig;
 
 class WebTestIT {
+
+    private EmContextFactoryImpl factory = new EmContextFactoryImpl();
 
     @Test
     void must_load_root_context_controller() throws URISyntaxException, IOException {
@@ -90,7 +92,9 @@ class WebTestIT {
         var extensionClasses = new ArrayList<Class<?>>();
         extensionClasses.add(WebExtensionConfig.class);
 
-        var extensionContext = EmContextFactory.create(bootContext, extensionId, extensionClasses, loader);
+        var extensionContext = factory.create(bootContext, extensionId, loader, extensionClasses, List.of(), List.of(),
+                WebApplicationType.NONE);
+        
         extensionContext.registerBean(Extension.class, () -> extension);
         extensionContext.refresh();
 

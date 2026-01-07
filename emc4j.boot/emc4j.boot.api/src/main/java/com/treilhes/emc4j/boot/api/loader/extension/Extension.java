@@ -92,7 +92,6 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
 
     /**
      * Returns the list of classes that define the local context for this extension.
-     *
      * @return list of local context classes
      */
     List<Class<?>> localContextClasses();

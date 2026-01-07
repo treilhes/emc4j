@@ -340,7 +340,7 @@ public class AvailableFeaturesTestIT {
 
     @Test
     public void boot_rest_endpoint_must_be_created_and_accessible() throws Exception {
-        internalClient.get(InternalRestClient.BOOT_CONTEXT, "version").on(200, r -> assertEquals(200, r.statusCode()))
+        internalClient.get(InternalRestClient.BOOT_CONTEXT, "boot/version").on(200, r -> assertEquals(200, r.statusCode()))
                 .ifNoneMatch(r -> fail(r.toString())).execute();
     }
 

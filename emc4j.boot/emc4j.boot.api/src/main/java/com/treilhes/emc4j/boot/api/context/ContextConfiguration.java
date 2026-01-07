@@ -32,6 +32,7 @@
 package com.treilhes.emc4j.boot.api.context;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,18 +41,26 @@ import java.util.UUID;
 import com.treilhes.emc4j.boot.api.layer.Layer;
 
 public class ContextConfiguration {
-    UUID parentContextId;
+    UUID id;
+    EmContext parentContext;
     Layer layer;
     Set<Class<?>> classes = new HashSet<>();
     Set<Class<?>> deportedClasses = new HashSet<>();
     List<Object> singletonInstances = new ArrayList<>();
     MultipleProgressListener progressListener;
+    private boolean sealed;
 
-    public UUID getParentContextId() {
-        return parentContextId;
+    public UUID getId() {
+        return id;
     }
-    public void setParentContextId(UUID parentContextId) {
-        this.parentContextId = parentContextId;
+    public void setId(UUID id) {
+        this.id = id;
+    }
+    public EmContext getParentContext() {
+        return parentContext;
+    }
+    public void setParentContext(EmContext parentContext) {
+        this.parentContext = parentContext;
     }
     public Layer getLayer() {
         return layer;
@@ -62,19 +71,19 @@ public class ContextConfiguration {
     public Set<Class<?>> getClasses() {
         return classes;
     }
-    public void addClasses(Set<Class<?>> classes) {
+    public void addClasses(Collection<Class<?>> classes) {
         this.classes.addAll(classes);
     }
-    public Set<Class<?>> getDeportedClasses() {
+    public Set<Class<?>> getChildrenClasses() {
         return deportedClasses;
     }
-    public void addDeportedClasses(Set<Class<?>> deportedClasses) {
+    public void addChildrenClasses(Collection<Class<?>> deportedClasses) {
         this.deportedClasses.addAll(deportedClasses);
     }
     public List<Object> getSingletonInstances() {
         return singletonInstances;
     }
-    public void addSingletonInstances(List<Object> singletonInstances) {
+    public void addSingletonInstances(Collection<Object> singletonInstances) {
         this.singletonInstances.addAll(singletonInstances);
     }
     public MultipleProgressListener getProgressListener() {
@@ -83,5 +92,10 @@ public class ContextConfiguration {
     public void setProgressListener(MultipleProgressListener progressListener) {
         this.progressListener = progressListener;
     }
-
+    public void setSealed(boolean isSealed) {
+        this.sealed = isSealed;
+    }
+    public boolean isSealed() {
+        return sealed;
+    }
 }

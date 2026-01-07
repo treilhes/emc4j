@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.BootstrapWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -26,8 +27,18 @@ import com.treilhes.emc4j.test.Emc4jExtension.Emc4jTestContextBootstrapper;
     Emc4jExtension.class
 })
 public @interface Emc4jTest {
+//    public static UUID DEFAULT_EXT_UUID = UUID.randomUUID();
+//    public static String DEFAULT_EXT_STRING_UUID = DEFAULT_EXT_UUID.toString();
+
     String[] properties() default {};
+
+    WebEnvironment webEnvironment() default WebEnvironment.NONE;
+    boolean enableJpa() default false;
+    boolean enableAop() default false;
+
     boolean loadDefaultScopes() default true;
+    Class<?>[] classes() default {};
+    Emc4jCoreContext context() default @Emc4jCoreContext;
 
     @ApplicationSingleton
     @Primary

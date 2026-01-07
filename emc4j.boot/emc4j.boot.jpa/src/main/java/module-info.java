@@ -40,6 +40,7 @@ open module emc4j.boot.jpa {
 
     requires emc4j.boot.api;
     requires emc4j.boot.starter;
+    requires spring.boot.h2console;
 
     provides BootContextConfigClasses with JpaBootClasses;
     provides ExtensionContextConfigClasses with JpaExtensionClasses;

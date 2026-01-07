@@ -96,7 +96,6 @@ public class DispatcherRestController {
 
             DispatcherServlet ds = (DispatcherServlet) ctx.getBean("redirector");
 
-            //DispatcherServlet ds = ctx.getBean(DispatcherServlet.class);
 
             if (ds == null) {
                 throw new IllegalStateException("DispatcherServlet bean not found for context: " + contextId);
@@ -112,8 +111,6 @@ public class DispatcherRestController {
 
             ds.service(request, response);
 
-
-            System.out.println();
         } catch (Exception e) {
             logger.error("Error in context call", e);
 

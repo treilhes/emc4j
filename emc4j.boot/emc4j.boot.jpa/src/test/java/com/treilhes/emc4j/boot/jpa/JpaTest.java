@@ -41,6 +41,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,9 +51,9 @@ import org.springframework.stereotype.Component;
 import com.treilhes.emc4j.boot.api.jpa.RepositoryFragment;
 import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.context.boot.BootContext;
-import com.treilhes.emc4j.boot.context.impl.EmContextFactory;
-import com.treilhes.emc4j.boot.jpa.context.EmcJpaRepositorySupport;
+import com.treilhes.emc4j.boot.context.impl.EmContextFactoryImpl;
 import com.treilhes.emc4j.boot.jpa.context.EmcJpaExtensionConfig;
+import com.treilhes.emc4j.boot.jpa.context.EmcJpaRepositorySupport;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -88,6 +89,8 @@ class JpaTest {
         }
 
     }
+    
+    private EmContextFactoryImpl factory = new EmContextFactoryImpl();
 
     @Test
     void must_load_repository_and_entity_without_any_scan_from_boot_context() {
@@ -189,8 +192,8 @@ class JpaTest {
 
         var bootContext = BootContext.create(bootClasses, new String[0]);
 
-        var extensionContext = EmContextFactory.create(bootContext, UUID.randomUUID(), extensionClasses,
-                JpaTest.class.getClassLoader());
+        var extensionContext = factory.create(bootContext, UUID.randomUUID(), JpaTest.class.getClassLoader(),
+                extensionClasses, List.of(), List.of(), WebApplicationType.NONE);
         extensionContext.refresh();
 
         var repository = extensionContext.getBean(ExtensionRepository.class);
@@ -219,8 +222,9 @@ class JpaTest {
 
         var bootContext = BootContext.create(bootClasses, new String[0]);
 
-        var extensionContext = EmContextFactory.create(bootContext, UUID.randomUUID(), extensionClasses,
-                JpaTest.class.getClassLoader());
+        var extensionContext = factory.create(bootContext, UUID.randomUUID(), JpaTest.class.getClassLoader(),
+                extensionClasses, List.of(), List.of(), WebApplicationType.NONE);
+        
         extensionContext.refresh();
 
         var repository = extensionContext.getBean(ExtensionRepositoryCustomized.class);
@@ -245,8 +249,9 @@ class JpaTest {
 
         var bootContext = BootContext.create(bootClasses, new String[0]);
 
-        var extensionContext = EmContextFactory.create(bootContext, UUID.randomUUID(), extensionClasses,
-                JpaTest.class.getClassLoader());
+        var extensionContext = factory.create(bootContext, UUID.randomUUID(), JpaTest.class.getClassLoader(),
+                extensionClasses, List.of(), List.of(), WebApplicationType.NONE);
+        
         extensionContext.refresh();
 
         var repository = extensionContext.getBean(ExtensionRepositoryWithFragment.class);
@@ -272,8 +277,8 @@ class JpaTest {
 
         var bootContext = BootContext.create(bootClasses, new String[0]);
 
-        var extensionContext = EmContextFactory.create(bootContext, UUID.randomUUID(), extensionClasses,
-                JpaTest.class.getClassLoader());
+        var extensionContext = factory.create(bootContext, UUID.randomUUID(), JpaTest.class.getClassLoader(),
+                extensionClasses, List.of(), List.of(), WebApplicationType.NONE);
         extensionContext.refresh();
 
         var repository = extensionContext.getBean(ExtensionRepositoryWithFragment.class);

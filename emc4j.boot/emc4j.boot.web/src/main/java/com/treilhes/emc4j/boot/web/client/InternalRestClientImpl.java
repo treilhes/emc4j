@@ -51,12 +51,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.autoconfigure.ServerProperties;
+import org.springframework.boot.web.server.context.WebServerInitializedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.treilhes.emc4j.boot.api.context.annotation.Lazy;
+import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
 import com.treilhes.emc4j.boot.api.web.client.InternalRestClient;
 import com.treilhes.emc4j.boot.api.web.client.ResponseBuilder;
@@ -70,7 +73,7 @@ public class InternalRestClientImpl implements InternalRestClient {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     //private final ServerProperties serverProperties;
-    private final int serverPort;
+    private Integer serverPort;
     private final String basePath;
 
     protected InternalRestClientImpl(ServerProperties serverProperties,
@@ -83,14 +86,29 @@ public class InternalRestClientImpl implements InternalRestClient {
                 + (StringUtils.hasText(servletPath) ? "/" + servletPath : "")).replaceAll("/+", "/");
     }
 
+    @EventListener
+    public void onWebServerReady(WebServerInitializedEvent event) {
+        this.serverPort = event.getWebServer().getPort();
+        logger.info("Configure internal rest client to use port: " + serverPort);
+    }
+
     @Override
     public String rootUri() {
         return String.format("http://localhost:%s", serverPort);
     }
 
     private String createUri(UUID uuid, String path) {
-        return String.format("http://localhost:%s%s/%s/%s", serverPort, basePath,
-                uuid == null ? DEFAULT_PATH : EmcPlatform.EXTENSION_REST_PATH_PREFIX + "/" + uuid.toString(), path);
+
+        while (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+
+        if (uuid == null || uuid.equals(Extension.BOOT_ID)) {
+            return String.format("http://localhost:%s%s/%s", serverPort, basePath, path);
+        } else {
+            return String.format("http://localhost:%s%s/%s/%s", serverPort, basePath,
+                    EmcPlatform.EXTENSION_REST_PATH_PREFIX + "/" + uuid.toString(), path);
+        }
     }
 
     private HttpRequest.Builder newRequest(URI uri) {

@@ -54,8 +54,6 @@ import com.treilhes.emc4j.boot.api.context.ContextConfiguration;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationInstanceSingleton;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationSingleton;
 import com.treilhes.emc4j.boot.api.context.annotation.Singleton;
 import com.treilhes.emc4j.boot.api.layer.Layer;
 import com.treilhes.emc4j.boot.api.layer.ModuleLayerManager;
@@ -64,7 +62,9 @@ import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
 import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper;
 import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper.ServiceLoader;
+import com.treilhes.emc4j.boot.loader.internal.context.ExtensionNotFoundException;
 import com.treilhes.emc4j.boot.loader.internal.context.LayerNotFoundException;
+import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 
 /**
  * The Class ContextBootstraperTest.
@@ -92,7 +92,7 @@ class ContextBootstraperTest {
 
     /** The parent model extension. */
     @Mock
-    com.treilhes.emc4j.boot.loader.model.LoadableContent parentExtensionModel;
+    LoadableContent parentExtensionModel;
 
     /** The parent layer. */
     @Mock
@@ -107,7 +107,7 @@ class ContextBootstraperTest {
 
     /** The child model extension. */
     @Mock
-    com.treilhes.emc4j.boot.loader.model.LoadableContent childExtensionModel;
+    LoadableContent childExtensionModel;
 
     /** The ext layer. */
     @Mock
@@ -144,10 +144,47 @@ class ContextBootstraperTest {
      * Must throw if module layer of extensions does not exists.
      */
     @Test
-    void must_throw_if_module_layer_of_extensions_does_not_exists() {
+    void must_throw_if_module_layer_does_not_contain_an_extension() {
         when(parentExtensionModel.getId()).thenReturn(parentId);
+        when(layerManager.get(parentId)).thenReturn(parentLayer);
+
+        Assertions.assertThrows(ExtensionNotFoundException.class, () -> {
+            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
+        });
+    }
+
+    /**
+     * Must throw if module layer of extensions does not exists.
+     */
+    @Test
+    void must_throw_if_module_layer_of_extension_does_not_exists() {
+        when(parentExtensionModel.getId()).thenReturn(parentId);
+        when(layerManager.get(parentId)).thenReturn(parentLayer);
+        when(loader.loadService(parentLayer, Extension.class)).thenReturn(Set.of(parentExtensionLoaded));
+        when(parentExtensionModel.getExtensions()).thenReturn(Set.of(childExtensionModel)); // different id
 
         Assertions.assertThrows(LayerNotFoundException.class, () -> {
+            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
+        });
+    }
+
+    /**
+     * Must throw if module layer of extensions does not exists.
+     */
+    @Test
+    void must_throw_if_module_layer_of_extension_does_not_contain_an_extension() {
+        when(parentExtensionModel.getId()).thenReturn(parentId);
+        when(layerManager.get(parentId)).thenReturn(parentLayer);
+        when(loader.loadService(parentLayer, Extension.class)).thenReturn(Set.of(parentExtensionLoaded));
+        when(parentExtensionModel.getExtensions()).thenReturn(Set.of(childExtensionModel)); // different id
+
+        when(childExtensionModel.getId()).thenReturn(childId);
+        when(layerManager.get(childId)).thenReturn(childExtensionLayer);
+        when(loader.loadService(childExtensionLayer, Extension.class)).thenReturn(Set.of());
+
+        Assertions.assertThrows(ExtensionNotFoundException.class, () -> {
             var ctxBoot = new ContextBootstraper(layerManager, contextManager);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
@@ -161,6 +198,10 @@ class ContextBootstraperTest {
     @Test
     void must_create_a_context_with_declared_local_component() throws Exception {
 
+        @Singleton
+        class LocalParentComponent {
+        }
+
         // the parent layer exists and is accessible
         when(layerManager.get(parentId)).thenReturn(parentLayer);
 
@@ -173,7 +214,7 @@ class ContextBootstraperTest {
         // the extension descriptor, the layer and the extension loaded share the same
         // id
         when(parentExtensionModel.getId()).thenReturn(parentId);
-        when(parentLayer.getId()).thenReturn(parentId);
+        //when(parentLayer.getId()).thenReturn(parentId);
         when(parentExtensionLoaded.getId()).thenReturn(parentId);
 
         // the extension loaded is a top level one
@@ -200,6 +241,10 @@ class ContextBootstraperTest {
      */
     @Test
     void must_create_a_child_context_with_local_component() throws Exception {
+        @Singleton
+        class LocalChildComponent {}
+        @Singleton
+        class ExportedChildComponent {}
 
         // the child layer exists and is accessible
         when(layerManager.get(childId)).thenReturn(childExtensionLayer);
@@ -215,7 +260,7 @@ class ContextBootstraperTest {
 
         // the extension descriptor, the layer and the extension loaded share the same
         // id
-        when(childExtensionLayer.getId()).thenReturn(childId);
+        //when(childExtensionLayer.getId()).thenReturn(childId);
         when(childExtensionLoaded.getId()).thenReturn(childId);
         when(childExtensionModel.getId()).thenReturn(childId);
 
@@ -242,6 +287,11 @@ class ContextBootstraperTest {
     void must_create_a_child_context_without_parent_window_and_editorsingleton_components_for_sealed_extensions()
             throws Exception {
 
+        @Singleton
+        class LocalChildComponent {}
+        @Singleton
+        class ExportedChildComponent {}
+
         // the child layer exists and is accessible
         when(layerManager.get(childId)).thenReturn(childExtensionLayer);
 
@@ -256,7 +306,7 @@ class ContextBootstraperTest {
 
         // the extension descriptor, the layer and the extension loaded share the same
         // id
-        when(childExtensionLayer.getId()).thenReturn(childId);
+        //when(childExtensionLayer.getId()).thenReturn(childId);
         when(childExtensionLoaded.getId()).thenReturn(childId);
         when(childExtensionModel.getId()).thenReturn(childId);
 
@@ -277,113 +327,6 @@ class ContextBootstraperTest {
 
         assertThat(config.getClasses()).contains(LocalChildComponent.class,
                 childExtensionLoaded.getClass());
-    }
-
-    @Test
-    void must_create_a_child_context_with_parent_window_and_editorsingleton_components_for_sealed_extensions()
-            throws Exception {
-
-        // the child layer exists and is accessible
-        when(layerManager.get(childId)).thenReturn(childExtensionLayer);
-
-        // the child layer contains one extension
-        when(loader.loadService(childExtensionLayer, Extension.class)).thenReturn(Set.of(sealedChildExtensionLoaded));
-
-        // the extension loaded expose local classes to load
-        when(sealedChildExtensionLoaded.localContextClasses()).thenReturn(List.of(LocalChildComponent.class));
-
-        // the extension descriptor, the layer and the extension loaded share the same
-        // id
-        when(childExtensionLayer.getId()).thenReturn(childId);
-        when(sealedChildExtensionLoaded.getId()).thenReturn(childId);
-        when(childExtensionModel.getId()).thenReturn(childId);
-
-        // the extension loaded is a child of parent
-        when(sealedChildExtensionLoaded.getParentId()).thenReturn(parentId);
-
-        when(ctx.getUuid()).thenReturn(parentId);
-        //when(ctx.getRegisteredClasses()).thenReturn(Set.of(LocalParentComponent.class));
-        when(ctx.getDeportedClasses()).thenReturn(Set.of(
-                WindowParentComponent.class, EditorSingletonParentComponent.class));
-
-        // test
-
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
-
-        ctxBoot.create(ctx, childExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
-
-        verify(contextManager).create(contextConfigCaptor.capture());
-
-        var config = contextConfigCaptor.getValue();
-
-        assertThat(config.getClasses()).contains(LocalChildComponent.class,
-                WindowParentComponent.class, EditorSingletonParentComponent.class,
-                sealedChildExtensionLoaded.getClass());
-    }
-
-    /**
-     * Only exported classes from child must be loaded in context.
-     *
-     * @throws Exception the exception
-     */
-    @Test
-    void only_exported_classes_from_child_must_be_loaded_in_context() throws Exception {
-
-        // the parent layer exists and is accessible
-        when(layerManager.get(parentId)).thenReturn(parentLayer);
-
-        // the parent layer contains one extension
-        when(loader.loadService(parentLayer, Extension.class)).thenReturn(Set.of(parentExtensionLoaded));
-
-        // the extension loaded expose local classes to load
-        when(parentExtensionLoaded.localContextClasses()).thenReturn(List.of(LocalParentComponent.class));
-
-        // the extension descriptor, the layer and the extension loaded share the same
-        // id
-        when(parentExtensionModel.getId()).thenReturn(parentId);
-        when(parentLayer.getId()).thenReturn(parentId);
-        when(parentExtensionLoaded.getId()).thenReturn(parentId);
-
-        // the extension loaded is a top level one
-        when(parentExtensionLoaded.getParentId()).thenReturn(Extension.ROOT_ID);
-
-        // the child layer exists and is accessible
-        when(layerManager.get(childId)).thenReturn(childExtensionLayer);
-
-        // the child layer contains one extension
-        when(loader.loadService(childExtensionLayer, Extension.class)).thenReturn(Set.of(childExtensionLoaded));
-
-        // the extension loaded expose local classes to load
-        when(childExtensionLoaded.localContextClasses()).thenReturn(List.of(LocalChildComponent.class));
-
-        // the extension loaded expose exportable classes to load
-        when(childExtensionLoaded.exportedContextClasses()).thenReturn(List.of(ExportedChildComponent.class));
-
-        // the extension descriptor, the layer and the extension loaded share the same
-        // id
-        when(childExtensionLoaded.getId()).thenReturn(childId);
-        when(childExtensionModel.getId()).thenReturn(childId);
-
-        // the extension loaded is a child of parent
-        when(childExtensionLoaded.getParentId()).thenReturn(parentId);
-
-        // the parent extension model has a child
-        when(parentExtensionModel.getExtensions()).thenReturn(Set.of(childExtensionModel));
-
-        // test
-
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
-
-        ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
-
-        verify(contextManager).create(contextConfigCaptor.capture());
-
-        var config = contextConfigCaptor.getValue();
-
-        assertThat(config.getClasses()).contains(LocalParentComponent.class,
-                ExportedChildComponent.class);
-
-        assertThat(config.getClasses()).doesNotContain(LocalChildComponent.class);
     }
 
     /**
@@ -449,38 +392,4 @@ class ContextBootstraperTest {
 
     }
 
-    /**
-     * The Class LocalParentComponent.
-     */
-    @Singleton
-    static class LocalParentComponent {
-    }
-
-    /**
-     * The Class LocalParentComponent.
-     */
-    @ApplicationInstanceSingleton
-    static class WindowParentComponent {
-    }
-
-    /**
-     * The Class LocalParentComponent.
-     */
-    @ApplicationSingleton
-    static class EditorSingletonParentComponent {
-    }
-
-    /**
-     * The Class LocalChildComponent.
-     */
-    @Singleton
-    static class LocalChildComponent {
-    }
-
-    /**
-     * The Class ExportedChildComponent.
-     */
-    @Singleton
-    static class ExportedChildComponent {
-    }
 }

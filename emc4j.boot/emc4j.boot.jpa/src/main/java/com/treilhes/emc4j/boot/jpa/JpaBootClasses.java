@@ -54,7 +54,7 @@ public class JpaBootClasses implements BootContextConfigClasses {
                 //org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration.class,
 
                 //FIXME reactivate the H2 console asap
-                //org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration.class,
+                org.springframework.boot.h2console.autoconfigure.H2ConsoleAutoConfiguration.class,
                 //FIXME reactivate the H2 console asap
 
                 //tmp
@@ -66,7 +66,8 @@ public class JpaBootClasses implements BootContextConfigClasses {
                 //end tmp
 
                 //emc4j
-                EmcJpaRepositorySupport.class
+                EmcJpaRepositorySupport.class,
+                JpaExtensionClasses.class
                 );
     }
 

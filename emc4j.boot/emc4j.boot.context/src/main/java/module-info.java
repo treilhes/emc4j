@@ -43,7 +43,7 @@ open module emc4j.boot.context {
     exports com.treilhes.emc4j.boot.context.impl to spring.beans;
     exports com.treilhes.emc4j.boot.context.boot;
 
-    requires emc4j.boot.api;
+    requires transitive emc4j.boot.api;
     requires emc4j.boot.starter;
     requires spring.boot.web.server;
 

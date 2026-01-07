@@ -43,7 +43,9 @@ public class AopBootClasses implements BootContextConfigClasses {
     public List<Class<?>> classes() {
         return List.of(
                 // default spring aop configuration
-                org.springframework.boot.autoconfigure.aop.AopAutoConfiguration.class
+                org.springframework.boot.autoconfigure.aop.AopAutoConfiguration.class,
+
+                AopExtensionClasses.class
                 );
     }
 

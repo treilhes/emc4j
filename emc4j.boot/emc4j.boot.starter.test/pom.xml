@@ -19,7 +19,23 @@
         </dependency>
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>emc4j.boot.aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
             <artifactId>emc4j.boot.loader</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>emc4j.boot.web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>emc4j.boot.jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>emc4j.boot.context</artifactId>
         </dependency>
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>

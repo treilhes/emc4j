@@ -38,9 +38,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.treilhes.emc4j.boot.api.context.ContextConfiguration;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
@@ -50,6 +55,7 @@ import com.treilhes.emc4j.boot.api.context.annotation.PreferedConstructor;
 import com.treilhes.emc4j.boot.api.context.annotation.Primary;
 import com.treilhes.emc4j.boot.api.context.annotation.Singleton;
 import com.treilhes.emc4j.boot.context.impl.ContextManagerImpl;
+import com.treilhes.emc4j.boot.context.impl.EmContextFactoryImpl;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Provider;
@@ -59,20 +65,29 @@ import jakarta.inject.Provider;
  * In case of switching the dependency injection framework, those tests exhibit some of the needed features of the new framework
  * when using jakarta.inject
  */
+@ExtendWith(MockitoExtension.class)
 class EmContextFrameworkTest {
 
-    private GenericWebApplicationContext bootContext = null;
+    @Mock
+    private EmContext bootContext;
+    private EmContextFactoryImpl factory = new EmContextFactoryImpl();
 
     private ContextConfiguration newContextConfiguration(Set<Class<?>> classes) {
         ContextConfiguration config = new ContextConfiguration();
-        config.addDeportedClasses(Set.of());
+        config.setId(UUID.randomUUID());
+        config.addChildrenClasses(Set.of());
         config.addClasses(classes);
         return config;
     }
 
+    @BeforeEach
+    public void init() {
+        Mockito.when(bootContext.getUuid()).thenReturn(UUID.randomUUID());
+    }
+
     @Test
     void test_injection_feature_optional() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(OptionalFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         assertNotNull(ctx.getBean(OptionalFeature.class));
@@ -80,7 +95,7 @@ class EmContextFrameworkTest {
 
     @Test
     void test_injection_feature_generic() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(Component1.class, Component2.class, Component3.class, GenericFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         assertNotNull(ctx.getBean(GenericFeature.class));
@@ -88,7 +103,7 @@ class EmContextFrameworkTest {
 
     @Test
     void test_injection_feature_list() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(Component1.class, Component2.class, Component3.class, ListFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         assertNotNull(ctx.getBean(ListFeature.class));
@@ -96,7 +111,7 @@ class EmContextFrameworkTest {
 
     @Test
     void test_injection_feature_lazy_injection() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(Component1.class, Component2.class, Component3.class, LazyInjectionFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         assertNotNull(ctx.getBean(LazyInjectionFeature.class));
@@ -104,7 +119,7 @@ class EmContextFrameworkTest {
 
     @Test
     void test_injection_feature_multiple_constructor() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(Component1.class, MultiConstructorFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         assertNotNull(ctx.getBean(MultiConstructorFeature.class));
@@ -112,7 +127,7 @@ class EmContextFrameworkTest {
 
     @Test
     void test_injection_feature_primary() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(PrimaryComponent.class, SecondaryComponent.class, PrimaryInjectionFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         assertNotNull(ctx.getBean(PrimaryInjectionFeature.class));
@@ -120,7 +135,7 @@ class EmContextFrameworkTest {
 
     @Test
     void test_injection_feature_lazy_initialization() {
-        ContextManager mng = new ContextManagerImpl(bootContext);
+        ContextManager mng = new ContextManagerImpl(bootContext, factory);
         Set<Class<?>> classes = Set.of(LazyInitComponent.class, LazyInitFeature.class);
         EmContext ctx = mng.create(newContextConfiguration(classes));
         LazyInitFeature lif = ctx.getBean(LazyInitFeature.class);

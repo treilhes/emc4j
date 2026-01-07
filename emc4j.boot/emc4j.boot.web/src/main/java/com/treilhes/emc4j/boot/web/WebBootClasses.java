@@ -91,7 +91,9 @@ public class WebBootClasses implements BootContextConfigClasses {
                 BootConfig.class,
                 BootRestController.class,
                 DispatcherRestController.class,
-                InternalRestClientImpl.class
+                InternalRestClientImpl.class,
+
+                WebExtensionClasses.class
                 );
     }
 
