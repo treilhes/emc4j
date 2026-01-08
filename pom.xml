@@ -52,6 +52,8 @@
         <module>emc4j.registry</module>
         <module>emc4j.utils</module>
         <module>emc4j.delivery</module>
+        <module>emc4j.starters</module>
+        <module>emc4j.jpms.patches</module>
     </modules>
 
     <properties>

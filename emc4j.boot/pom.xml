@@ -14,19 +14,17 @@
         <module>emc4j.boot.context</module>
         <module>emc4j.boot.maven</module>
         <module>emc4j.boot.main</module>
-        <module>emc4j.boot.starter</module>
-        <module>emc4j.boot.starter.test</module>
         <module>emc4j.boot.platform</module>
         <module>emc4j.boot.registry</module>
         <module>emc4j.boot.layer</module>
         <module>emc4j.boot.jpa</module>
 
-        <module>emc4j.boot.jpms.patches</module>
+        
         <module>emc4j.boot.api</module>
 
         <module>emc4j.boot.web</module>
         <module>emc4j.boot.aop</module>
         <module>emc4j.boot.splash</module>
-        <module>emc4j.boot.starter.test.dependencies</module>
+
     </modules>
 </project>

@@ -4,10 +4,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.treilhes.emc4j</groupId>
-        <artifactId>emc4j.boot.jpms.patches</artifactId>
+        <artifactId>emc4j.jpms.patches</artifactId>
         <version>${emc4j.version}</version>
     </parent>
-    <artifactId>java.base.patch</artifactId>
+    <artifactId>org.hibernate.orm.core.patch</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
@@ -15,16 +23,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration combine.self="override">
-                        <compilerArgs>
-                            <!-- Add necessary module exports if needed -->
-                            <arg>--add-exports</arg>
-                            <arg>java.base/jdk.internal.module=ALL-UNNAMED</arg>
-                            <!-- Optional: Add modules to be used -->
-                            <arg>--add-modules</arg>
-                            <arg>java.base</arg>
-                        </compilerArgs>
-                    </configuration>
+                    <configuration combine.self="override"></configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

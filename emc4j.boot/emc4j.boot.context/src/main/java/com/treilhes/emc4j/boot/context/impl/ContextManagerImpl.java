@@ -87,11 +87,15 @@ public class ContextManagerImpl implements ContextManager {
     }
 
     private void registerBootContext() {
-        var emContext = bootContext;
-        var uuid = emContext.getUuid();
-        var moduleLayer = this.getClass().getModule().getLayer();
-        uuidToContexts.put(uuid, emContext);
-        layerToContexts.put(moduleLayer, emContext);
+        if (bootContext != null) {
+            var emContext = bootContext;
+            var uuid = emContext.getUuid();
+            var moduleLayer = this.getClass().getModule().getLayer();
+            uuidToContexts.put(uuid, emContext);
+            layerToContexts.put(moduleLayer, emContext);
+        } else {
+            logger.warn("Boot context is null, cannot register it in ContextManager");
+        }
     }
 
     @Override
