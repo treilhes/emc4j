@@ -41,18 +41,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-        <dependency>
+        <!--
+            No need as it is transitively included by spring-boot-starter-web with the good version
+            <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-h2console</artifactId>
             <exclusions>
-            	<exclusion>
-            		<groupId>jakarta.servlet</groupId>
-            		<artifactId>jakarta.servlet-api</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>jakarta.servlet</groupId>
+                    <artifactId>jakarta.servlet-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 

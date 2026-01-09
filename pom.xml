@@ -228,20 +228,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- dependencies below are required due to their version missing from spring boot dependencies RC must be
-            removed 
-                when a final version is released -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-aop</artifactId>
-                <version>4.0.0-M2</version>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework/spring-aop -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
-                <version>7.0.1</version>
-            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 
