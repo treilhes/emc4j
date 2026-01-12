@@ -33,7 +33,6 @@ import jakarta.inject.Inject;
                 RestEnabledTest.TestController.class
         },
         context = @Emc4jCoreContext(
-                uuid = RestEnabledTest.CORE_ID,
                 classes = {
                         RestEnabledTest.TestController.class
                 },
@@ -82,7 +81,6 @@ import jakarta.inject.Inject;
         )
 )
 class RestEnabledTest {
-    static final String CORE_ID = "20638225-7e56-4272-a513-000000000000";
     static final String CORE_EXT_ID = "20638225-7e56-4272-a513-000000000001";
     static final String CORE_NESTED_EXT_ID = "20638225-7e56-4272-a513-000000000002";
 
@@ -112,7 +110,7 @@ class RestEnabledTest {
     @Test
     void test() throws URISyntaxException, IOException {
         String bootUuid = restClient.get(Extension.BOOT_ID, "/test/uuid").execute();
-        String coreUuid = restClient.get(UUID.fromString(CORE_ID), "/test/uuid").execute();
+        String coreUuid = restClient.get(Extension.ROOT_ID, "/test/uuid").execute();
         String coreExtUuid = restClient.get(UUID.fromString(CORE_EXT_ID), "/test/uuid").execute();
         String coreNestedExtUuid = restClient.get(UUID.fromString(CORE_NESTED_EXT_ID), "/test/uuid").execute();
         String appUuid = restClient.get(UUID.fromString(APP_ID), "/test/uuid").execute();
@@ -120,7 +118,7 @@ class RestEnabledTest {
         String appNestedExtUuid = restClient.get(UUID.fromString(APP_NESTED_EXT_ID), "/test/uuid").execute();
 
         assertEquals(Extension.BOOT_ID.toString(), bootUuid);
-        assertEquals(CORE_ID, coreUuid);
+        assertEquals(Extension.ROOT_ID.toString(), coreUuid);
         assertEquals(CORE_EXT_ID, coreExtUuid);
         assertEquals(CORE_NESTED_EXT_ID, coreNestedExtUuid);
         assertEquals(APP_ID, appUuid);

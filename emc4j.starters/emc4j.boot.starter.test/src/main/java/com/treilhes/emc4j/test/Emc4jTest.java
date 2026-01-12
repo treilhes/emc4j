@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extension;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.BootstrapWith;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.treilhes.emc4j.boot.api.context.Application;
 import com.treilhes.emc4j.boot.api.context.ApplicationInstance;
@@ -19,11 +19,11 @@ import com.treilhes.emc4j.boot.api.context.annotation.Primary;
 import com.treilhes.emc4j.test.Emc4jExtension.Emc4jTestContextBootstrapper;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target(ElementType.TYPE)
 @BootstrapWith(Emc4jTestContextBootstrapper.class)
 @ExtendWith({
     MockitoExtension.class,
-    SpringExtension.class,
+    Emc4jSpringExtension.class,
     Emc4jExtension.class
 })
 public @interface Emc4jTest {
@@ -39,6 +39,11 @@ public @interface Emc4jTest {
     boolean loadDefaultScopes() default true;
     Class<?>[] classes() default {};
     Emc4jCoreContext context() default @Emc4jCoreContext;
+
+    Emc4jDefault defaultConfig() default @Emc4jDefault;
+
+    // extension configuration classes
+    Class<Extension>[] extendWith() default {};
 
     @ApplicationSingleton
     @Primary
@@ -57,4 +62,5 @@ public @interface Emc4jTest {
     @ApplicationInstanceSingleton
     public static class Application2InstanceBean implements ApplicationInstance {
     }
+
 }

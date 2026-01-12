@@ -11,12 +11,7 @@ import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Emc4jCoreContext {
 
-    /**
-     * UUID of the extension
-     * @return UUID string
-     * @see Extension#getId()
-     */
-    String uuid() default "";
+    String[] properties() default {};
     /**
      * Context classes to load
      * @return array of classes

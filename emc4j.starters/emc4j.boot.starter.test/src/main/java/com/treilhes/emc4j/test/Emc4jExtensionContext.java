@@ -12,6 +12,7 @@ import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface Emc4jExtensionContext {
 
+    String[] properties() default {};
     /**
      * UUID of the extension
      * @return UUID string
