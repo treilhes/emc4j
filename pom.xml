@@ -54,6 +54,7 @@
         <module>emc4j.delivery</module>
         <module>emc4j.starters</module>
         <module>emc4j.jpms.patches</module>
+        <module>emc4j.it</module>
     </modules>
 
     <properties>
@@ -400,6 +401,12 @@
                                 <groupId>org.mapstruct</groupId>
                                 <artifactId>mapstruct-processor</artifactId>
                                 <version>${org.mapstruct.version}</version>
+                            </path>
+                            
+                            <path>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-configuration-processor</artifactId>
+                                
                             </path>
                         </annotationProcessorPaths>
                     </configuration>

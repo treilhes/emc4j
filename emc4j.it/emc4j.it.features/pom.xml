@@ -1,0 +1,138 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.treilhes.emc4j</groupId>
+    <artifactId>emc4j.it</artifactId>
+    <version>${emc4j.version}</version>
+  </parent>
+  <artifactId>emc4j.it.features</artifactId>
+
+
+    <properties>
+        <skip.integration.test>false</skip.integration.test>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>emc4j.boot.main</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>emc4j.boot.starter.test.dependencies</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resolve-jar-path</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>java.base.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>spring.core.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>org.hibernate.orm.core.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <skipITs>${skip.integration.test}</skipITs>
+                            <useModulePath>true</useModulePath>
+                            <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                            <argLine>
+                                --patch-module
+                                spring.core=${com.treilhes.emc4j:spring.core.patch:jar}
+                                --patch-module
+                                org.hibernate.orm.core=${com.treilhes.emc4j:org.hibernate.orm.core.patch:jar}
+                                --patch-module
+                                java.base=${com.treilhes.emc4j:java.base.patch:jar}
+                                --add-exports
+                                java.base/javapatch.lang.module=java.base.patch.link
+                                --add-exports
+                                java.base/javapatch.lang.module=ALL-UNNAMED
+                                --add-reads
+                                org.hibernate.validator=org.apache.tomcat.embed.el
+                                --add-exports
+                                org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
+                                --add-exports
+                                org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.bv=spring.beans
+                                --add-exports
+                                org.hibernate.validator/org.hibernate.validator.internal.constraintvalidators.hv=spring.beans
+                            </argLine>
+                        </configuration>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!--
+                    In eclipse, this plugin crash with the embedded maven installation
+                    because maven.home must be set to a directory and not to a jar file.
+                    Please create an external maven installation and use it in eclipse
+                 -->
+                <artifactId>maven-invoker-plugin</artifactId>
+
+                <configuration>
+                    <projectsDirectory>${basedir}/src/test/resources-its</projectsDirectory>
+                    <pomIncludes>
+                        <pomInclude>common-loader/pom.xml</pomInclude>
+                    </pomIncludes>
+                    <properties>
+                        <parent.emc4j.version>${emc4j.version}</parent.emc4j.version>
+                        <parent.maven.compiler.plugin.version>${maven.compiler.plugin.version}</parent.maven.compiler.plugin.version>
+                        <parent.maven.compiler.source>${maven.compiler.source}</parent.maven.compiler.source>
+                        <parent.maven.compiler.target>${maven.compiler.target}</parent.maven.compiler.target>
+                    </properties>
+                    <streamLogs>true</streamLogs>
+                    <goals>
+                        <goal>clean</goal>
+                        <goal>install</goal>
+                    </goals>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>forked-install</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skipInvocation>${skip.integration.test}</skipInvocation>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
