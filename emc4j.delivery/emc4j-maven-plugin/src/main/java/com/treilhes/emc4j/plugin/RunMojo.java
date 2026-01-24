@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -98,7 +98,7 @@ public class RunMojo extends Emc4jAbstractMojo {
             copyDependencies(javaProcessConfig, getRunDirectory());
 
             if (debug) {
-                javaProcessConfig.addJvmArg(String.format(DEBUG_OPTION, debugSuspend ? "y" : "n", String.valueOf(debugPort)));
+                javaProcessConfig.addJvmNonDeferredArg(String.format(DEBUG_OPTION, debugSuspend ? "y" : "n", String.valueOf(debugPort)));
             }
 
             javaProcessConfig.addJvmArg("-Demc4j.registry.snapshotsAllowed=true");
@@ -117,6 +117,7 @@ public class RunMojo extends Emc4jAbstractMojo {
 
             System.out.println();
         } catch (Exception e) {
+            getLog().error("Error during run", e);
             throw new MojoExecutionException("Error during run", e);
         }
 
@@ -126,7 +127,9 @@ public class RunMojo extends Emc4jAbstractMojo {
         try {
 
             List<String> command = new ArrayList<>();
+
             command.add(jcfg.getJavaBin().getAbsolutePath());
+            command.addAll(jcfg.getJvmNonDeferredArgs());
             command.add("@" + BOOT_CONFIG_FILENAME);
 
             String cmd = "Running command: %s, working directory: %s";

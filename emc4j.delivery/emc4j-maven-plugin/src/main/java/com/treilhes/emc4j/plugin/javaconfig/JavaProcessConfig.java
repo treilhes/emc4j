@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -53,6 +53,10 @@ public class JavaProcessConfig {
     private List<String> addOpens;
     private List<String> addExports;
 
+    /**
+     * args non deferred to argument file
+     */
+    private List<String> jvmNonDeferredArgs;
     private List<String> jvmArgs;
     private List<String> appArgs;
 
@@ -64,6 +68,7 @@ public class JavaProcessConfig {
         this.addReads = new ArrayList<>();
         this.addOpens = new ArrayList<>();
         this.addExports = new ArrayList<>();
+        this.jvmNonDeferredArgs = new ArrayList<>();
         this.jvmArgs = new ArrayList<>();
         this.appArgs = new ArrayList<>();
     }
@@ -134,8 +139,15 @@ public class JavaProcessConfig {
     public void addAddExports(String addExports) {
         this.addExports.add(addExports);
     }
+
     public List<String> getJvmArgs() {
         return jvmArgs;
+    }
+    public void addJvmNonDeferredArg(String jvmArg) {
+        this.jvmNonDeferredArgs.add(jvmArg);
+    }
+    public List<String> getJvmNonDeferredArgs() {
+        return jvmNonDeferredArgs;
     }
     public void addJvmArg(String jvmArg) {
         this.jvmArgs.add(jvmArg);
@@ -150,6 +162,7 @@ public class JavaProcessConfig {
     public List<String> toCommand() {
         List<String> command = new ArrayList<>();
         command.add(javaBin.getAbsolutePath());
+        command.addAll(jvmNonDeferredArgs);
         command.addAll(jvmArgs);
         command.add("--module-path");
         command.add(FsUtil.toPathesString(modules, automaticModules));

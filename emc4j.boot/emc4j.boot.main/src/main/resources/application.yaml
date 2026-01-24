@@ -5,20 +5,6 @@ emc4j:
     rootPath: ./data
   maven:
     directory: ${emc4j.platform.rootPath}/.m2/repository
-  registry:
-#    snapshotsAllowed: true
-    defaults:
-      core:
-        groupId: com.treilhes.emc4j
-        artifactId: emc4j.core.registry
-        mandatory: true
-      mandatory:
-        groupId: com.treilhes.emc4j
-        artifactId: emc4j.app.registry.mandatory
-        mandatory: true
-      optionals:
-        groupId: com.treilhes.emc4j
-        artifactId: emc4j.app.registry.optional
 
 #dynamic port
 server:

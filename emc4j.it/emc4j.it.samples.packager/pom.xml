@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.treilhes.emc4j</groupId>
+        <artifactId>emc4j.it</artifactId>
+        <version>${emc4j.version}</version>
+    </parent>
+    <artifactId>emc4j.it.samples.packager</artifactId>
+    <packaging>jar</packaging>
+
+    <description> Run command: mvn com.treilhes.emc4j:emc4j-maven-plugin:package </description>
+
+    <properties>
+        <!-- Replace SNAPSHOT with .0 to keep numeric MSI version -->
+        <app.version>${project.version.replace("-SNAPSHOT", ".0")}</app.version>
+        <app.name>JfxAppsBoot</app.name>
+        <app.description>JfxApps Boot application</app.description>
+        <app.vendor>Gluon</app.vendor>
+        <main.module.name>jfxapps.boot.main</main.module.name>
+        <main.class.name>com.gluonhq.jfxapps.boot.main.Main</main.class.name>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-maven-plugin</artifactId>
+                <version>${emc4j.version}</version>
+                <configuration>
+                    <emc4jVersion>${emc4j.version}</emc4jVersion>
+                    <profile>samples</profile>
+                    <profileFile>${basedir}/src/main/resources/application-samples.yaml</profileFile>
+
+                    <!-- parameter for jpackage plugin-->
+                    <toolhome>${java.home}</toolhome>
+                    <appversion>${app.version}</appversion>
+                    <input>${project.build.directory}/application</input>
+                    <licensefile>${basedir}/src/assets/LICENSE.txt</licensefile>
+                    <module>${main.module.name}/${main.class.name}</module>
+                    <name>${app.name}</name>
+                    <description>${app.description}</description>
+                    <vendor>${app.vendor}</vendor>
+                    <verbose>true</verbose>
+                    <runtimeimage>${project.build.directory}/runtime</runtimeimage>
+                    <dest>${project.build.directory}/package</dest>
+                    <!-- <type>PLATFORM</type> -->
+                    <javaoptions>-Djavafx.allowjs=true</javaoptions>
+                    <javaoptions>--add-opens=javafx.fxml/javafx.fxml=ALL-UNNAMED</javaoptions>
+                    <javaoptions>--enable-native-access=javafx.graphics</javaoptions>
+                    <javaoptions>--sun-misc-unsafe-memory-access=allow</javaoptions>
+                    <javaoptions>-Djava.library.path=runtime\bin;runtime\lib</javaoptions>
+                    <icon>${basedir}/src/assets/windows/icon-windows.ico</icon>
+
+                    <!-- Windows -->
+                    <windirchooser>true</windirchooser>
+                    <winmenu>true</winmenu>
+                    <winmenugroup>Scene Builder</winmenugroup>
+                    <winperuserinstall>true</winperuserinstall>
+                    <winshortcut>true</winshortcut>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

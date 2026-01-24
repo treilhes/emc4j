@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -59,6 +59,7 @@ import com.treilhes.emc4j.plugin.javaconfig.JavaProcessConfig;
 import com.treilhes.emc4j.plugin.util.BootConfigMask;
 import com.treilhes.emc4j.plugin.util.FsUtil;
 import com.treilhes.emc4j.plugin.util.JpmsHelper;
+import com.treilhes.emc4j.plugin.util.PluginArtifact;
 import com.treilhes.emc4j.plugin.util.PluginArtifactFactory;
 
 public abstract class Emc4jAbstractMojo extends AbstractMojo {
@@ -72,7 +73,7 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
     protected static final String DELIVERY_CONFIG_ARTIFACT_ID = "emc4j.delivery.config";
 
     protected static final String DELIVERY_RUNTIME_GROUP_ID = "com.treilhes.emc4j";
-    protected static final String DELIVERY_RUNTIME_ARTIFACT_ID = "emc4j.boot.runtime";
+    protected static final String DELIVERY_RUNTIME_ARTIFACT_ID = "emc4j.delivery.runtime";
     protected static final String DELIVERY_RUNTIME_CLASSIFIER = "zip";
 
     protected static final String BOOT_JAR_GROUP_ID = "com.treilhes.emc4j";
@@ -80,8 +81,6 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
 
     protected static final String BOOT_MODULE = "emc4j.boot.main";
     protected static final String BOOT_CLASS = "com.treilhes.emc4j.boot.main.Main";
-
-    protected static final String DEFAULT_BOOT_CONFIG = "boot-config.xml";
 
     @Component
     private MavenProject project;
@@ -108,8 +107,17 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
     @Parameter(property = "emc4jVersion", required = true)
     private String emc4jVersion;
 
-    @Parameter(property = "bootConfig", required = false, defaultValue = "boot-config.xml")
-    private String bootConfiguration;
+    @Parameter
+    private Dependency emc4jRuntimeDependency;
+
+    @Parameter
+    private Dependency emc4jBootDependency;
+
+    @Parameter
+    private Dependency emc4jConfigurationDependency;
+
+    @Parameter
+    private List<Dependency> configurationDependencies = new ArrayList<>();
 
     @Parameter(property = "outputDirectory", required = false, defaultValue = "target/emc4j-maven-plugin")
     private String outputDirectory;
@@ -179,9 +187,27 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
 
     public JavaProcessConfig initializeJavaProcessConfig() throws Exception {
         var factory = getPluginArtifactFactory();
-        var appBinPluginArtifact = factory.createArtifact(BOOT_JAR_GROUP_ID, BOOT_JAR_ARTIFACT_ID, getEmc4jVersion());
-        var appConfigPluginArtifact = factory.createArtifact(DELIVERY_CONFIG_GROUP_ID, DELIVERY_CONFIG_ARTIFACT_ID, getEmc4jVersion());
-        var configMask = new BootConfigMask(appConfigPluginArtifact);
+
+        var appBinPluginArtifact = emc4jBootDependency != null
+                ? factory.createArtifact(emc4jBootDependency.getGroupId(), emc4jBootDependency.getArtifactId(),
+                        emc4jBootDependency.getVersion(), emc4jBootDependency.getClassifier())
+                : factory.createArtifact(BOOT_JAR_GROUP_ID, BOOT_JAR_ARTIFACT_ID, getEmc4jVersion());
+
+        var appConfigPluginArtifact = emc4jConfigurationDependency != null
+                ? factory.createArtifact(emc4jConfigurationDependency.getGroupId(), emc4jConfigurationDependency.getArtifactId(),
+                        emc4jConfigurationDependency.getVersion(), emc4jConfigurationDependency.getClassifier())
+                : factory.createArtifact(DELIVERY_CONFIG_GROUP_ID, DELIVERY_CONFIG_ARTIFACT_ID, getEmc4jVersion());
+
+        List<PluginArtifact> allConfigArtifacts = new ArrayList<>();
+        allConfigArtifacts.add(appConfigPluginArtifact);
+
+        for (Dependency dep : configurationDependencies) {
+            var pluginArtifact = factory.createArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(),
+                    dep.getClassifier());
+            allConfigArtifacts.add(pluginArtifact);
+        }
+
+        var configMask = new BootConfigMask(allConfigArtifacts);
 
         Artifact appMainArtifact = appBinPluginArtifact.resolve();
         List<Artifact> appArtifacts = appBinPluginArtifact.resolveDependencies();

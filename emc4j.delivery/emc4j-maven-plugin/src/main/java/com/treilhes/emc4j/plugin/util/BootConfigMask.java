@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -33,36 +33,38 @@ package com.treilhes.emc4j.plugin.util;
 
 import java.io.File;
 import java.io.InputStream;
-
-import javax.xml.transform.stream.StreamSource;
+import java.util.List;
 
 import org.eclipse.aether.artifact.Artifact;
 
 import com.treilhes.emc4j.plugin.bootconfig.BootConfig;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.Unmarshaller;
-
 public class BootConfigMask {
 
     protected static final String DEFAULT_BOOT_CONFIG = "boot-config.xml";
 
-    private final PluginArtifact pluginArtifact;
+    private final List<PluginArtifact> pluginArtifacts;
     private BootConfig config;
 
-    public BootConfigMask(PluginArtifact pluginArtifact) {
-        this.pluginArtifact = pluginArtifact;
+    public BootConfigMask(List<PluginArtifact> pluginArtifacts) {
+        this.pluginArtifacts = pluginArtifacts;
     }
 
     public BootConfig getConfig() {
         if (config == null) {
-            try {
-                ClassLoader classLoader = pluginArtifact.classloader();
-                config = loadBootConfig(classLoader);
-            } catch (Exception e) {
-                throw new RuntimeException("Error loading boot configuration", e);
+            BootConfig config = new BootConfig();
+
+            for (PluginArtifact pluginArtifact : pluginArtifacts) {
+                try {
+                    ClassLoader classLoader = pluginArtifact.classloader();
+                    var artifactConfig = loadBootConfig(classLoader);
+                    config = BootConfig.merge(config, artifactConfig);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error loading boot configuration", e);
+                }
             }
+
+            this.config = config;
         }
         return config;
     }
@@ -90,15 +92,8 @@ public class BootConfigMask {
     }
 
     private BootConfig loadBootConfig(ClassLoader classLoader) throws Exception {
-
         try (InputStream input = classLoader.getResourceAsStream(DEFAULT_BOOT_CONFIG)) {
-            JAXBContext ctx = JAXBContext.newInstance(BootConfig.class);
-
-            Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            StreamSource source = new StreamSource(input);
-            JAXBElement<BootConfig> element = unmarshaller.unmarshal(source, BootConfig.class);
-
-            return element.getValue();
+            return BootConfig.load(input);
         }
     }
 

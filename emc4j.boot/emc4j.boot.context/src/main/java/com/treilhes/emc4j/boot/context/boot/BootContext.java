@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -73,9 +73,9 @@ public class BootContext {
         initializerList.add(bootInitializer);
         initializerList.add(conditionEvaluation);
 
-		if (initializer != null) {
-			initializerList.add(initializer);
-		}
+        if (initializer != null) {
+            initializerList.add(initializer);
+        }
 
         SpringApplication application = new SpringApplication(BootConfig.class);
         //application.setApplicationStartup(startup);

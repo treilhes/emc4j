@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -32,7 +32,6 @@
 package com.treilhes.emc4j.boot.registry.internal.repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -42,7 +41,7 @@ import com.treilhes.emc4j.boot.registry.internal.model.RegistryEntity;
 
 @Repository
 @Transactional
-public interface RegistryRepository extends JpaRepository<RegistryEntity, UUID> {
+public interface RegistryRepository extends JpaRepository<RegistryEntity, Long> {
 
     Optional<RegistryEntity> findByGroupIdAndArtifactId(String groupId, String artifactId);
 }

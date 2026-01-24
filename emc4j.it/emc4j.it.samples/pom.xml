@@ -2,9 +2,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>it.boot.loader</groupId>
-    <artifactId>common-loader</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <groupId>com.treilhes.emc4j</groupId>
+    <artifactId>emc4j.it.samples</artifactId>
+    <version>${emc4j.version}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -16,7 +16,7 @@
         <module>app1-ext1-ext1</module>
     </modules>
 
-	<properties>
+    <properties>
         <!--<emc4j.version>${parent.emc4j.version}</emc4j.version>-->
         <!-- compiler 
         <maven.compiler.plugin.version>${parent.maven.compiler.plugin.version}</maven.compiler.plugin.version>
@@ -29,7 +29,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-	
+
     <build>
         <plugins>
             <plugin>

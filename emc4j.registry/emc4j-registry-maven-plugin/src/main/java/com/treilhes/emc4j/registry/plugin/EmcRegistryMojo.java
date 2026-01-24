@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -48,9 +48,9 @@ import com.treilhes.emc4j.registry.mapper.Mapper;
 import com.treilhes.emc4j.registry.mapper.impl.JsonMapper;
 import com.treilhes.emc4j.registry.mapper.impl.XmlMapper;
 import com.treilhes.emc4j.registry.model.Dependency;
+import com.treilhes.emc4j.registry.model.Emc;
 import com.treilhes.emc4j.registry.model.Extension;
 import com.treilhes.emc4j.registry.model.Feature;
-import com.treilhes.emc4j.registry.model.Emc;
 import com.treilhes.emc4j.registry.model.Registry;
 
 @Mojo(name = "emc4jRegistry", defaultPhase = LifecyclePhase.GENERATE_RESOURCES, requiresDependencyResolution = ResolutionScope.COMPILE, configurator = "emc4j-mojo-component-configurator")
@@ -58,7 +58,7 @@ public class EmcRegistryMojo extends AbstractMojo {
 
     private static final String REGISTRY_IS_NOT_VALID = "The registry is not valid!";
 
-    private static String GENERATED_RESOURCES_FOLDER = "registry-maven-plugin";
+    private static String GENERATED_RESOURCES_FOLDER = "emc4j-registry-maven-plugin";
 
     /** The registry. */
     @Parameter(property = "registry", required = true, alias = "registry")
@@ -114,7 +114,7 @@ public class EmcRegistryMojo extends AbstractMojo {
 
             final var resource = new Resource();
             resource.setDirectory(relativePath);
-            project.getBuild().getResources().add(resource);
+            project.addResource(resource);
 
             if (!registryFolder.exists()) {
                 registryFolder.mkdirs();

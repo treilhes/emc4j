@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -111,10 +111,10 @@ import jakarta.inject.Inject;
 @TestInstance(Lifecycle.PER_CLASS)
 public class AvailableFeaturesTestIT {
 
+    private static final String RES_IT = "../emc4j.it.samples";
+
     private static final String ROLLBACK_TRIGGERED_MARKER = "rollbackTriggered";
     private static final String CONTROLLER_ADVICE_HANDLED_EXCEPTION_MARKER = "controllerAdviceHandledException";
-
-    private static final String RES_IT = "./src/test/resources-its/common-loader";
 
     private static final UUID ROOT_ID = OpenExtension.ROOT_ID;
     private static final UUID ROOT_EXT1_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");

@@ -8,6 +8,11 @@
   <artifactId>emc4j.it</artifactId>
   <packaging>pom</packaging>
   <modules>
+      <module>emc4j.it.samples</module><!-- must be built first -->
+      <module>emc4j.it.samples.registry</module>
+      <module>emc4j.it.samples.launcher</module>
+      <module>emc4j.it.samples.packager</module>
       <module>emc4j.it.features</module>
+      
   </modules>
 </project>

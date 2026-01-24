@@ -133,6 +133,8 @@
         
         <dependency groupId="net.bytebuddy" artifactId="byte-buddy" classifier="jar" />
         
+        <!-- <dependency groupId="org.jspecify" artifactId="jspecify" classifier="jar" />  -->
+        
         <dependency groupId="org.codehaus.woodstox" artifactId="stax2-api" classifier="jar" />
         <dependency groupId="org.springframework.boot" artifactId="spring-boot-tomcat" classifier="jar" />
         <dependency groupId="org.springframework.boot" artifactId="spring-boot-webmvc" classifier="jar" />
@@ -144,6 +146,7 @@
         
         <!-- Temp: required by jira on app boot -->
         <dependency groupId="jakarta.activation" artifactId="jakarta.activation-api" classifier="jar" />
+
     </modules>
     <classpath>
         <dependency groupId="ch.qos.logback" artifactId="logback-classic" classifier="jar" />
@@ -185,8 +188,6 @@
         <dependency groupId="org.glassfish.jaxb" artifactId="jaxb-core" classifier="jar" />
         <dependency groupId="org.glassfish.jaxb" artifactId="txw2" classifier="jar" />
         <dependency groupId="org.hibernate.models" artifactId="hibernate-models" classifier="jar" />
-        
-        <dependency groupId="org.jspecify" artifactId="jspecify" classifier="jar" />
         
         <dependency groupId="org.ow2.asm" artifactId="asm" classifier="jar" />
         <dependency groupId="org.slf4j" artifactId="jul-to-slf4j" classifier="jar" />

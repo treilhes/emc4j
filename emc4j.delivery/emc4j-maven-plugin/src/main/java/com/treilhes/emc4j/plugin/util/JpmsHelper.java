@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -55,12 +55,16 @@ public class JpmsHelper {
     public boolean isAutomaticModule(File jarFile) {
 
         try (var jf = new java.util.jar.JarFile(jarFile)) {
+            var manifest = jf.getManifest();
+
+            if (manifest == null) {
+                log.info("Jar file " + jarFile + " has no manifest");
+                return false;
+            }
+
             return jf.getManifest().getMainAttributes().getValue("Automatic-Module-Name") != null;
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Error reading jar file " + jarFile, e);
-            return false;
-        } catch (NullPointerException e) {
-            log.error("Error reading jar file manifest " + jarFile, e);
             return false;
         }
     }

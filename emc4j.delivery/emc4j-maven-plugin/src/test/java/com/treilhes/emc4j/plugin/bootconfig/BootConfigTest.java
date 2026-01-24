@@ -29,38 +29,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.treilhes.emc4j.boot.main;
+package com.treilhes.emc4j.plugin.bootconfig;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
-import com.treilhes.emc4j.boot.main.command.StartCommand;
+import org.junit.jupiter.api.Test;
 
-import picocli.CommandLine;
+class BootConfigTest {
 
-public class Main {
-
-    private static Pattern PSN_PATTERN = Pattern.compile("-psn(_.*)?");
-
-    public static void main(String[] args) {
-
-        // Fix Start: Github Issue #301
-        if (EmcPlatform.IS_MAC) {
-            args = filterMacPsn(args);
-        }
-
-        var cmd = new CommandLine(new StartCommand());
-        cmd.setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
-            ex.printStackTrace();
-            System.exit(1);
-            return 0;
-        });
-        cmd.execute(args);
+    @Test
+    void can_load_empty_boot_config() throws Exception {
+        var bootConfig = BootConfig.load(BootConfigTest.class.getResourceAsStream("/empty-boot-config.xml"));
+        assertNotNull(bootConfig);
     }
 
-    private static String[] filterMacPsn(String[] args) {
-        return Arrays.stream(args).filter(PSN_PATTERN.asMatchPredicate().negate()).toArray(String[]::new);
+    @Test
+    void can_merge_empty_boot_configs() throws Exception {
+        var bootConfig1 = BootConfig.load(BootConfigTest.class.getResourceAsStream("/empty-boot-config.xml"));
+        var bootConfig2 = BootConfig.load(BootConfigTest.class.getResourceAsStream("/empty-boot-config.xml"));
+        var mergedConfig = BootConfig.merge(bootConfig1, bootConfig2);
+        assertNotNull(mergedConfig);
     }
 
 }

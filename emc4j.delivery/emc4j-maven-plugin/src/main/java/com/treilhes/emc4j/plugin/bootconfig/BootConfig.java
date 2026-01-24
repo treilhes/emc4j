@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -31,9 +31,15 @@
  */
 package com.treilhes.emc4j.plugin.bootconfig;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.transform.stream.StreamSource;
+
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -130,5 +136,51 @@ public class BootConfig {
     }
     public void setForceAsClasspaths(List<Dependency> forceAsClasspaths) {
         this.forceAsClasspaths = forceAsClasspaths;
+    }
+
+    public static BootConfig load(InputStream input) throws Exception {
+        JAXBContext ctx = JAXBContext.newInstance(BootConfig.class);
+
+        Unmarshaller unmarshaller = ctx.createUnmarshaller();
+        StreamSource source = new StreamSource(input);
+        JAXBElement<BootConfig> element = unmarshaller.unmarshal(source, BootConfig.class);
+
+        return element.getValue();
+    }
+
+
+    public static BootConfig merge(BootConfig base, BootConfig toMerge) {
+        BootConfig config = new BootConfig();
+
+        config.getForceAsClasspaths().addAll(base.getForceAsClasspaths());
+        config.getForceAsClasspaths().addAll(toMerge.getForceAsClasspaths());
+
+        config.getForceAsModules().addAll(base.getForceAsModules());
+        config.getForceAsModules().addAll(toMerge.getForceAsModules());
+
+        config.getExcludedDependencies().addAll(base.getExcludedDependencies());
+        config.getExcludedDependencies().addAll(toMerge.getExcludedDependencies());
+
+        config.getAddExports().addAll(base.getAddExports());
+        config.getAddExports().addAll(toMerge.getAddExports());
+
+        config.getAddOpens().addAll(base.getAddOpens());
+        config.getAddOpens().addAll(toMerge.getAddOpens());
+
+        config.getAddReads().addAll(base.getAddReads());
+        config.getAddReads().addAll(toMerge.getAddReads());
+
+        config.getJavaOptions().addAll(base.getJavaOptions());
+        config.getJavaOptions().addAll(toMerge.getJavaOptions());
+
+        config.getPatchModules().addAll(base.getPatchModules());
+        config.getPatchModules().addAll(toMerge.getPatchModules());
+
+        config.getProfiles().addAll(base.getProfiles());
+        config.getProfiles().addAll(toMerge.getProfiles());
+
+        config.setDebug(base.isDebug() || toMerge.isDebug());
+
+        return config;
     }
 }
