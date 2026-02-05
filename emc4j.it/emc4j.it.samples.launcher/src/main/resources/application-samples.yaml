@@ -15,8 +15,8 @@ emc4j:
 #        artifactId: jfxapps.core.api
 #        path: ../../jfxapps.core/jfxapps.core.api/target/classes
 
-server:
-  port: 8080
+#server:
+#  port: 8080
 
 spring:
   h2:

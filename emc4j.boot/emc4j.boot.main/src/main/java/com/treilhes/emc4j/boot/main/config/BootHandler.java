@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -31,7 +31,6 @@
  */
 package com.treilhes.emc4j.boot.main.config;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -65,7 +64,7 @@ public class BootHandler {
         this.startup = startup;
     }
 
-    public void boot(UUID application, List<File> files, String[] args) {
+    public void boot(UUID application, List<String> arguments) {
         var bootStep = startup.map(s -> s.start("boot.handler"));
 
         try {
@@ -81,13 +80,8 @@ public class BootHandler {
             }
 
             var commandStart = startup.map(s -> s.start("boot.start.command"));
-            if (files != null && !files.isEmpty()) {
-                for (File file : files) {
-                    appManager.send(new OpenCommandEvent(application, file));
-                }
-            } else {
-                appManager.send(new OpenCommandEvent(application, null));
-            }
+            appManager.send(new OpenCommandEvent(application, arguments));
+
             commandStart.ifPresent(StartupStep::end);
         } catch (BootException e) {
             logger.error("Unable to boot application", e);

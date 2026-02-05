@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2023, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -42,36 +42,39 @@ public class MessageBoxMessage implements Serializable {
     static final long serialVersionUID = 10;
 
     private UUID targetApplication;
-    private ArrayList<String> files;
+    private ArrayList<String> arguments;
 
-    public MessageBoxMessage(UUID targetApplication, List<String> files) {
+    public MessageBoxMessage(UUID targetApplication, List<String> arguments) {
         this.targetApplication = targetApplication;
-        this.files = new ArrayList<>(files);
+        this.arguments = new ArrayList<>(arguments);
     }
 
     public UUID getTargetApplication() {
         return targetApplication;
     }
 
-    public List<String> getFiles() {
-        return files;
+    public List<String> getArguments() {
+        return arguments;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(files, targetApplication);
+        return Objects.hash(arguments, targetApplication);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         MessageBoxMessage other = (MessageBoxMessage) obj;
-        return Objects.equals(files, other.files) && Objects.equals(targetApplication, other.targetApplication);
+        return Objects.equals(arguments, other.arguments) && Objects.equals(targetApplication, other.targetApplication);
     };
 
 

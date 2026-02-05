@@ -122,11 +122,11 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
     @Parameter(property = "outputDirectory", required = false, defaultValue = "target/emc4j-maven-plugin")
     private String outputDirectory;
 
-    @Parameter(property = "profile", required = true)
-    private String profile;
+    @Parameter
+    private List<String> profiles = new ArrayList<>();
 
-    @Parameter(property = "profileFile", required = true)
-    private File profileFile;
+    @Parameter
+    private List<File> profileFiles = new ArrayList<>();
 
     @Parameter(property = "javaOptions", required = false)
     private List<String> javaOptions;
@@ -158,8 +158,8 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
         return emc4jVersion;
     }
 
-    public File getProfileFile() {
-        return profileFile;
+    public List<File> getProfileFiles() {
+        return profileFiles;
     }
 
     public File getOutputDirectory() {
@@ -177,8 +177,8 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
         return repositorySession;
     }
 
-    public String getProfile() {
-        return profile;
+    public List<String> getProfiles() {
+        return profiles;
     }
 
     public List<String> getJavaOptions() {
@@ -211,6 +211,10 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
 
         Artifact appMainArtifact = appBinPluginArtifact.resolve();
         List<Artifact> appArtifacts = appBinPluginArtifact.resolveDependencies();
+
+        for (PluginArtifact c : allConfigArtifacts) {
+            appArtifacts.add(c.resolve());
+        }
 
         File javaBin = findJavaBin();
 
@@ -355,9 +359,9 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
             profiles.addAll(config.getProfiles());
         }
 
-        String profile = getProfile();
-        if (profile != null && !profile.isEmpty()) {
-            profiles.add(profile);
+        List<String> localProfiles = getProfiles();
+        if (localProfiles != null && !localProfiles.isEmpty()) {
+            profiles.addAll(localProfiles);
         }
 
         if (!profiles.isEmpty()) {

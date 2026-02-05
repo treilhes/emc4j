@@ -48,7 +48,7 @@ module emc4j.boot.starter {
     requires transitive java.sql;
 
     requires transitive jdk.xml.dom; // required by javafx
-    requires transitive jdk.jsobject; // required by javafx
+    //requires transitive jdk.jsobject; // required by javafx
     requires transitive jdk.unsupported; // required by javafx
 
     requires transitive jakarta.annotation;

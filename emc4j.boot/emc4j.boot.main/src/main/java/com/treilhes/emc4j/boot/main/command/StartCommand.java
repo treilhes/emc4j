@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -31,15 +31,13 @@
  */
 package com.treilhes.emc4j.boot.main.command;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,108 +59,101 @@ import picocli.CommandLine.Spec;
 @Command(subcommands = { RunFxmlCommand.class })
 public class StartCommand implements Runnable, MessageBox.Delegate<MessageBoxMessage> {
 
-	private final static Logger logger = LoggerFactory.getLogger(StartCommand.class);
+    private final static Logger logger = LoggerFactory.getLogger(StartCommand.class);
 
-	private static MessageBox<MessageBoxMessage> messageBox;
+    private static MessageBox<MessageBoxMessage> messageBox;
 
-	@Option(names = { "--root", "-r" }, defaultValue = "./target", description = "Extensions download folder")
-	private Path root;
+    @Option(names = { "--root", "-r" }, defaultValue = "./target", description = "Extensions download folder")
+    private Path root;
 
-	@Option(names = { "--app", "-a" }, description = "target application uuid")
-	private UUID targetApplication;
+    @Option(names = { "--app", "-a" }, description = "target application uuid")
+    private UUID targetApplication;
 
-	@Option(names = { "--files", "-f" }, description = "list of files to open")
-	private List<File> files;
+    private BootHandler bootHandler;
 
-	private BootHandler bootHandler;
+    @Spec
+    private CommandSpec spec;
 
-	@Spec
-	private CommandSpec spec;
+    @Override
+    public void run() {
 
-	@Override
-	public void run() {
+        String[] originalArgs = spec.commandLine().getParseResult().originalArgs().toArray(new String[0]);
+        List<String> arguments = Arrays.asList(originalArgs);
 
-		try {
-			if (!lockMessageBox(this, targetApplication, files)) {
-				logger.warn("An instance is already running forwarding execution to existing instance");
-				return;
-			}
-		} catch (IOException e) {
-			logger.error("Unable to initialize the message box", e);
-		}
+        try {
+            if (!lockMessageBox(this, targetApplication, arguments)) {
+                logger.warn("An instance is already running forwarding execution to existing instance");
+                return;
+            }
+        } catch (IOException e) {
+            logger.error("Unable to initialize the message box", e);
+        }
 
-		String[] originalArgs = spec.commandLine().getParseResult().originalArgs().toArray(new String[0]);
+        if (bootHandler == null) {
+            var splash = BootSplashScreen.defaultSplashScreen();
+            var step = splash.asSubSteps(1).get(0);
+            var contextAdapter = new ContextLoadingAdapter(step);
 
-		if (bootHandler == null) {
-			var splash = BootSplashScreen.defaultSplashScreen();
-			var step = splash.asSubSteps(1).get(0);
-			var contextAdapter = new ContextLoadingAdapter(step);
+            var context = BootContext.create(null, WebApplicationType.SERVLET, originalArgs, c -> {
+                c.addApplicationListener(contextAdapter);
+                c.addBeanFactoryPostProcessor(contextAdapter);
+            });
+            bootHandler = context.getBean(BootHandler.class);
+        }
 
-			var context = BootContext.create(null, WebApplicationType.SERVLET, originalArgs, (c) -> {
-				c.addApplicationListener(contextAdapter);
-				c.addBeanFactoryPostProcessor(contextAdapter);
-			});
-			bootHandler = context.getBean(BootHandler.class);
-		}
+        bootHandler.boot(targetApplication, arguments);
 
-		bootHandler.boot(targetApplication, files, originalArgs);
+    }
 
-	}
+    /*
+     * Private (requestStartGeneric)
+     */
 
-	/*
-	 * Private (requestStartGeneric)
-	 */
+    private static synchronized boolean lockMessageBox(MessageBox.Delegate<MessageBoxMessage> delegate, UUID targetApp,
+            List<String> arguments) throws IOException {
+        assert messageBox == null;
 
-	private static synchronized boolean lockMessageBox(MessageBox.Delegate<MessageBoxMessage> delegate, UUID targetApp,
-			List<File> files) throws IOException {
-		assert messageBox == null;
+        var messageBoxFolder = DefaultFolders.getMessageBoxFolder();
 
-		var messageBoxFolder = DefaultFolders.getMessageBoxFolder();
+        try {
+            Files.createDirectories(messageBoxFolder.toPath());
+        } catch (FileAlreadyExistsException x) {
+            // Fine
+        }
 
-		try {
-			Files.createDirectories(messageBoxFolder.toPath());
-		} catch (FileAlreadyExistsException x) {
-			// Fine
-		}
+        final boolean result;
+        messageBox = new MessageBox<>(messageBoxFolder, MessageBoxMessage.class, 1000 /* ms */);
 
-		final boolean result;
-		messageBox = new MessageBox<>(messageBoxFolder, MessageBoxMessage.class, 1000 /* ms */);
+        // Fix End
+        if (messageBox.grab(delegate)) {
+            result = true;
+        } else {
+            result = false;
 
-		// Fix End
-		if (messageBox.grab(delegate)) {
-			result = true;
-		} else {
-			result = false;
+            final MessageBoxMessage message = new MessageBoxMessage(targetApp, arguments);
+            try {
+                messageBox.sendMessage(message);
+            } catch (InterruptedException x) {
+                throw new IOException(x);
+            }
+        }
 
-			List<String> parameters = new ArrayList<>();
-			if (files != null) {
-				parameters.addAll(files.stream().map(File::getAbsolutePath).collect(Collectors.toList()));
-			}
-			final MessageBoxMessage unamedParameters = new MessageBoxMessage(targetApp, parameters);
-			try {
-				messageBox.sendMessage(unamedParameters);
-			} catch (InterruptedException x) {
-				throw new IOException(x);
-			}
-		}
+        return result;
+    }
 
-		return result;
-	}
+    @Override
+    public void messageBoxDidGetMessage(MessageBoxMessage message) {
+        try {
+            UUID targetApplication = message.getTargetApplication();
+            bootHandler.boot(targetApplication, message.getArguments());
+        } catch (Exception e) {
+            logger.error("Unable to execute the message {} the application", message, e);
+        }
+    }
 
-	@Override
-	public void messageBoxDidGetMessage(MessageBoxMessage message) {
-		try {
-			UUID targetApplication = message.getTargetApplication();
-			List<File> files = message.getFiles().stream().map(File::new).toList();
-			bootHandler.boot(targetApplication, files, new String[0]);
-		} catch (Exception e) {
-			logger.error("Unable to execute the message {} the application", message, e);
-		}
-	}
-
-	@Override
-	public void messageBoxDidCatchException(Exception ex) {
-		logger.error("Received message but something failed", ex);
-	}
+    @Override
+    public void messageBoxDidCatchException(Exception ex) {
+        logger.error("Received message but something failed", ex);
+    }
 
 }

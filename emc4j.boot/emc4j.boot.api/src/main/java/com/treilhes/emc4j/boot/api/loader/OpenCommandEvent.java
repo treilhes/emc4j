@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -31,7 +31,7 @@
  */
 package com.treilhes.emc4j.boot.api.loader;
 
-import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEvent;
@@ -43,22 +43,18 @@ public class OpenCommandEvent extends ApplicationEvent {
      */
     private static final long serialVersionUID = 1L;
 
-    public OpenCommandEvent(UUID target, File file) {
-        super(new OpenCommandArgs(target, file));
+    public OpenCommandEvent(UUID target, List<String> args) {
+        super(new OpenCommandArgs(target, args));
     }
 
     public UUID getTarget() {
         return OpenCommandArgs.class.cast(getSource()).target();
     }
 
-    public File getFile() {
-        return OpenCommandArgs.class.cast(getSource()).file();
+    public List<String> getArguments() {
+        return OpenCommandArgs.class.cast(getSource()).args();
     }
 
-    public boolean isBlank() {
-        return OpenCommandArgs.class.cast(getSource()).file() == null;
-    }
-
-    private static record OpenCommandArgs(UUID target, File file) {
+    private static record OpenCommandArgs(UUID target, List<String> args) {
     }
 }

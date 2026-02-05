@@ -163,10 +163,11 @@ public class RunMojo extends Emc4jAbstractMojo {
     }
 
     private void copyProfileToTarget() throws IOException {
-        if (getProfile() != null && getProfileFile() != null) {
-            String extension = getProfileFile().getName().substring(getProfileFile().getName().lastIndexOf('.'));
-            File targetProfile = new File(getRunDirectory(), "application-" + getProfile() + extension);
-            Files.copy(getProfileFile().toPath(), targetProfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        if (getProfileFiles() != null && !getProfileFiles().isEmpty()) {
+            for (File profileFile : getProfileFiles()) {
+                File targetProfile = new File(getRunDirectory(), profileFile.getName());
+                Files.copy(profileFile.toPath(), targetProfile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
     }
 
