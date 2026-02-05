@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 http://maven.apache.org/xsd/maven-4.1.0.xsd"
+    root="true">
+    <modelVersion>4.1.0</modelVersion>
     <groupId>com.treilhes.emc4j</groupId>
     <artifactId>emc4j-parent</artifactId>
     <packaging>pom</packaging>
-    <version>${emc4j.version}</version>
+    <version>${revision}</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description> Emc4j stands for Extensible Modular Context for Java. Emc4j allows to define modular applications
         using a declarative xml approach defining an extension tree. When launching the application, emc4j will load the
@@ -55,18 +56,20 @@
         <module>emc4j.starters</module>
         <module>emc4j.jpms.patches</module>
         <module>emc4j.it</module>
+        <module>emc4j.fatjars</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
+        <revision>1.0.0-SNAPSHOT</revision>
+        
         <!-- exporting a package from system module java.base is not allowed with release -->
         <!--<maven.compiler.release>25</maven.compiler.release> -->
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
 
-        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>4.0.0-beta-4</maven.compiler.plugin.version>
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>${maven-failsafe-plugin.version}</maven-surefire-plugin.version>
@@ -81,8 +84,6 @@
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
-        <flatten-maven-plugin.version>1.7.4-SNAPSHOT</flatten-maven-plugin.version>
-        
         <spring.boot.version>4.0.0</spring.boot.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
@@ -99,121 +100,121 @@
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.aop</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.api</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.context</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.jpa</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>java.base.patch</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>java.base.patch.link</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>spring.core.patch</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>spring.core.patch.link</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>org.hibernate.orm.core.patch</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>org.hibernate.orm.core.patch.link</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.layer</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.loader</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.main</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.maven</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.platform</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.registry</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.splash</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.starter</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.starter.test</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.starter.test.dependencies</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.boot.web</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <!-- emc4j.registry -->
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j.registry.model</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
 
             <!-- emc4j.utils -->
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j-dependency-plugin</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
             <dependency>
@@ -232,17 +233,16 @@
             <!-- dependencies below are required due to their version missing from spring boot dependencies RC must be
             removed 
                 when a final version is released -->
-            <dependency>
+            <!--<dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-aop</artifactId>
                 <version>4.0.0-M2</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework/spring-aop -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
                 <version>7.0.1</version>
-            </dependency>
+            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
@@ -319,54 +319,17 @@
         </profile>
     </profiles>
     <build>
-        <plugins>
-            <plugin>
-                <!--
-                This plugin has 2 internal usages:
-                - generate a flattened version of the pom.xml in the repository, maven actions
-                will use the flattened pom.xml as the effective pom reducing the
-                number of roundtrip during dependency resolution and download
-                - manage a centralize version for the project
-                -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>flatten-maven-plugin</artifactId>
-                <version>${flatten-maven-plugin.version}</version>
-                <configuration>
-                    <flattenDependencyMode>all</flattenDependencyMode>
-                    <flattenMode>bom</flattenMode> <!-- Resolve properties like ${emc4j.version} -->
-                    <!--<updatePomFile>true</updatePomFile> Ensures the POM file is updated -->
-                </configuration>
-                <executions>
-                    <!-- enable flattening -->
-                    <execution>
-                        <id>flatten</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                    </execution>
-                    <!-- ensure proper cleanup -->
-                    <execution>
-                        <id>flatten.clean</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>com.treilhes.emc4j</groupId>
                     <artifactId>emc4j-registry-maven-plugin</artifactId>
-                    <version>${emc4j.version}</version>
+                    <version>${revision}</version>
                 </plugin>
                 <plugin>
                     <groupId>com.treilhes.emc4j</groupId>
                     <artifactId>emc4j-dependency-plugin</artifactId>
-                    <version>${emc4j.version}</version>
+                    <version>${revision}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -533,20 +496,6 @@
                                         <execute>
                                             <runOnConfiguration>true</runOnConfiguration>
                                         </execute>
-                                    </action>
-                                </pluginExecution>
-
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>org.codehaus.mojo</groupId>
-                                        <artifactId>flatten-maven-plugin</artifactId>
-                                        <versionRange>[1.0.0,)</versionRange>
-                                        <goals>
-                                            <goal>flatten</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore />
                                     </action>
                                 </pluginExecution>
 

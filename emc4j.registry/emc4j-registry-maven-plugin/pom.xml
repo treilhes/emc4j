@@ -1,12 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.1.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.treilhes.emc4j</groupId>
-		<artifactId>emc4j.registry</artifactId>
-		<version>${emc4j.version}</version>
-	</parent>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 http://maven.apache.org/xsd/maven-4.1.0.xsd">
+	<modelVersion>4.1.0</modelVersion>
+	<parent/>
 	<artifactId>emc4j-registry-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 
@@ -14,6 +10,10 @@
 		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		
+		<maven.version>4.0.0-rc-5</maven.version>
+		<maven-plugin.version>4.0.0-beta-2</maven-plugin.version>
+		
 		<integration.testing.framework.version>0.13.1</integration.testing.framework.version>
 	</properties>
 
@@ -27,14 +27,14 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-			<version>3.8.3</version>
+			<version>${maven.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.13.1</version>
+			<version>${maven-plugin.version}</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -73,7 +73,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>${maven-plugin.version}</version>
 				<configuration>
 					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
 				</configuration>

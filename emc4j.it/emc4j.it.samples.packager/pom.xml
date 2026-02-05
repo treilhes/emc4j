@@ -1,11 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.treilhes.emc4j</groupId>
-        <artifactId>emc4j.it</artifactId>
-        <version>${emc4j.version}</version>
-    </parent>
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 http://maven.apache.org/xsd/maven-4.1.0.xsd">
+    <modelVersion>4.1.0</modelVersion>
+    <parent/>
     <artifactId>emc4j.it.samples.packager</artifactId>
     <packaging>jar</packaging>
 
@@ -26,12 +22,15 @@
             <plugin>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>emc4j-maven-plugin</artifactId>
-                <version>${emc4j.version}</version>
+                <version>${revision}</version>
                 <configuration>
-                    <emc4jVersion>${emc4j.version}</emc4jVersion>
-                    <profile>samples</profile>
-                    <profileFile>${basedir}/src/main/resources/application-samples.yaml</profileFile>
-
+                    <emc4jVersion>${revision}</emc4jVersion>
+                    <profiles>
+                        <profile>samples</profile>
+                    </profiles>
+                    <profileFiles>
+                        <profileFile>${basedir}/src/main/resources/application-samples.yaml</profileFile>
+                    </profileFiles>
                     <!-- parameter for jpackage plugin-->
                     <toolhome>${java.home}</toolhome>
                     <appversion>${app.version}</appversion>

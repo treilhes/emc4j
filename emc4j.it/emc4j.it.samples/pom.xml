@@ -1,10 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 http://maven.apache.org/xsd/maven-4.1.0.xsd">
+    <modelVersion>4.1.0</modelVersion>
     <groupId>com.treilhes.emc4j</groupId>
     <artifactId>emc4j.it.samples</artifactId>
-    <version>${emc4j.version}</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -17,6 +17,8 @@
     </modules>
 
     <properties>
+        <revision>1.0.0-SNAPSHOT</revision>
+        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         <!--<emc4j.version>${parent.emc4j.version}</emc4j.version>-->
         <!-- compiler 
         <maven.compiler.plugin.version>${parent.maven.compiler.plugin.version}</maven.compiler.plugin.version>
@@ -24,7 +26,7 @@
         <maven.compiler.source>${parent.maven.compiler.source}</maven.compiler.source>
         <maven.compiler.target>${parent.maven.compiler.target}</maven.compiler.target>-->
         <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
-        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>4.0.0-beta-4</maven.compiler.plugin.version>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

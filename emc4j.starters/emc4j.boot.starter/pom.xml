@@ -1,12 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.treilhes.emc4j</groupId>
-        <artifactId>emc4j.starters</artifactId>
-        <version>${emc4j.version}</version>
-    </parent>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 http://maven.apache.org/xsd/maven-4.1.0.xsd">
+    <modelVersion>4.1.0</modelVersion>
+    <parent/>
     <artifactId>emc4j.boot.starter</artifactId>
 
     <properties>
@@ -43,8 +39,8 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-            <exclusions>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+            <!--<exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter</artifactId>
@@ -53,7 +49,7 @@
                     <groupId>org.springframework</groupId>
                     <artifactId>spring-aop</artifactId>
                 </exclusion>
-            </exclusions>
+            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -95,6 +91,13 @@
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        
+        <!-- Not provided by hibernate but required by hibernate dependency require directive-->
+        <dependency>
+            <groupId>jakarta.interceptor</groupId>
+            <artifactId>jakarta.interceptor-api</artifactId>
+            <version>2.2.0</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/jakarta.el/jakarta.el-api -->
@@ -189,6 +192,17 @@
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>jakarta.enterprise</groupId>
+          <artifactId>jakarta.enterprise.cdi-api</artifactId>
+          <version>4.1.0</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>jakarta.el</groupId>
+                  <artifactId>jakarta.el-api</artifactId>
+              </exclusion>
+          </exclusions>
         </dependency>
     </dependencies>
 
