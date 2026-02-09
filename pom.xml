@@ -79,7 +79,7 @@
         <maven-surefire-plugin.version>${maven-failsafe-plugin.version}</maven-surefire-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-invoker-plugin.version>4.0.0-SNAPSHOT</maven-invoker-plugin.version>
+        <maven-invoker-plugin.version>3.9.2-SNAPSHOT</maven-invoker-plugin.version>
         <versions-maven-plugin.version>2.9.0</versions-maven-plugin.version>
         <maven-project-info-reports-plugin.version>2.6</maven-project-info-reports-plugin.version>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
