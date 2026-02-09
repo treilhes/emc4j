@@ -70,7 +70,7 @@
         <maven.compiler.target>25</maven.compiler.target>
 
         <maven-compiler-plugin.version>4.0.0-beta-4</maven-compiler-plugin.version>
-        <maven-resources-plugin.version>4.0.0-beta-1</maven-resources-plugin.version>
+        <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
         <maven-install-plugin.version>4.0.0-beta-2</maven-install-plugin.version>
         <maven-clean-plugin.version>4.0.0-beta-2</maven-clean-plugin.version>
         
@@ -86,6 +86,7 @@
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 
         <spring.boot.version>4.0.0</spring.boot.version>
@@ -350,11 +351,11 @@
                     <artifactId>emc4j-dependency-plugin</artifactId>
                     <version>${revision}</version>
                 </plugin>
-                <!--<plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven-resources-plugin.version}</version>
-                </plugin>-->
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
