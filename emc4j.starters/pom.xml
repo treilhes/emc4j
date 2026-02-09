@@ -6,9 +6,9 @@
     <artifactId>emc4j.starters</artifactId>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>emc4j.boot.starter.test.dependencies</module>
-        <module>emc4j.boot.starter</module>
-        <module>emc4j.boot.starter.test</module>
-    </modules>
+    <subprojects>
+        <subproject>emc4j.boot.starter.test.dependencies</subproject>
+        <subproject>emc4j.boot.starter</subproject>
+        <subproject>emc4j.boot.starter.test</subproject>
+    </subprojects>
 </project>

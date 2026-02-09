@@ -48,16 +48,16 @@
         <developerConnection>scm:git:ssh://git@github.com:treilhes/emc4j.git</developerConnection>
     </scm>
 
-    <modules>
-        <module>emc4j.boot</module>
-        <module>emc4j.registry</module>
-        <module>emc4j.utils</module>
-        <module>emc4j.delivery</module>
-        <module>emc4j.starters</module>
-        <module>emc4j.jpms.patches</module>
-        <module>emc4j.it</module>
-        <module>emc4j.fatjars</module>
-    </modules>
+    <subprojects>
+        <subproject>emc4j.boot</subproject>
+        <subproject>emc4j.registry</subproject>
+        <subproject>emc4j.utils</subproject>
+        <subproject>emc4j.delivery</subproject>
+        <subproject>emc4j.starters</subproject>
+        <subproject>emc4j.jpms.patches</subproject>
+        <subproject>emc4j.it</subproject>
+        <subproject>emc4j.fatjars</subproject>
+    </subprojects>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

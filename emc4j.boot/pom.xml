@@ -5,22 +5,22 @@
     <artifactId>emc4j.boot</artifactId>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>emc4j.boot.loader</module>
-        <module>emc4j.boot.context</module>
-        <module>emc4j.boot.maven</module>
-        <module>emc4j.boot.main</module>
-        <module>emc4j.boot.platform</module>
-        <module>emc4j.boot.registry</module>
-        <module>emc4j.boot.layer</module>
-        <module>emc4j.boot.jpa</module>
+    <subprojects>
+        <subproject>emc4j.boot.loader</subproject>
+        <subproject>emc4j.boot.context</subproject>
+        <subproject>emc4j.boot.maven</subproject>
+        <subproject>emc4j.boot.main</subproject>
+        <subproject>emc4j.boot.platform</subproject>
+        <subproject>emc4j.boot.registry</subproject>
+        <subproject>emc4j.boot.layer</subproject>
+        <subproject>emc4j.boot.jpa</subproject>
 
         
-        <module>emc4j.boot.api</module>
+        <subproject>emc4j.boot.api</subproject>
 
-        <module>emc4j.boot.web</module>
-        <module>emc4j.boot.aop</module>
-        <module>emc4j.boot.splash</module>
+        <subproject>emc4j.boot.web</subproject>
+        <subproject>emc4j.boot.aop</subproject>
+        <subproject>emc4j.boot.splash</subproject>
 
-    </modules>
+    </subprojects>
 </project>

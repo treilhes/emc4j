@@ -3,7 +3,7 @@
   <parent/>
   <artifactId>emc4j.fatjars</artifactId>
   <packaging>pom</packaging>
-  <modules>
-      <module>emc4j.fatjars.maven</module>
-  </modules>
+  <subprojects>
+      <subproject>emc4j.fatjars.maven</subproject>
+  </subprojects>
 </project>

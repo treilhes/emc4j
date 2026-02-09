@@ -6,10 +6,10 @@
     <artifactId>emc4j.registry</artifactId>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>emc4j.registry.model</module>
-        <module>emc4j-registry-maven-plugin</module>
-    </modules>
+    <subprojects>
+        <subproject>emc4j.registry.model</subproject>
+        <subproject>emc4j-registry-maven-plugin</subproject>
+    </subprojects>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>

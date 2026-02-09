@@ -4,9 +4,9 @@
   <artifactId>emc4j.delivery</artifactId>
   <packaging>pom</packaging>
   
-  <modules>
-    <module>emc4j.boot.config</module>
-    <module>emc4j-maven-plugin</module>
-    <module>emc4j.delivery.runtime</module>
-  </modules>
+  <subprojects>
+    <subproject>emc4j.boot.config</subproject>
+    <subproject>emc4j-maven-plugin</subproject>
+    <subproject>emc4j.delivery.runtime</subproject>
+  </subprojects>
 </project>

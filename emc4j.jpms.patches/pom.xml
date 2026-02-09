@@ -5,12 +5,12 @@
     <parent/>
     <artifactId>emc4j.jpms.patches</artifactId>
     <packaging>pom</packaging>
-    <modules>
-        <module>spring.core.patch</module>
-        <module>spring.core.patch.link</module>
-        <module>org.hibernate.orm.core.patch</module>
-        <module>org.hibernate.orm.core.patch.link</module>
-        <module>java.base.patch</module>
-        <module>java.base.patch.link</module>
-    </modules>
+    <subprojects>
+        <subproject>spring.core.patch</subproject>
+        <subproject>spring.core.patch.link</subproject>
+        <subproject>org.hibernate.orm.core.patch</subproject>
+        <subproject>org.hibernate.orm.core.patch.link</subproject>
+        <subproject>java.base.patch</subproject>
+        <subproject>java.base.patch.link</subproject>
+    </subprojects>
 </project>
