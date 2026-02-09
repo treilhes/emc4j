@@ -18,8 +18,7 @@
     <properties>
         <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         <!-- compiler -->
-        <maven.compiler.plugin.version>4.0.0-beta-4</maven.compiler.plugin.version>
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven-compiler-plugin.version>4.0.0-beta-4</maven-compiler-plugin.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -46,7 +45,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <useIncrementalCompilation>false</useIncrementalCompilation>
                 </configuration>

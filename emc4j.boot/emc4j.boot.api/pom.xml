@@ -4,7 +4,7 @@
     <modelVersion>4.1.0</modelVersion>
     <parent/>
     <artifactId>emc4j.boot.api</artifactId>
-
+    
     <dependencies>
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>

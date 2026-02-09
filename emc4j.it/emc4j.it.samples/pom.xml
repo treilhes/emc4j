@@ -21,12 +21,12 @@
         <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         <!--<emc4j.version>${parent.emc4j.version}</emc4j.version>-->
         <!-- compiler 
-        <maven.compiler.plugin.version>${parent.maven.compiler.plugin.version}</maven.compiler.plugin.version>
+        <maven-compiler-plugin.version>${parent.maven-compiler-plugin.version}</maven-compiler-plugin.version>
         <maven.compiler.release>${parent.maven.compiler.source}</maven.compiler.release>
         <maven.compiler.source>${parent.maven.compiler.source}</maven.compiler.source>
         <maven.compiler.target>${parent.maven.compiler.target}</maven.compiler.target>-->
         <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
-        <maven.compiler.plugin.version>4.0.0-beta-4</maven.compiler.plugin.version>
+        <maven-compiler-plugin.version>4.0.0-beta-4</maven-compiler-plugin.version>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -37,7 +37,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+                <version>${maven-compiler-plugin.version}</version>
             </plugin>
         </plugins>
     </build>

@@ -69,13 +69,17 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
 
-        <maven.compiler.plugin.version>4.0.0-beta-4</maven.compiler.plugin.version>
+        <maven-compiler-plugin.version>4.0.0-beta-4</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>4.0.0-beta-1</maven-resources-plugin.version>
+        <maven-install-plugin.version>4.0.0-beta-2</maven-install-plugin.version>
+        <maven-clean-plugin.version>4.0.0-beta-2</maven-clean-plugin.version>
+        
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>${maven-failsafe-plugin.version}</maven-surefire-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-invoker-plugin.version>3.8.0</maven-invoker-plugin.version>
+        <maven-invoker-plugin.version>4.0.0-SNAPSHOT</maven-invoker-plugin.version>
         <versions-maven-plugin.version>2.9.0</versions-maven-plugin.version>
         <maven-project-info-reports-plugin.version>2.6</maven-project-info-reports-plugin.version>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
@@ -93,6 +97,21 @@
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.jacoco.xmlReportPaths>**/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>${org.mapstruct.version}</version>
+            <type>processor</type>
+        </dependency>
+
+        <!--<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <type>processor</type>
+        </dependency>-->
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -331,35 +350,38 @@
                     <artifactId>emc4j-dependency-plugin</artifactId>
                     <version>${revision}</version>
                 </plugin>
+                <!--<plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven-resources-plugin.version}</version>
+                </plugin>-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven-install-plugin.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>${maven-dependency-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${maven-clean-plugin.version}</version>
+                </plugin>
+
                 <!-- Build KIT wherever parent is cleaned -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven.compiler.plugin.version}</version>
+                    <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <!--<useIncrementalCompilation>false</useIncrementalCompilation> -->
                         <compilerArgs>
                             <arg>--add-exports</arg>
                             <arg>spring.core/org.springframework.core.patch=emc4j.boot.layer</arg>
                         </compilerArgs>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.mapstruct</groupId>
-                                <artifactId>mapstruct-processor</artifactId>
-                                <version>${org.mapstruct.version}</version>
-                            </path>
-                            
-                            <path>
-                                <groupId>org.springframework.boot</groupId>
-                                <artifactId>spring-boot-configuration-processor</artifactId>
-                                
-                            </path>
-                        </annotationProcessorPaths>
                     </configuration>
                     <executions>
                         <execution>
