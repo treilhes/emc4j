@@ -20,7 +20,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
-                <artifactId>parent</artifactId>
+                <artifactId>emc4j-parent</artifactId>
                 <version>${emc4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

@@ -58,9 +58,8 @@
     </modules>
 
     <properties>
+        <emc4j.version>0.0.1-SNAPSHOT</emc4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         <!-- exporting a package from system module java.base is not allowed with release -->
         <!--<maven.compiler.release>25</maven.compiler.release> -->
         <maven.compiler.source>25</maven.compiler.source>

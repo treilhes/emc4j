@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.treilhes.emc4j</groupId>
     <artifactId>emc4j.it.samples</artifactId>
-    <version>${emc4j.version}</version>
+    <version>0.0.0-FIXED</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -17,13 +17,13 @@
     </modules>
 
     <properties>
-        <!--<emc4j.version>${parent.emc4j.version}</emc4j.version>-->
+        <emc4j.version>0.0.1-SNAPSHOT</emc4j.version>
+        
         <!-- compiler 
         <maven.compiler.plugin.version>${parent.maven.compiler.plugin.version}</maven.compiler.plugin.version>
         <maven.compiler.release>${parent.maven.compiler.source}</maven.compiler.release>
         <maven.compiler.source>${parent.maven.compiler.source}</maven.compiler.source>
         <maven.compiler.target>${parent.maven.compiler.target}</maven.compiler.target>-->
-        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
@@ -44,7 +44,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
-                <artifactId>parent</artifactId>
+                <artifactId>emc4j-parent</artifactId>
                 <version>${emc4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

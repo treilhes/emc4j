@@ -3,20 +3,21 @@
     <parent>
         <groupId>com.treilhes.emc4j</groupId>
         <artifactId>emc4j.it.samples</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>0.0.0-FIXED</version>
     </parent>
+    <groupId>com.treilhes.emc4j.it</groupId>
     <artifactId>app1-ext1</artifactId>
     <dependencies>
         <dependency>
-            <groupId>it.boot.loader</groupId>
+            <groupId>com.treilhes.emc4j.it</groupId>
             <artifactId>root</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>0.0.0-FIXED</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>it.boot.loader</groupId>
+            <groupId>com.treilhes.emc4j.it</groupId>
             <artifactId>app1</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>0.0.0-FIXED</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -27,7 +28,6 @@
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>
             <artifactId>emc4j.boot.loader</artifactId>
-            <version>${emc4j.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
