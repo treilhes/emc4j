@@ -100,12 +100,7 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>${org.mapstruct.version}</version>
-            <type>processor</type>
-        </dependency>
+        
 
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -241,6 +236,12 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${org.mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${org.mapstruct.version}</version>
+                <type>processor</type>
             </dependency>
 
             <dependency>
