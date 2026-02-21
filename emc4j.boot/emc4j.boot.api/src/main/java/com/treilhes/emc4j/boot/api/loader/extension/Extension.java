@@ -32,10 +32,8 @@
 package com.treilhes.emc4j.boot.api.loader.extension;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.layer.Layer;
@@ -53,15 +51,6 @@ import com.treilhes.emc4j.boot.api.layer.Layer;
  * @author Pascal Treilhes
  */
 public sealed interface Extension permits OpenExtension, SealedExtension, RootExtension {
-
-    /**
-     * Logger for internal extension operations.
-     */
-    static final class PrivateLogger {
-        private final static Logger logger = LoggerFactory.getLogger(Extension.class);
-        private PrivateLogger() {
-        }
-    }
 
     /**
      * The UUID for the boot extension.
@@ -102,10 +91,7 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
      * @param layer the layer to initialize
      */
     public default void initializeModule(Layer layer) {
-        var module = this.getClass().getModule();
-        PrivateLogger.logger.info("Add read to spring.core for {}", module.getName());
-        com.treilhes.emc4j.spring.core.patch.PatchLink.addRead(module);
-        com.treilhes.emc4j.hibernate.core.patch.PatchLink.addRead(module);
+
     }
 
     /**
@@ -148,6 +134,23 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
      */
     public default int getOrder() {
         return 0;
+    }
+
+    /**
+     * Returns the set of extension UUIDs that this extension merges with.
+     * Merging allows an extension to combine its functionality with other extensions, effectively treating them as a single unit.
+     * Merging is useful for extensions that want to integrate the behavior of other extensions without creating a strict parent-child relationship.
+     * Merging is transitive, meaning that if extension A merges with B, and B merges with C, then A effectively merges with C as well.
+     * At the end of the loading process, all merged extensions are treated as a single extension with combined functionality and resources.
+     * Merging is different from extending, as it does not imply a hierarchical relationship but rather a functional combination.
+     * Merged extensions share the same context and layer, and their resources are combined during loading.
+     * Only one extension in the merged set can be the root extension, and it will be used as the main entry point for the merged functionality.
+     * If two or more extensions remain unmerged in the same layer an exception will occur.
+     * Extensions that merge with this extension have to be provided using maven dependencies.
+     * @return the set of merged extension UUIDs
+     */
+    public default Set<UUID> getMergedExtensions() {
+        return Set.of();
     }
 //    InputStream getLicense();
 //    InputStream getDescription();

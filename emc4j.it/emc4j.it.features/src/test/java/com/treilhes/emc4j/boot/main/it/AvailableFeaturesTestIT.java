@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -90,6 +91,7 @@ import com.treilhes.emc4j.boot.context.boot.BootContextFactory;
 import com.treilhes.emc4j.boot.context.boot.BootContextInitializer;
 import com.treilhes.emc4j.boot.loader.StateProvider;
 import com.treilhes.emc4j.boot.loader.content.FileExtensionProvider;
+import com.treilhes.emc4j.boot.loader.content.FilesExtensionProvider;
 import com.treilhes.emc4j.boot.loader.internal.jpa.model.Extension;
 import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 
@@ -119,6 +121,8 @@ public class AvailableFeaturesTestIT {
     private static final UUID ROOT_ID = OpenExtension.ROOT_ID;
     private static final UUID ROOT_EXT1_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
     private static final UUID ROOT_EXT1_EXT1_ID = UUID.fromString("00000000-0000-0000-0000-000000000111");
+
+    private static final UUID ROOT_MERGED_ID = UUID.fromString("10000000-0000-0000-0000-000000000001");
 
     private static final UUID APP1_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
     private static final UUID APP1_EXT1_ID = UUID.fromString("00000000-0000-0000-0000-000000000012");
@@ -183,6 +187,7 @@ public class AvailableFeaturesTestIT {
          */
         private LoadableContent rootApp() {
             var p_root = Path.of(RES_IT, "root/target/root-0.0.0-FIXED.jar");
+            var p_root_merged = Path.of(RES_IT, "root-merged/target/root-merged-0.0.0-FIXED.jar");
             var p_root_ext1 = Path.of(RES_IT, "root-ext1/target/root-ext1-0.0.0-FIXED.jar");
             var p_root_ext1_ext1 = Path.of(RES_IT, "root-ext1-ext1/target/root-ext1-ext1-0.0.0-FIXED.jar");
 
@@ -190,7 +195,8 @@ public class AvailableFeaturesTestIT {
             var rootExt = new Extension();
             rootExt.setId(ROOT_ID);
             root.setExtension(rootExt);
-            root.setContentProvider(new FileExtensionProvider(p_root));
+            root.setContentProvider(new FilesExtensionProvider(Set.of(p_root.toFile(),p_root_merged.toFile())));
+            //root.setContentProvider(new FilesExtensionProvider(Set.of(p_root.toFile())));
 
             var root_ext1 = new LoadableContent();
             var rootExt_ext1 = new Extension();
@@ -507,10 +513,23 @@ public class AvailableFeaturesTestIT {
      */
     @Test
     public void root_service_load_bean_in_source_context() throws Exception {
-        internalClient.get(APP1_ID, "RootExportedService/list").on(200, r -> {
-            assertTrue(r.body().contains("app.ext1.internal.EmcLocalService"));
-        }).ifNoneMatch(r -> fail(r.toString())).execute();
-
+        internalClient.get(APP1_ID, "RootExportedService/list")
+            .on(200, r -> assertTrue(r.body().contains("app.ext1.internal.EmcLocalService"),
+                    String.format("Unexpected body: %s, must contains 'app.ext1.internal.EmcLocalService'", r.body())))
+            .ifNoneMatch(r -> fail(r.toString()))
+            .execute();
     }
 
+    @Test
+    public void root_extension_load_merged_extension_and_expose_merged_controller() throws Exception {
+        String extensionId = ROOT_ID.toString();
+        String mixinId = ROOT_MERGED_ID.toString();
+        String expect = String.format("%s_%s", extensionId, mixinId);
+
+        internalClient.get(ROOT_ID, "merged/extension")
+            .on(200, r -> assertTrue(r.body().contains(expect),
+                    String.format("Unexpected body: %s, must contains '%s'", r.body(), expect)))
+            .ifNoneMatch(r -> fail(r.toString()))
+            .execute();
+    }
 }

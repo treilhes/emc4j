@@ -37,17 +37,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 
 @RestController
 @RequestMapping(path = "/extension")
 public class EmcExtensionRestController {
 
+    private final ExtensionDefinition definition;
     private final Extension extension;
 
-    public EmcExtensionRestController(@LocalContextOnly Extension extension) {
+    public EmcExtensionRestController(@LocalContextOnly ExtensionDefinition definition) {
         super();
-        this.extension = extension;
+        this.definition = definition;
+        this.extension = definition.getExtension();
     }
 
     @GetMapping

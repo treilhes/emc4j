@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 
 @Controller
@@ -45,9 +46,9 @@ public class ExtensionController {
 
     private final Extension extension;
 
-    public ExtensionController(@LocalContextOnly Extension extension) {
+    public ExtensionController(@LocalContextOnly ExtensionDefinition extension) {
         super();
-        this.extension = extension;
+        this.extension = extension.getExtension();
     }
 
     @GetMapping("/extension")

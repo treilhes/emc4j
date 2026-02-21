@@ -38,10 +38,12 @@ import com.treilhes.emc4j.boot.api.loader.LoaderProperties;
 import com.treilhes.emc4j.boot.loader.internal.ApplicationManagerImpl;
 import com.treilhes.emc4j.boot.loader.internal.LoaderMappersImpl;
 import com.treilhes.emc4j.boot.loader.internal.StateProviderImpl;
-import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper;
+import com.treilhes.emc4j.boot.loader.internal.context.ExtensionBootstrapper;
 import com.treilhes.emc4j.boot.loader.internal.jpa.model.Extension;
-import com.treilhes.emc4j.boot.loader.internal.layer.LayerBootstraper;
+import com.treilhes.emc4j.boot.loader.internal.layer.LayerBootstrapper;
 import com.treilhes.emc4j.boot.loader.internal.repository.ExtensionRepository;
+import com.treilhes.emc4j.boot.loader.validation.DuplicateClassForbidden;
+import com.treilhes.emc4j.boot.loader.validation.ExtensionValidatorImpl;
 
 public class LoaderBootClasses implements BootContextConfigClasses {
 
@@ -53,8 +55,12 @@ public class LoaderBootClasses implements BootContextConfigClasses {
                 ApplicationManagerImpl.class,
                 LoaderMappersImpl.class,
                 StateProviderImpl.class,
-                ContextBootstraper.class,
-                LayerBootstraper.class,
+                ExtensionBootstrapper.class,
+                LayerBootstrapper.class,
+
+                //validation
+                ExtensionValidatorImpl.class,
+                DuplicateClassForbidden.class,
 
                 //repository
                 ExtensionRepository.class,

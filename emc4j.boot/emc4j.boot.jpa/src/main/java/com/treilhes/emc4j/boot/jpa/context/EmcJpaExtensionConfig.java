@@ -58,8 +58,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.annotation.ConditionalOnLocalBeanAnnotation;
 import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.jpa.ResolvablePersistenceManagedTypes;
-import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManager;
@@ -120,7 +120,7 @@ public class EmcJpaExtensionConfig {
      */
     @Bean(name = "transactionManager")
     @ConditionalOnLocalBeanAnnotation(Entity.class)
-    PlatformTransactionManager localTransactionManager(EntityManagerFactory factory, DataSource dataSource, @LocalContextOnly Extension extension) {
+    PlatformTransactionManager localTransactionManager(EntityManagerFactory factory, DataSource dataSource, @LocalContextOnly ExtensionDefinition extension) {
         var tm = new JpaTransactionManager();
         //tm.setTransactionManagerName(extension.getId().toString());
         tm.setEntityManagerFactory(factory);

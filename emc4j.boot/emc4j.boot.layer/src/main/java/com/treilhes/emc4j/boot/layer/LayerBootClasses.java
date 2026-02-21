@@ -35,12 +35,15 @@ import java.util.List;
 
 import com.treilhes.emc4j.boot.api.loader.BootContextConfigClasses;
 import com.treilhes.emc4j.boot.layer.internal.ModuleLayerManagerImpl;
+import com.treilhes.emc4j.boot.layer.validation.LayerValidatorImpl;
 
 public class LayerBootClasses implements BootContextConfigClasses {
 
     @Override
     public List<Class<?>> classes() {
-        return List.of(ModuleLayerManagerImpl.class);
+        return List.of(
+                ModuleLayerManagerImpl.class,
+                LayerValidatorImpl.class);
     }
 
 }

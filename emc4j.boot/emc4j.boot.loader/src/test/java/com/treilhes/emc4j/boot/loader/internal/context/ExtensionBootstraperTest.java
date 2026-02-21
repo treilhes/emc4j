@@ -29,9 +29,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.treilhes.emc4j.boot.loader.internal;
+package com.treilhes.emc4j.boot.loader.internal.context;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,17 +62,18 @@ import com.treilhes.emc4j.boot.api.layer.ModuleLayerManager;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
-import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper;
-import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper.ServiceLoader;
+import com.treilhes.emc4j.boot.loader.internal.context.ExtensionBootstrapper;
+import com.treilhes.emc4j.boot.loader.internal.context.ExtensionBootstrapper.ServiceLoader;
 import com.treilhes.emc4j.boot.loader.internal.context.ExtensionNotFoundException;
 import com.treilhes.emc4j.boot.loader.internal.context.LayerNotFoundException;
 import com.treilhes.emc4j.boot.loader.model.LoadableContent;
+import com.treilhes.emc4j.boot.loader.validation.ExtensionValidator;
 
 /**
  * The Class ContextBootstraperTest.
  */
 @ExtendWith(MockitoExtension.class)
-class ContextBootstraperTest {
+class ExtensionBootstraperTest {
 
     private static final MultipleProgressListener NO_PROGRESS = null;
 
@@ -129,13 +132,16 @@ class ContextBootstraperTest {
     @Captor
     ArgumentCaptor<ContextConfiguration> contextConfigCaptor;
 
+    @Mock
+    ExtensionValidator validator;
+
     /**
      * Must throw if module layer parent layer does not exists.
      */
     @Test
     void must_throw_if_module_layer_parentLayer_does_not_exists() {
         Assertions.assertThrows(LayerNotFoundException.class, () -> {
-            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
     }
@@ -149,7 +155,7 @@ class ContextBootstraperTest {
         when(layerManager.get(parentId)).thenReturn(parentLayer);
 
         Assertions.assertThrows(ExtensionNotFoundException.class, () -> {
-            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
     }
@@ -165,7 +171,7 @@ class ContextBootstraperTest {
         when(parentExtensionModel.getExtensions()).thenReturn(Set.of(childExtensionModel)); // different id
 
         Assertions.assertThrows(LayerNotFoundException.class, () -> {
-            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
     }
@@ -185,7 +191,7 @@ class ContextBootstraperTest {
         when(loader.loadService(childExtensionLayer, Extension.class)).thenReturn(Set.of());
 
         Assertions.assertThrows(ExtensionNotFoundException.class, () -> {
-            var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+            var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
             ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
         });
     }
@@ -218,11 +224,14 @@ class ContextBootstraperTest {
         when(parentExtensionLoaded.getId()).thenReturn(parentId);
 
         // the extension loaded is a top level one
-        when(parentExtensionLoaded.getParentId()).thenReturn(Extension.ROOT_ID);
+        lenient().when(parentExtensionLoaded.getParentId()).thenReturn(Extension.ROOT_ID);
+
+        // extensions are all valid
+        when(validator.isValid(any())).thenReturn(true);
 
         // test
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.create(null, parentExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
@@ -256,7 +265,7 @@ class ContextBootstraperTest {
         when(childExtensionLoaded.localContextClasses()).thenReturn(List.of(LocalChildComponent.class));
 
         // the extension loaded expose exportable classes to load
-        when(childExtensionLoaded.exportedContextClasses()).thenReturn(List.of(ExportedChildComponent.class));
+        lenient().when(childExtensionLoaded.exportedContextClasses()).thenReturn(List.of(ExportedChildComponent.class));
 
         // the extension descriptor, the layer and the extension loaded share the same
         // id
@@ -269,9 +278,12 @@ class ContextBootstraperTest {
 
         when(ctx.getUuid()).thenReturn(parentId);
 
+        // extensions are all valid
+        when(validator.isValid(any())).thenReturn(true);
+
         // test
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.create(ctx, childExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
@@ -302,7 +314,7 @@ class ContextBootstraperTest {
         when(childExtensionLoaded.localContextClasses()).thenReturn(List.of(LocalChildComponent.class));
 
         // the extension loaded expose exportable classes to load
-        when(childExtensionLoaded.exportedContextClasses()).thenReturn(List.of(ExportedChildComponent.class));
+        lenient().when(childExtensionLoaded.exportedContextClasses()).thenReturn(List.of(ExportedChildComponent.class));
 
         // the extension descriptor, the layer and the extension loaded share the same
         // id
@@ -315,9 +327,11 @@ class ContextBootstraperTest {
 
         when(ctx.getUuid()).thenReturn(parentId);
 
+        // extensions are all valid
+        when(validator.isValid(any())).thenReturn(true);
         // test
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.create(ctx, childExtensionModel, NO_SINGLETONS, NO_PROGRESS, loader);
 
@@ -337,7 +351,7 @@ class ContextBootstraperTest {
     @Test
     void exists_call_must_check_context_exist() throws Exception {
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.exists(parentExtensionModel);
 
@@ -352,7 +366,7 @@ class ContextBootstraperTest {
     @Test
     void get_call_must_get_context() throws Exception {
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.get(parentExtensionModel);
 
@@ -368,7 +382,7 @@ class ContextBootstraperTest {
     @Test
     void clear_call_must_clear_context() throws Exception {
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.clear();
 
@@ -384,7 +398,7 @@ class ContextBootstraperTest {
     @Test
     void close_call_must_close_context() throws Exception {
 
-        var ctxBoot = new ContextBootstraper(layerManager, contextManager);
+        var ctxBoot = new ExtensionBootstrapper(layerManager, contextManager, validator);
 
         ctxBoot.close(parentExtensionModel);
 

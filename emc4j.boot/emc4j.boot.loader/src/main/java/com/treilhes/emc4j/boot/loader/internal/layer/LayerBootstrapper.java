@@ -53,10 +53,10 @@ import com.treilhes.emc4j.boot.loader.model.LoadableContent;
  * The Class LayerBootstraper.
  */
 @Component
-public class LayerBootstraper {
+public class LayerBootstrapper {
 
     /** The Constant logger. */
-    private static final Logger logger = LoggerFactory.getLogger(LayerBootstraper.class);
+    private static final Logger logger = LoggerFactory.getLogger(LayerBootstrapper.class);
 
     /** The layer manager. */
     private final ModuleLayerManager layerManager;
@@ -72,7 +72,7 @@ public class LayerBootstraper {
      * @param root the root
      * @param layerManager the layer manager
      */
-    public LayerBootstraper(EmcPlatform platform, ModuleLayerManager layerManager, ApplicationStartup startup) {
+    public LayerBootstrapper(EmcPlatform platform, ModuleLayerManager layerManager, ApplicationStartup startup) {
         super();
 
         this.layerManager = layerManager;

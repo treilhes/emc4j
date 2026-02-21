@@ -31,14 +31,12 @@
  */
 package com.treilhes.emc4j.boot.loader.internal.context;
 
-import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,45 +47,33 @@ import com.treilhes.emc4j.boot.api.context.ContextConfiguration;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationConfiguration;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationInstancePrototype;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationInstanceSingleton;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationPrototype;
-import com.treilhes.emc4j.boot.api.context.annotation.ApplicationSingleton;
-import com.treilhes.emc4j.boot.api.context.annotation.DeportedSingleton;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.layer.Layer;
 import com.treilhes.emc4j.boot.api.layer.ModuleLayerManager;
 import com.treilhes.emc4j.boot.api.loader.ExtensionContextConfigClasses;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
-import com.treilhes.emc4j.boot.loader.extension.ExtensionValidator;
 import com.treilhes.emc4j.boot.loader.model.LoadableContent;
+import com.treilhes.emc4j.boot.loader.validation.ExtensionValidator;
+import com.treilhes.emc4j.boot.loader.validation.ExtensionValidatorImpl;
 
 /**
  * The Class ContextBootstraper.
  */
 @Component
-public class ContextBootstraper {
+public class ExtensionBootstrapper {
 
     /** The Constant logger. */
-    private static final Logger logger = LoggerFactory.getLogger(ContextBootstraper.class);
-
-    //@formatter:off
-    private static final Set<Class<? extends Annotation>> deportableAnnotations = Set.of(
-            ApplicationConfiguration.class,
-            ApplicationSingleton.class,
-            ApplicationPrototype.class,
-            ApplicationInstanceSingleton.class,
-            ApplicationInstancePrototype.class,
-            DeportedSingleton.class);
-    //@formatter:on
+    private static final Logger logger = LoggerFactory.getLogger(ExtensionBootstrapper.class);
 
     /** The context manager. */
     private final ContextManager contextManager;
 
     /** The layer manager. */
     private final ModuleLayerManager layerManager;
+
+    private final ExtensionValidator extensionValidator;
 
     private static final ServiceLoader DEFAULT_LOADER = new ServiceLoader() {
         @Override
@@ -104,10 +90,16 @@ public class ContextBootstraper {
      *
      * @param layerManager the layer manager
      */
-    public ContextBootstraper(ModuleLayerManager layerManager, ContextManager contextManager) {
+    // @formatter:off
+    public ExtensionBootstrapper(
+            ModuleLayerManager layerManager,
+            ContextManager contextManager,
+            ExtensionValidator extensionValidator) {
         super();
+        // @formatter:on
         this.contextManager = contextManager;
         this.layerManager = layerManager;
+        this.extensionValidator = extensionValidator;
     }
 
     /**
@@ -190,82 +182,31 @@ public class ContextBootstraper {
             throw new LayerNotFoundException(id, "Unable to find layer for id %s");
         }
 
-        var extension = loadMainExtension(loader, layer);
-        var extensions = loadChildExtensions(loader, content.getExtensions());
-        var isSealed = SealedExtension.class.isInstance(extension);
+        var mainExtDefinition = loadMainExtension(loader, layer);
+        var childrenExtDefinitions = loadChildExtensions(loader, content.getExtensions());
+        var isSealed = SealedExtension.class.isInstance(mainExtDefinition.getExtension());
 
-        validateExtensions(id, parentContextId, extension, extensions);
+        validateExtensions(id, parentContextId, mainExtDefinition, childrenExtDefinitions);
 
-        initializeExtensions(extension, extensions);
+        initializeExtensions(mainExtDefinition, childrenExtDefinitions);
 
         var frameworkExtensionClasses = loadFrameworkClasses(parent);
 
-        var localClasses = loadLocalClasses(extension);
-        var childrenExportedClasses = loadExportedClasses(extensions);
+        var localClasses = loadLocalClasses(mainExtDefinition);
+        var childrenExportedClasses = loadExportedClasses(childrenExtDefinitions);
 
-
-//        // get children extensions
-//        Set<UUID> extensionIds = extension.getExtensions().stream().map(LoadableContent::getId).collect(Collectors.toSet());
-//
-//
-//
-//        Set<Class<?>> classes = new HashSet<>();
-//        Set<Class<?>> extensionLocalClasses = new HashSet<>();
-//        Set<Class<?>> childrenExportedClasses = new HashSet<>();
-//        Set<Class<?>> childrenDeportedClasses = new HashSet<>();
-//
-//        for (UUID extensionId : extensionIds) {
-//            try {
-//                var map = findExportedClasses(loader, id, extensionId);
-//                childrenExportedClasses.addAll(map.getOrDefault(ExportType.EXPORTED, List.of()));
-//                childrenDeportedClasses.addAll(map.getOrDefault(ExportType.DEPORTED, List.of()));
-//            } catch (LayerNotFoundException e) {
-//                logger.error("Unable to find layer for child extension {}", extensionId, e);
-//            } catch (InvalidExtensionException e) {
-//                logger.error("Child extension is not valid {}", extensionId, e);
-//            }
-//        }
-//
-//        extensionLocalClasses.addAll(findLocalClasses(loader, parentContextId, layer));
-//
-//        classes.addAll(childrenExportedClasses);
-//
-//
-//
-//        classes.addAll(frameworkExtensionClasses);
-//
-//        if (parent == null) {
-//            //do nothing, let sealed children know about deported classes
-//        } else if (isSealed ) {
-//            classes.addAll(parent.getDeportedClasses());
-//            classes.addAll(childrenDeportedClasses);
-//            childrenDeportedClasses.clear(); // deported classes are handled, so clear them
-//        }
-//
-//        if (!Extension.BOOT_ID.equals(parentContextId)) {
-//            classes.addAll(extensionLocalClasses);
-//        } else {
-//            // root extension is the only one to deport local classes
-//            final var partionedByDeportable = extensionLocalClasses.stream()
-//                    .collect(Collectors.partitioningBy(this::isDeportableClass));
-//
-//            classes.addAll(partionedByDeportable.get(Boolean.FALSE));
-//            childrenDeportedClasses.addAll(partionedByDeportable.get(Boolean.TRUE));
-//        }
+        var singletons = new ArrayList<>(singletonInstances);
+        singletons.add(mainExtDefinition);
 
         var configuration = new ContextConfiguration();
         configuration.setId(id);
         configuration.setParentContext(parent);
         configuration.setSealed(isSealed);
         configuration.setLayer(layer);
-        //configuration.addClasses(classes);
-        //configuration.addDeportedClasses(childrenDeportedClasses);
-
         configuration.addClasses(frameworkExtensionClasses);
         configuration.addClasses(localClasses);
         configuration.addChildrenClasses(childrenExportedClasses);
-
-        configuration.addSingletonInstances(singletonInstances);
+        configuration.addSingletonInstances(singletons);
         configuration.setProgressListener(progressListener);
 
         var context = contextManager.create(configuration);
@@ -273,7 +214,7 @@ public class ContextBootstraper {
         return context;
     }
 
-    private void initializeExtensions(Extension extension, Set<OpenExtension> extensions)
+    private void initializeExtensions(ExtensionDefinition extension, Set<ExtensionDefinition> extensions)
             throws LayerNotFoundException {
         initializeExtension(extension);
         for (var childExtension : extensions) {
@@ -281,26 +222,77 @@ public class ContextBootstraper {
         }
     }
 
-    private void validateExtensions(UUID id, UUID parentContextId, Extension extension, Set<OpenExtension> extensions) {
-        validateExtension(extension, id, parentContextId);
-        extensions.forEach(child -> validateExtension(child, child.getId(), id));
+    private void initializeExtension(ExtensionDefinition definition)
+            throws LayerNotFoundException {
+
+        var extension = definition.getExtension();
+        var id = extension.getId();
+        var layer = layerManager.get(id);
+
+        if (layer == null) {
+            throw new LayerNotFoundException(id, "Unable to find child layer for id %s");
+        }
+
+        initializeExtension(layer, extension);
+
+        for (var childExtension : definition.getMixins()) {
+            initializeExtension(layer, childExtension);
+        }
     }
 
-    private List<Class<?>> loadExportedClasses(Set<OpenExtension> extensions) {
-        return extensions.stream().flatMap(e -> e.exportedContextClasses().stream()).toList();
+    private void validateExtensions(UUID id, UUID parentContextId, ExtensionDefinition definition,
+            Set<ExtensionDefinition> childrenDefinitions) {
+
+        validateExtensionDefinition(id, parentContextId, definition);
+
+        childrenDefinitions.forEach(child -> validateExtensionDefinition(child.getExtension().getId(), id, child));
     }
 
-    private List<Class<? extends Object>> loadLocalClasses(Extension extension) {
-        return Stream.concat(Stream.of(extension.getClass()), extension.localContextClasses().stream()).toList();
+    private void validateExtensionDefinition(UUID id, UUID parentId, ExtensionDefinition definition) {
+
+        validateExtension(definition.getExtension(), id, parentId);
+
+        definition.getMixins().forEach(mixin -> validateExtension(mixin, mixin.getId(), null));
+
+    }
+
+    private List<Class<?>> loadExportedClasses(Set<ExtensionDefinition> definitions) {
+
+        var exportedClasses = new ArrayList<Class<?>>();
+
+        for (var def : definitions) {
+            if (def.getExtension() instanceof OpenExtension openExtension) {
+                exportedClasses.addAll(openExtension.exportedContextClasses());
+            }
+
+            for (var mixin : def.getMixins()) {
+                if (mixin instanceof OpenExtension openMixin) {
+                    exportedClasses.addAll(openMixin.exportedContextClasses());
+                }
+            }
+        }
+
+        return exportedClasses;
+    }
+
+    private List<Class<? extends Object>> loadLocalClasses(ExtensionDefinition definition) {
+
+        var localClasses = new ArrayList<Class<? extends Object>>();
+        var ext = definition.getExtension();
+        var mixins = definition.getMixins();
+
+        localClasses.add(ext.getClass());
+        localClasses.addAll(ext.localContextClasses());
+
+        mixins.forEach(mixin -> {
+            localClasses.add(mixin.getClass());
+            localClasses.addAll(mixin.localContextClasses());
+        });
+
+        return localClasses;
     }
 
     private List<Class<?>> loadFrameworkClasses(EmContext parent) {
-
-//        return java.util.ServiceLoader.load(ExtensionContextConfigClasses.class).stream()
-//                .map(Provider::get)
-//                .map(ExtensionContextConfigClasses::classes)
-//                .flatMap(List::stream)
-//                .toList();
 
         if (parent == null) {
             return List.of();
@@ -313,60 +305,8 @@ public class ContextBootstraper {
                 .toList();
     }
 
-    private Extension loadMainExtension(ServiceLoader loader, Layer layer) {
-        return loader.loadService(layer, Extension.class).stream().findFirst()
-                .orElseThrow(() -> new ExtensionNotFoundException(layer.getId(), "Layer %s does not contain any extension"));
-    }
-
-    /**
-     * Determines if the specified class is deportable.
-     * <p>
-     * A deportable class is one that is annotated with any of the following annotations:
-     * {@link ApplicationConfiguration}, {@link ApplicationSingleton}, {@link ApplicationPrototype},
-     * {@link ApplicationInstanceSingleton}, {@link ApplicationInstancePrototype}, or {@link DeportedSingleton}.
-     * Deportable classes are not registered in the current context but are deported to a child context for loading.
-     *
-     * @param cls the class to check
-     * @return {@code true} if the class is annotated with any deportable annotation, {@code false} otherwise
-     */
-    private boolean isDeportableClass(Class<?> cls) {
-        return deportableAnnotations.stream().anyMatch(a -> cls.getDeclaredAnnotationsByType(a).length > 0);
-    }
-
-    /**
-     * Represents the type of class export in the extension context.
-     * <p>
-     * Used to distinguish between classes that are exported to child contexts and those that are deported (transferred) to child contexts for loading.
-     */
-    private enum ExportType {
-        /**
-         * Classes that are exported to the current context and are available for use in this context.
-         */
-        EXPORTED,
-        /**
-         * Classes that are deported to the current or next {@link SealedExtension}
-         * context, meaning they are registered in the current context if it is a {@link SealedExtension} or are made
-         * available to the next child contexts which are {@link SealedExtension} for loading.
-         */
-        DEPORTED
-    }
-
-    /**
-     * Find exported and deported classes for the provided extension id.
-     *
-     * @param parentId    the parent id
-     * @param extensionId the extension id
-     * @return the map
-     * @throws LayerNotFoundException    the layer not found exception
-     * @throws InvalidExtensionException the invalid extension exception
-     */
-    private Map<ExportType, List<Class<?>>> findExportedClasses(Set<OpenExtension> extensions)
-            throws LayerNotFoundException, InvalidExtensionException {
-
-        return extensions.stream()
-                .flatMap(e -> e.exportedContextClasses().stream())
-                .collect(Collectors.groupingBy(c -> isDeportableClass(c) ? ExportType.DEPORTED : ExportType.EXPORTED));
-
+    private ExtensionDefinition loadMainExtension(ServiceLoader loader, Layer layer) {
+        return loadDescriptor(loader, layer);
     }
 
     /**
@@ -377,10 +317,10 @@ public class ContextBootstraper {
      * @throws LayerNotFoundException    the layer not found exception
      * @throws InvalidExtensionException the invalid extension exception
      */
-    private Set<OpenExtension> loadChildExtensions(ServiceLoader loader, Set<LoadableContent> loadableContents)
+    private Set<ExtensionDefinition> loadChildExtensions(ServiceLoader loader, Set<LoadableContent> loadableContents)
             throws LayerNotFoundException, InvalidExtensionException {
 
-        var extensions = new HashSet<OpenExtension>();
+        var extensions = new HashSet<ExtensionDefinition>();
 
         for (var loadableContent : loadableContents) {
             var id = loadableContent.getId();
@@ -390,51 +330,62 @@ public class ContextBootstraper {
                 throw new LayerNotFoundException(id, "Unable to find child layer for id %s");
             }
 
-            Extension extension = loader.loadService(layer, Extension.class).stream().findAny()
-                    .orElseThrow(() -> new ExtensionNotFoundException(layer.getId(),
-                            "Child layer %s does not contain any extension"));
+            ExtensionDefinition descriptor = loadDescriptor(loader, layer);
 
-            if (extension instanceof OpenExtension openExtension) {
-                extensions.add(openExtension);
+            if (descriptor.getExtension() instanceof OpenExtension) {
+                extensions.add(descriptor);
             }
         }
 
         return extensions;
     }
 
-    /**
-     * Find local classes. Classes that will be registered in the current context
-     * and provided by the current extension.
-     *
-     * @param parentId the parent id
-     * @param layer    the layer
-     * @return the sets the
-     * @throws LayerNotFoundException    the layer not found exception
-     * @throws InvalidExtensionException the invalid extension exception
-     */
-    private Set<Class<?>> findLocalClasses(ServiceLoader loader, UUID parentId, Layer layer)
-            throws LayerNotFoundException, InvalidExtensionException {
-        try {
-            return loader.loadService(layer, Extension.class).stream()
-                    .peek(e -> validateExtension(e, layer.getId(), parentId))
-                    .peek(e -> e.initializeModule(layer))
-                    .flatMap(e -> Stream.concat(Stream.of(e.getClass()), e.localContextClasses().stream()))
-                    .collect(Collectors.toSet());
-        } catch (InvalidExtensionException.Unchecked e) {
-            throw new InvalidExtensionException(e);
+    private ExtensionDefinition loadDescriptor(ServiceLoader loader, Layer layer) {
+        var extensions = loader.loadService(layer, Extension.class).stream().toList();
+
+        if (extensions.isEmpty()) {
+            throw new ExtensionNotFoundException(layer.getId(), "Layer %s does not contain any extension");
         }
+
+        if (extensions.size() == 1) {
+            return new ExtensionDefinition(extensions.get(0), Set.of());
+        }
+
+        // If multiple extensions are found, we look for the one matching the layer id
+        var extension = extensions.stream()
+                .filter(e -> e.getId().equals(layer.getId()))
+                .findAny()
+                .orElseThrow(() -> new ExtensionNotFoundException(layer.getId(),
+                        "Multiple extensions found in layer %s but none match the layer id"));
+
+        // If we found an extension matching the layer id, but there are multiple extensions in the layer, we must ensure consistency
+        // by checking that all extensions in the layer are part of the same merge tree (i.e. they all have the same root ancestor extension)
+        // After removing the merged extensions from the list, only one extension should remain, which is the one we will use as the main extension for the layer
+        var mergeTree = new ArrayList<Extension>(extensions);
+        for (Extension e : extensions) {
+            mergeTree.removeIf(ext -> ext.getMergedExtensions().contains(e.getId()));
+        }
+
+        if (mergeTree.size() != 1) {
+            var msg = "Multiple extensions found in layer %s but they are not part of the same merge tree";
+            throw new ExtensionNotFoundException(layer.getId(), msg);
+        }
+
+        var mixins = extensions.stream().filter(e -> e != extension).collect(Collectors.toSet());
+
+        return new ExtensionDefinition(extension, mixins);
     }
 
     /**
      * Checks that the extension is valid, and that its id and parent id match the expected values.
-     * @see ExtensionValidator#isValid(Extension)
+     * @see ExtensionValidatorImpl#isValid(Extension)
      * @param extension         the extension
      * @param expectedId        the expected id
      * @param expectedParentId  the expected parent id
      * @return true, if extension is valid
      */
     private boolean validateExtension(Extension extension, UUID expectedId, UUID expectedParentId) {
-        if (!ExtensionValidator.isValid(extension)) {
+        if (!extensionValidator.isValid(extension)) {
             throw new InvalidExtensionException.Unchecked(extension.toString());
         }
         if (!extension.getId().equals(expectedId)) {
@@ -450,14 +401,15 @@ public class ContextBootstraper {
         return true;
     }
 
-    private void initializeExtension(Extension extension) throws LayerNotFoundException {
+    private void initializeExtension(Layer layer, Extension extension) throws LayerNotFoundException {
 
-        var id = extension.getId();
-        var layer = layerManager.get(id);
+        var module = extension.getClass().getModule();
 
-        if (layer == null) {
-            throw new LayerNotFoundException(id, "Unable to find child layer for id %s");
-        }
+        logger.info("Add read to spring.core for {}", module.getName());
+        com.treilhes.emc4j.spring.core.patch.PatchLink.addRead(module);
+
+        logger.info("Add read to hibernate.core for {}", module.getName());
+        com.treilhes.emc4j.hibernate.core.patch.PatchLink.addRead(module);
 
         extension.initializeModule(layer);
     }

@@ -250,8 +250,7 @@ public class WebExtensionConfig {
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
             WebMvcConfigurer.super.addResourceHandlers(registry);
-            registry //
-                    .addResourceHandler(extContext.getInternalContextPath() + "/**") //
+            registry.addResourceHandler(extContext.getInternalContextPath() + "/**") //
                     .addResourceLocations("classpath:/static/");
         }
 
@@ -486,8 +485,8 @@ public class WebExtensionConfig {
 
         @Lazy
         @Bean
-        ServerBaseUrlCustomizer serverBaseUrlCustomizer() {
-            return (serverBaseUrl, request) -> "";
+        ServerBaseUrlCustomizer serverBaseUrlCustomizer(ExtensionWebContext extContext) {
+            return (serverBaseUrl, request) -> extContext.getBasePath();
         }
 
     }

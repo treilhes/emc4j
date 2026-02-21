@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.jspecify.annotations.Nullable;
@@ -45,6 +46,7 @@ import com.treilhes.emc4j.boot.aop.AopBootClasses;
 import com.treilhes.emc4j.boot.api.context.ContextConfiguration;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
 import com.treilhes.emc4j.boot.api.context.EmContext;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.loader.ExtensionContextConfigClasses;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
@@ -341,6 +343,8 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
                 mockExtension = openExtension;
             }
 
+            var extDefinition = new ExtensionDefinition(mockExtension, Set.of());
+
             var configuration = new ContextConfiguration();
             configuration.setId(id);
             configuration.setParentContext(parentContext);
@@ -349,7 +353,7 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             configuration.addClasses(frameworkExtensionClasses);
             configuration.addClasses(config.getLocalClasses());
             configuration.addChildrenClasses(exportedByExt);
-            configuration.addSingletonInstances(List.of(mockExtension));
+            configuration.addSingletonInstances(List.of(mockExtension, extDefinition));
             configuration.setProgressListener(null);
 
             var context = contextManager.create(configuration);

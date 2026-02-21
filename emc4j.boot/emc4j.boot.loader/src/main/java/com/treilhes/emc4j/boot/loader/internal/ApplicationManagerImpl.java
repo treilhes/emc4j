@@ -58,8 +58,8 @@ import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
 import com.treilhes.emc4j.boot.api.splash.SplashScreenProvider;
 import com.treilhes.emc4j.boot.api.utils.ProgressListener;
 import com.treilhes.emc4j.boot.loader.StateProvider;
-import com.treilhes.emc4j.boot.loader.internal.context.ContextBootstraper;
-import com.treilhes.emc4j.boot.loader.internal.layer.LayerBootstraper;
+import com.treilhes.emc4j.boot.loader.internal.context.ExtensionBootstrapper;
+import com.treilhes.emc4j.boot.loader.internal.layer.LayerBootstrapper;
 import com.treilhes.emc4j.boot.loader.model.LoadState;
 import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 
@@ -82,10 +82,10 @@ public class ApplicationManagerImpl implements ApplicationManager {
 	private final ModuleLayerManager layerManager;
 
 	/** The contexts. */
-	private final ContextBootstraper contexts;
+	private final ExtensionBootstrapper contexts;
 
 	/** The layers. */
-	private final LayerBootstraper layers;
+	private final LayerBootstrapper layers;
 
 	/** The application. */
 	private Map<UUID, LoadableContent> startedApplications = new HashMap<>();
@@ -116,8 +116,8 @@ public class ApplicationManagerImpl implements ApplicationManager {
     		EmcPlatform platform,
     		LoaderProperties loaderProperties,
     		ModuleLayerManager layerManager,
-    		ContextBootstraper contexts,
-            LayerBootstraper layers,
+    		ExtensionBootstrapper contexts,
+            LayerBootstrapper layers,
             StateProvider stateProvider,
     		Optional<SplashScreenProvider> splashScreenProvider,
             Optional<ApplicationStartup> startup) {

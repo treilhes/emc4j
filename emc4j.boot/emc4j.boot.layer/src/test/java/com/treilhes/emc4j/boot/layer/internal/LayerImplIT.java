@@ -36,6 +36,8 @@ import static com.treilhes.emc4j.boot.layer.TestUtils.delete;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,23 +51,28 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.treilhes.emc4j.boot.api.layer.Layer;
-import com.treilhes.emc4j.boot.api.layer.ModuleLayerManager;
 import com.treilhes.emc4j.boot.layer.Constants;
-import com.treilhes.emc4j.boot.layer.internal.ModuleLayerManagerImpl;
+import com.treilhes.emc4j.boot.layer.validation.LayerValidator;
 
 
 /**
  * The Class AbstractLayerIT.
  */
+@ExtendWith(MockitoExtension.class)
 class LayerImplIT {
 
     /** The Constant ROOT_ID. */
@@ -75,8 +82,12 @@ class LayerImplIT {
     @TempDir
     Path rootDir;
 
+    @Mock
+    LayerValidator validator;
+
     @Spy
-    ModuleLayerManager manager = new ModuleLayerManagerImpl();
+    @InjectMocks
+    ModuleLayerManagerImpl manager;
     /**
      * After each.
      *
@@ -85,6 +96,11 @@ class LayerImplIT {
     @AfterEach
     public void afterEach() throws IOException {
         manager.removeAllLayers();
+    }
+
+    @BeforeEach
+    void beforeEach() throws IOException {
+        when(validator.isValid(any(), any(), any(), any())).thenReturn(true);
     }
 
     /**

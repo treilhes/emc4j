@@ -42,17 +42,14 @@ open module emc4j.boot.loader {
 
     exports com.treilhes.emc4j.boot.loader;
     exports com.treilhes.emc4j.boot.loader.content;
-    exports com.treilhes.emc4j.boot.loader.extension;
+    exports com.treilhes.emc4j.boot.loader.validation;
     exports com.treilhes.emc4j.boot.loader.model;
     exports com.treilhes.emc4j.boot.loader.internal.jpa.model;
 
     requires transitive emc4j.boot.api;
-    //requires transitive emc4j.boot.context;
-    //requires transitive emc4j.boot.layer;
-    //requires emc4j.boot.maven;
-    //requires emc4j.boot.platform;
-    //requires emc4j.boot.registry;
-    //requires emc4j.boot.jpa;
+
+    requires emc4j.spring.core.patch.link;
+    requires emc4j.hibernate.core.patch.link;
 
     requires emc4j.boot.starter;
 

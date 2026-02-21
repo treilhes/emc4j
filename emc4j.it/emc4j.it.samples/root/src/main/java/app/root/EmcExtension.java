@@ -32,6 +32,7 @@
 package app.root;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Bean;
@@ -88,6 +89,13 @@ public class EmcExtension implements SealedExtension {
                 EmcRepository.class,
                 EmcRepositoryCustomImpl.class
                 );
+    }
+
+
+    @Override
+    public Set<UUID> getMergedExtensions() {
+        return Set.of(UUID.fromString("10000000-0000-0000-0000-000000000001"));
+        //return Set.of();
     }
 
     @Bean

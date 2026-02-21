@@ -35,6 +35,8 @@ import static com.treilhes.emc4j.boot.layer.TestUtils.copy;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,20 +44,25 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.treilhes.emc4j.boot.api.layer.InvalidLayerException;
 import com.treilhes.emc4j.boot.api.layer.Layer;
-import com.treilhes.emc4j.boot.api.layer.ModuleLayerManager;
 import com.treilhes.emc4j.boot.layer.Constants;
-import com.treilhes.emc4j.boot.layer.internal.ModuleLayerManagerImpl;
+import com.treilhes.emc4j.boot.layer.validation.LayerValidator;
 
 /**
  * The Class ModuleLayerManagerIT.
  */
+@ExtendWith(MockitoExtension.class)
 class ModuleLayerManagerImplIT {
 
     /** The Constant ROOT_ID. */
@@ -68,8 +75,12 @@ class ModuleLayerManagerImplIT {
     @TempDir
     Path rootDir;
 
+    @Mock
+    LayerValidator validator;
+
     @Spy
-    ModuleLayerManager manager = new ModuleLayerManagerImpl();
+    @InjectMocks
+    ModuleLayerManagerImpl manager;
 
     /**
      * After each.
@@ -79,6 +90,11 @@ class ModuleLayerManagerImplIT {
     @AfterEach
     public void afterEach() throws IOException {
         manager.removeAllLayers();
+    }
+
+    @BeforeEach
+    void beforeEach() throws IOException {
+        when(validator.isValid(any(), any(), any(), any())).thenReturn(true);
     }
     /**
      * Must create the root layer.

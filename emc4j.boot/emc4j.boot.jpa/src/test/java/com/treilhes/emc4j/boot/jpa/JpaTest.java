@@ -39,17 +39,21 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.jpa.RepositoryFragment;
-import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 import com.treilhes.emc4j.boot.context.boot.BootContext;
 import com.treilhes.emc4j.boot.context.impl.EmContextFactoryImpl;
 import com.treilhes.emc4j.boot.jpa.context.EmcJpaExtensionConfig;
@@ -60,36 +64,17 @@ import jakarta.persistence.Id;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.NotNull;
 
+@ExtendWith(MockitoExtension.class)
 class JpaTest {
 
-    public static class FakeExtension implements OpenExtension {
-
-        @Override
-        public UUID getId() {
-            // TODO Auto-generated method stub
-            return null;
+    @Configuration
+    public static class Config {
+        @Bean
+        ExtensionDefinition extensionDefinition() {
+            return new ExtensionDefinition(null, null);
         }
-
-        @Override
-        public UUID getParentId() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public List<Class<?>> localContextClasses() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public List<Class<?>> exportedContextClasses() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
     }
-    
+
     private EmContextFactoryImpl factory = new EmContextFactoryImpl();
 
     @Test
@@ -184,7 +169,7 @@ class JpaTest {
         var bootClasses = new ArrayList<Class<?>>();
 
         var extensionClasses = new ArrayList<Class<?>>();
-        extensionClasses.add(FakeExtension.class);
+        extensionClasses.add(JpaTest.Config.class);
         extensionClasses.add(EmcJpaRepositorySupport.class);
         extensionClasses.add(EmcJpaExtensionConfig.class);
         extensionClasses.add(ExtensionEntity.class);
@@ -213,7 +198,7 @@ class JpaTest {
         var bootClasses = new ArrayList<Class<?>>();
 
         var extensionClasses = new ArrayList<Class<?>>();
-        extensionClasses.add(FakeExtension.class);
+        extensionClasses.add(JpaTest.Config.class);
         extensionClasses.add(EmcJpaRepositorySupport.class);
         extensionClasses.add(EmcJpaExtensionConfig.class);
         extensionClasses.add(ExtensionEntity.class);
@@ -224,7 +209,7 @@ class JpaTest {
 
         var extensionContext = factory.create(bootContext, UUID.randomUUID(), JpaTest.class.getClassLoader(),
                 extensionClasses, List.of(), List.of(), WebApplicationType.NONE);
-        
+
         extensionContext.refresh();
 
         var repository = extensionContext.getBean(ExtensionRepositoryCustomized.class);
@@ -240,7 +225,7 @@ class JpaTest {
         var bootClasses = new ArrayList<Class<?>>();
 
         var extensionClasses = new ArrayList<Class<?>>();
-        extensionClasses.add(FakeExtension.class);
+        extensionClasses.add(JpaTest.Config.class);
         extensionClasses.add(EmcJpaRepositorySupport.class);
         extensionClasses.add(EmcJpaExtensionConfig.class);
         extensionClasses.add(ExtensionEntity.class);
@@ -251,7 +236,7 @@ class JpaTest {
 
         var extensionContext = factory.create(bootContext, UUID.randomUUID(), JpaTest.class.getClassLoader(),
                 extensionClasses, List.of(), List.of(), WebApplicationType.NONE);
-        
+
         extensionContext.refresh();
 
         var repository = extensionContext.getBean(ExtensionRepositoryWithFragment.class);
@@ -267,7 +252,7 @@ class JpaTest {
         var bootClasses = new ArrayList<Class<?>>();
 
         var extensionClasses = new ArrayList<Class<?>>();
-        extensionClasses.add(FakeExtension.class);
+        extensionClasses.add(JpaTest.Config.class);
         extensionClasses.add(EmcJpaRepositorySupport.class);
         extensionClasses.add(EmcJpaExtensionConfig.class);
         extensionClasses.add(ExtensionEntity.class);

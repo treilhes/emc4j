@@ -36,6 +36,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
 import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 
 import _test.TestConfig;
@@ -47,8 +48,8 @@ public class EmcAspect {
 
     private final Extension source;
 
-    protected EmcAspect(@LocalContextOnly Extension source) {
-        this.source = source;
+    protected EmcAspect(@LocalContextOnly ExtensionDefinition source) {
+        this.source = source.getExtension();
     }
 
     @Around(TestConfig.ASPECT_POINTCUT)

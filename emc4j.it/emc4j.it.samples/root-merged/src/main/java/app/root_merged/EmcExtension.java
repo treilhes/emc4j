@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -29,44 +29,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package app.app1.controller;
+package app.root_merged;
 
 import java.util.List;
+import java.util.UUID;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 
-import app.root.api.RootExportedService;
+import _testmerged.TestConfig;
+import app.root_merged.controller.ExtensionController;
 
-@RestController
-@RequestMapping("/RootExportedService")
+public class EmcExtension implements OpenExtension {
 
-/*
- This rest controller expect application scoped exported services so an instance of the local application is expected
- to be created before this one. This is why it depends on the app1Application bean.
- */
-@DependsOn("app1Application")
-public class RootExportedController {
+    public static final UUID ID = UUID.fromString(TestConfig.ID);
 
-    private final List<RootExportedService> rootExportedServices;
-    private ApplicationContext ctx;
-
-    public RootExportedController(List<RootExportedService> rootExportedServices, ApplicationContext ctx) {
-        super();
-        this.rootExportedServices = rootExportedServices;
-        this.ctx = ctx;
+    @Override
+    public UUID getId() {
+        return ID;
     }
 
-    @GetMapping("/list")
-    public String listServices() {
-        StringBuilder sb = new StringBuilder();
-        for (var s : rootExportedServices) {
-            sb.append(s.callLocalService()).append("\n");
-        }
-        return sb.toString();
+    @Override
+    public List<Class<?>> localContextClasses() {
+        return List.of(ExtensionController.class);
+    }
+
+    @Override
+    public List<Class<?>> exportedContextClasses() {
+        return List.of();
+    }
+
+    @Override
+    public UUID getParentId() {
+        return null;
     }
 
 }
+

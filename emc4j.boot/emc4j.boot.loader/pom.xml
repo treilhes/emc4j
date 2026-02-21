@@ -54,4 +54,50 @@
         </dependency>
     </dependencies>
 
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resolve-jar-path</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>java.base.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>spring.core.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>org.hibernate.orm.core.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <useModulePath>true</useModulePath>
+                    <argLine>
+                        --patch-module
+                        spring.core=${com.treilhes.emc4j:spring.core.patch:jar}
+                        --patch-module
+                        org.hibernate.orm.core=${com.treilhes.emc4j:org.hibernate.orm.core.patch:jar}
+                    </argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

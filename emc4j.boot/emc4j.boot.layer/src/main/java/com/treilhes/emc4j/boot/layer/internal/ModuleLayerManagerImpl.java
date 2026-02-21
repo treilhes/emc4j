@@ -57,6 +57,7 @@ import com.treilhes.emc4j.boot.api.layer.InvalidLayerException;
 import com.treilhes.emc4j.boot.api.layer.Layer;
 import com.treilhes.emc4j.boot.api.layer.ModuleLayerManager;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
+import com.treilhes.emc4j.boot.layer.validation.LayerValidator;
 import com.treilhes.emc4j.java.base.patch.PatchLink;
 
 /**
@@ -71,20 +72,20 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
     /** The Constant DUPLICATE_LAYER. */
     private static final String DUPLICATE_LAYER = "Layer already exists : %s";
 
-    /** The Constant INVALID_DIRECTORY. */
-    private static final String INVALID_DIRECTORY = "invalid directory : %s";
-
     /** The Constant INVALID_LAYER. */
     private static final String INVALID_LAYER = "invalid layer : %s";
 
     /** The layers. */
     private Map<UUID, Layer> layers = new HashMap<>();
 
+    private LayerValidator validator;
+
     /**
      * Instantiates a new module layer manager impl.
      */
-    public ModuleLayerManagerImpl() {
+    public ModuleLayerManagerImpl(LayerValidator validator) {
         super();
+        this.validator = validator;
     }
 
     /**
@@ -104,12 +105,12 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
 
         logger.info("Creating layer {} from  {}", layerId, tempDirectory);
 
-        if (tempDirectory != null && !Files.isDirectory(tempDirectory)) {
-            throw new InvalidLayerException(String.format(INVALID_DIRECTORY, tempDirectory));
-        }
-
         if (layers.containsKey(layerId)) {
             throw new InvalidLayerException(String.format(DUPLICATE_LAYER, layerId));
+        }
+
+        if (!validator.isValid(parent, layerId, paths, tempDirectory)) {
+            throw new InvalidLayerException(String.format(INVALID_LAYER, tempDirectory));
         }
 
         try {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -29,44 +29,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package app.app1.controller;
+package app.root_merged.controller;
 
-import java.util.List;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import app.root.api.RootExportedService;
+import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
 
 @RestController
-@RequestMapping("/RootExportedService")
+@RequestMapping("/merged")
+public class ExtensionController {
 
-/*
- This rest controller expect application scoped exported services so an instance of the local application is expected
- to be created before this one. This is why it depends on the app1Application bean.
- */
-@DependsOn("app1Application")
-public class RootExportedController {
+    private final ExtensionDefinition definition;
 
-    private final List<RootExportedService> rootExportedServices;
-    private ApplicationContext ctx;
-
-    public RootExportedController(List<RootExportedService> rootExportedServices, ApplicationContext ctx) {
+    public ExtensionController(@LocalContextOnly ExtensionDefinition definition) {
         super();
-        this.rootExportedServices = rootExportedServices;
-        this.ctx = ctx;
+        this.definition = definition;
     }
 
-    @GetMapping("/list")
-    public String listServices() {
-        StringBuilder sb = new StringBuilder();
-        for (var s : rootExportedServices) {
-            sb.append(s.callLocalService()).append("\n");
-        }
-        return sb.toString();
+    @GetMapping("/extension")
+    public String extensions(Model model) {
+        String extensionId = definition.getExtension().getId().toString();
+        String mixinId = definition.getMixins().iterator().next().getId().toString();
+        return String.format("%s_%s", extensionId, mixinId);
     }
 
 }

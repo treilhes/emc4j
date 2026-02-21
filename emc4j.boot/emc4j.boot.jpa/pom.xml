@@ -40,20 +40,20 @@
 
     </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<useModulePath>false</useModulePath>
-					<argLine>
-						--add-reads
-						org.hibernate.validator=org.apache.tomcat.embed.el
-						--add-exports
-						org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
-					</argLine>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                    <argLine>
+                        --add-reads
+                        org.hibernate.validator=org.apache.tomcat.embed.el
+                        --add-exports
+                        org.hibernate.validator/org.hibernate.validator.internal.engine=spring.core
+                    </argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
