@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -361,9 +361,13 @@ public class ExtensionBootstrapper {
         // If we found an extension matching the layer id, but there are multiple extensions in the layer, we must ensure consistency
         // by checking that all extensions in the layer are part of the same merge tree (i.e. they all have the same root ancestor extension)
         // After removing the merged extensions from the list, only one extension should remain, which is the one we will use as the main extension for the layer
-        var mergeTree = new ArrayList<Extension>(extensions);
+        var mergeTree = new ArrayList<>(extensions);
         for (Extension e : extensions) {
-            mergeTree.removeIf(ext -> ext.getMergedExtensions().contains(e.getId()));
+            boolean isMerged = mergeTree.stream().anyMatch(ext -> ext.getMergedExtensions().contains(e.getId()));
+
+            if (isMerged) {
+                mergeTree.remove(e);
+            }
         }
 
         if (mergeTree.size() != 1) {
