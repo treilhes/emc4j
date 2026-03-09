@@ -68,6 +68,13 @@ public class RunMojo extends Emc4jAbstractMojo {
     private String applicationId;
 
     /**
+     * If true, the artifacts deployed into the run directory will be deleted first, before being copied.
+     * If false, only the configuration file will be updated, and the dependencies will not be copied again.
+     */
+    @Parameter(property = "clean", defaultValue = "true")
+    private boolean clean;
+
+    /**
      * If true, the JVM will be started in debug mode, allowing a debugger to attach.
      * The default value is false.
      */
@@ -91,26 +98,25 @@ public class RunMojo extends Emc4jAbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
 
-            cleanRunDirectory();
+            var localRepoPath = getRepositorySession().getLocalRepository().getBasedir().getAbsolutePath();
+            var classesDir = new File(project.getBuild().getOutputDirectory());
 
             var javaProcessConfig = initializeJavaProcessConfig();
-
-            copyDependencies(javaProcessConfig, getRunDirectory());
+            javaProcessConfig.addJvmArg("-Demc4j.registry.snapshotsAllowed=true");
+            javaProcessConfig.addJvmArg(String.format("-Demc4j.repository.directory=\"%s\"", localRepoPath));
+            javaProcessConfig.addAppArg("-a");
+            javaProcessConfig.addAppArg(applicationId);
 
             if (debug) {
                 javaProcessConfig.addJvmNonDeferredArg(String.format(DEBUG_OPTION, debugSuspend ? "y" : "n", String.valueOf(debugPort)));
             }
 
-            javaProcessConfig.addJvmArg("-Demc4j.registry.snapshotsAllowed=true");
+            if (clean) {
+                cleanRunDirectory();
+                copyDependencies(javaProcessConfig, getRunDirectory());
+            }
 
-            String localRepoPath = getRepositorySession().getLocalRepository().getBasedir().getAbsolutePath();
-            javaProcessConfig.addJvmArg(String.format("-Demc4j.repository.directory=\"%s\"", localRepoPath));
-
-            javaProcessConfig.addAppArg("-a");
-            javaProcessConfig.addAppArg(applicationId);
-
-            generateConfigFile(javaProcessConfig, getRunDirectory());
-
+            generateConfigFile(javaProcessConfig, getRunDirectory(), classesDir);
             copyProfileToTarget();
 
             run(javaProcessConfig);
@@ -184,7 +190,7 @@ public class RunMojo extends Emc4jAbstractMojo {
 
 
 
-    public void generateConfigFile(JavaProcessConfig jcfg, File targetFolder) throws Exception {
+    public void generateConfigFile(JavaProcessConfig jcfg, File targetFolder, File mvnTargetClassFolder) throws Exception {
 
         File configFile = new File(targetFolder, BOOT_CONFIG_FILENAME);
 
@@ -197,7 +203,19 @@ public class RunMojo extends Emc4jAbstractMojo {
 
         sb.append("--module-path ./mp").append("\n");
 
-        sb.append("--class-path ./cp/*").append("\n");
+        List<String> cpItems = new ArrayList<>();
+        cpItems.add("./cp/*");
+
+        if (mvnTargetClassFolder != null) {
+            cpItems.add(mvnTargetClassFolder.getAbsolutePath());
+        }
+
+        // here the claspath definition will use file separator to separate items
+        // this is only done in the run mojo for testing purposes, as the mvnTargetClassFolder is only used in the run mojo, and not in the launch mojo
+        // it must be kept as is in order to assure the cross platform compatibility of the plugin, as the file separator is different on Windows and Unix systems
+        String mergedCp = String.join(File.pathSeparator, cpItems);
+
+        sb.append("--class-path ").append(mergedCp).append("\n");
 
         for (String addRead : jcfg.getAddReads()) {
             sb.append(String.format(addReadFormat, addRead)).append("\n");

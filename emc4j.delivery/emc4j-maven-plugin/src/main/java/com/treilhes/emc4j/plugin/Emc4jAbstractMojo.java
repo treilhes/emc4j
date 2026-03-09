@@ -83,16 +83,16 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
     protected static final String BOOT_CLASS = "com.treilhes.emc4j.boot.main.Main";
 
     @Component
-    private MavenProject project;
+    protected MavenProject project;
 
     @Component
-    private RepositorySystem repositorySystem;
+    protected RepositorySystem repositorySystem;
 
     /**
      * The current repository/network configuration of Maven.
      */
     @Parameter(defaultValue = "${repositorySystemSession}")
-    private RepositorySystemSession repositorySession;
+    protected RepositorySystemSession repositorySession;
 
     /**
      * The project's remote repositories to use for the resolution of project
