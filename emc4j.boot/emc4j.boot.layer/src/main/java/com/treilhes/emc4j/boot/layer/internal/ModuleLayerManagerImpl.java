@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -365,6 +365,7 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
         private static void populateContentWith(LayerContent layerContent, Path f) throws IOException {
 
             Predicate<Path> isJar = p -> p.getFileName().toString().toLowerCase().endsWith(".jar");
+            Predicate<Path> isPatch = p -> p.getFileName().toString().toLowerCase().endsWith(JpmsPatch.PATCH_EXTENSION);
             Predicate<Path> isExpandedModule = p -> Files.exists(p.resolve(MODULE_INFO_CLASS_FILE));
             Predicate<Path> jarOrExpandedModule = p -> isJar.or(isExpandedModule).test(p);
 
@@ -376,8 +377,8 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
                 } else if (Files.list(f).anyMatch(jarOrExpandedModule)) {
                     try {
                         Files.list(f).forEach(p -> {
-                            if (isJar.test(p)) {
-                                handleJarFile(layerContent, p);
+                            if (isPatch.test(p)) {
+                                handlePatchFile(layerContent, p);
                             } else {
                                 layerContent.addPath(p);
                             }
@@ -394,11 +395,12 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
             }
         }
 
-        private static void handleJarFile(LayerContent layerContent, Path p) {
+        private static void handlePatchFile(LayerContent layerContent, Path p) {
             var optionalPatch = JpmsPatch.tryGetPatchJpms(p);
 
             if (optionalPatch.isEmpty()) {
                 layerContent.addPath(p);
+                logger.warn("Invalid patch {}, it does not contains a valid descriptor {}", p, JpmsPatch.PATCH_DESCRIPTOR_FILE);
             } else {
                 var patch = optionalPatch.get();
 

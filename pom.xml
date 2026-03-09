@@ -263,8 +263,8 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- FIXME allow missing javadoc comments, TEMPORARY
-                                    <failOnError>false</failOnError>-->
+                                    <!-- FIXME allow missing javadoc comments, TEMPORARY-->
+                                    <failOnError>false</failOnError>
                                 </configuration>
                             </execution>
                         </executions>

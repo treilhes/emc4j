@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -41,11 +41,16 @@ import java.util.zip.ZipFile;
 
 public class JpmsPatch {
 
-    private static Pattern DEPENDENCY_PATCH_PATTERN = Pattern.compile(".*=.*");
+    public static final String PATCH_DESCRIPTOR_FILE = "patch.jpms";
+    public static final String PATCH_EXTENSION = ".patch";
+    private static final Pattern DEPENDENCY_PATCH_PATTERN = Pattern.compile(".*=.*");
 
     public static Optional<JpmsPatch> tryGetPatchJpms(Path path) {
+        if (!path.toFile().isFile() || !path.toString().endsWith(PATCH_EXTENSION)) {
+            return Optional.empty();
+        }
         try (ZipFile zf = new ZipFile(path.toFile())) {
-            InputStream in = zf.getInputStream(zf.getEntry("patch.jpms"));
+            InputStream in = zf.getInputStream(zf.getEntry(PATCH_DESCRIPTOR_FILE));
             String content = new String(in.readAllBytes()).trim();
             return parse(content);
         } catch (Exception e) {}

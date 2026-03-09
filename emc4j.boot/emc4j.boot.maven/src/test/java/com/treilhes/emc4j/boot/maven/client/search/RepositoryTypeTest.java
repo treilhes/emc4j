@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -48,13 +49,17 @@ import com.treilhes.emc4j.boot.maven.client.type.Local;
 import com.treilhes.emc4j.boot.maven.client.type.Maven;
 import com.treilhes.emc4j.boot.maven.client.type.Nexus;
 
+@Deprecated
+@Disabled("oss sonatype has shut down")
 class RepositoryTypeTest {
 
     private static final String searchTerm = "maven";
 
+    @Deprecated
     @TempDir
     Path tempRepoDir;
 
+    @Deprecated
     @Test
     void must_return_results_with_local() {
         var repo = Repository.builder().id(MavenPresets.LOCAL)
@@ -80,6 +85,7 @@ class RepositoryTypeTest {
         assertTrue(result.stream().allMatch(r -> r.getArtifactId() != null));
     }
 
+    @Deprecated
     @Test
     void must_return_results_with_maven() {
         var repo = MavenPresets.getPresetRepositories().stream()
@@ -92,6 +98,7 @@ class RepositoryTypeTest {
         assertTrue(result.stream().allMatch(r -> r.getArtifactId() != null));
     }
 
+    @Deprecated
     @Test
     void must_return_results_with_sonatype() {
         var repo = MavenPresets.getPresetRepositories().stream()
