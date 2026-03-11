@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -84,6 +84,8 @@ public class ApplicationInfo {
      * Indicates whether the application is installed.
      */
     private boolean installed;
+
+    private boolean daemon;
 
     /**
      * Constructs an empty ApplicationInfo instance.
@@ -269,6 +271,14 @@ public class ApplicationInfo {
      */
     public void setInstalled(boolean installed) {
         this.installed = installed;
+    }
+
+    public boolean isDaemon() {
+        return daemon;
+    }
+
+    public void setDaemon(boolean daemon) {
+        this.daemon = daemon;
     }
 
     /**

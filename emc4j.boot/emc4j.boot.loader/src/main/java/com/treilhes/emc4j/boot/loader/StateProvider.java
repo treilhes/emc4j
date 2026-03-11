@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -31,6 +31,7 @@
  */
 package com.treilhes.emc4j.boot.loader;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.treilhes.emc4j.boot.api.loader.LoadType;
@@ -42,4 +43,11 @@ public interface StateProvider {
     LoadableContent applicationState(UUID applicationId, LoadType loadType);
 
     void saveState(Extension application);
+
+    /**
+     * List the daemons to start at boot time
+     * @return the daemons ids
+     */
+
+    Set<UUID> listDaemons();
 }

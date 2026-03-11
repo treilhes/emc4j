@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -73,6 +73,7 @@ public interface RegistryModelMappers {
     @Mapping(target = "nextVersion", source = "source.dependency.version")
     @Mapping(target = "description.title", source = "source.description.title")
     @Mapping(target = "description.text", source = "source.description.text")
+    @Mapping(target = "daemon", source = "source.daemon")
     ApplicationEntity map(Application source);
 
     @Mapping(target = "id", source = "uuid")

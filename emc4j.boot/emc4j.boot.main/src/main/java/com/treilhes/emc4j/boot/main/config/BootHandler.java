@@ -82,6 +82,8 @@ public class BootHandler {
             var commandStart = startup.map(s -> s.start("boot.start.command"));
             appManager.send(new OpenCommandEvent(application, arguments));
 
+            appManager.launchMandatoryDaemons();
+
             commandStart.ifPresent(StartupStep::end);
         } catch (BootException e) {
             logger.error("Unable to boot application", e);

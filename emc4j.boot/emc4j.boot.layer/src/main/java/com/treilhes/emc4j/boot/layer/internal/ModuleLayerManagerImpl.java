@@ -342,7 +342,17 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
                 };
             }
 
-            var moduleLayer = ModuleLayer.defineModulesWithOneLoader(layerConfig, parents, layerParentClassLoader).layer();
+            var controller = ModuleLayer.defineModulesWithOneLoader(layerConfig, parents, layerParentClassLoader);
+
+
+            var moduleLayer = controller.layer();
+
+            var d = moduleLayer.findModule("dorkbox.utilities");
+            var a = moduleLayer.findModule("java.desktop");
+
+            if (d.isPresent() && a.isPresent()) {
+                controller.addReads(d.get(), a.get());
+            }
 
             return new ModuleLayerWithRef(moduleLayer, moduleReferences);
 

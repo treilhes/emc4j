@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -66,5 +66,7 @@ public interface ApplicationManager {
      * @return the report
      */
     ExtensionReport getReport(UUID id);
+
+    void launchMandatoryDaemons();
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -45,6 +45,7 @@ public class Application {
     private UUID uuid;
     private Dependency dependency;
     private Description description;
+    private boolean daemon;
 
     /** The image. */
     private String splash;
@@ -91,6 +92,14 @@ public class Application {
 
     public void setDescription(Description description) {
         this.description = description;
+    }
+
+    public boolean isDaemon() {
+        return daemon;
+    }
+
+    public void setDaemon(boolean daemon) {
+        this.daemon = daemon;
     }
 
     public Set<Extension> getExtensions() {

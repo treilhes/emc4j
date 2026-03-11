@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -58,6 +58,7 @@ public interface RegistryDtoMappers {
     @Mapping(target = "version", source = "version")
     @Mapping(target = "nextVersion", source = "nextVersion")
     @Mapping(target = "installed", source = "installed")
+    @Mapping(target = "daemon", source = "daemon")
     ApplicationInfo map(ApplicationEntity application);
 
     @Mapping(target = "uuid", source = "id")

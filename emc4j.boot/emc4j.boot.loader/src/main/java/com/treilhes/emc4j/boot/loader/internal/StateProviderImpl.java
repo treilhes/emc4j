@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -45,6 +45,7 @@ import org.springframework.stereotype.Component;
 import com.treilhes.emc4j.boot.api.loader.LoadType;
 import com.treilhes.emc4j.boot.api.maven.RepositoryClient;
 import com.treilhes.emc4j.boot.api.registry.RegistryManager;
+import com.treilhes.emc4j.boot.api.registry.model.ApplicationInfo;
 import com.treilhes.emc4j.boot.api.registry.model.LayerDefinition;
 import com.treilhes.emc4j.boot.loader.StateProvider;
 import com.treilhes.emc4j.boot.loader.content.CreateOnlyContentProvider;
@@ -277,5 +278,15 @@ public class StateProviderImpl implements StateProvider {
                 flattenExtension(ext.getExtensions());
             });
         }
+    }
+
+    @Override
+    public Set<UUID> listDaemons() {
+        var appList = registryManager.listApplicationsInfo();
+        return appList.stream()
+                .filter(ApplicationInfo::isInstalled)
+                .filter(ApplicationInfo::isDaemon)
+                .map(ApplicationInfo::getUuid)
+                .collect(java.util.stream.Collectors.toSet());
     }
 }
