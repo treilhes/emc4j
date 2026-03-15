@@ -18,7 +18,7 @@
     </modules>
 
     <properties>
-        <emc4j.version>0.0.1-SNAPSHOT</emc4j.version>
+        <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         
         <!-- compiler 
         <maven.compiler.plugin.version>${parent.maven.compiler.plugin.version}</maven.compiler.plugin.version>
