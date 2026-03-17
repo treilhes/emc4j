@@ -37,8 +37,16 @@ import java.util.List;
 import com.treilhes.emc4j.boot.api.loader.BootContextConfigClasses;
 
 
+/**
+ * Registers AOP-related boot classes for the framework.
+ */
 public class AopBootClasses implements BootContextConfigClasses {
 
+/**
+     * Returns the list of classes to register for AOP configuration.
+     *
+     * @return list of AOP-related classes
+     */
     @Override
     public List<Class<?>> classes() {
         return List.of(

@@ -36,8 +36,16 @@ import java.util.List;
 import com.treilhes.emc4j.boot.api.loader.ExtensionContextConfigClasses;
 import com.treilhes.emc4j.boot.aop.extension.AopExtensionContextConfig;
 
+/**
+ * Provides the configuration class for the AOP extension.
+ */
 public class AopExtensionClasses implements ExtensionContextConfigClasses {
 
+/**
+     * Returns the list of configuration classes for the AOP extension.
+     *
+     * @return list containing AopExtensionContextConfig
+     */
     @Override
     public List<Class<?>> classes() {
         return List.of(AopExtensionContextConfig.class);
