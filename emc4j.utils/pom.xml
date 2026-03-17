@@ -10,5 +10,4 @@
   <modules>
       <module>emc4j-dependency-plugin</module>
   </modules>
-  <description>This plugin is similar to the maven-dependency-plugin goal:properties except it will load the plugin dependecies itself into maven variables</description>
 </project>
