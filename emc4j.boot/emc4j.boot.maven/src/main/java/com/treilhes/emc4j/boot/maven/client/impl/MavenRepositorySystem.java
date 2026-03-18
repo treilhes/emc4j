@@ -58,6 +58,7 @@ import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.installation.InstallRequest;
 import org.eclipse.aether.installation.InstallationException;
@@ -379,6 +380,11 @@ public class MavenRepositorySystem {
             DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
             try {
                 var dependencyResults = system.resolveDependencies(session, dependencyRequest);
+                
+                if (logger.isInfoEnabled()) {
+                    logDependencyNode(dependencyResults.getRoot());
+                }
+                
                 var artifactResults = dependencyResults.getArtifactResults();
 
                 ArtifactResult main = artifactResults.get(0);
@@ -426,6 +432,14 @@ public class MavenRepositorySystem {
             step.ifPresent(s -> s.end());
         }
 
+    }
+
+    private void logDependencyNode(DependencyNode root) {
+        logDependencyNode(root, 0);
+    }
+    private void logDependencyNode(DependencyNode node, int level) {
+        logger.info(" ".repeat(level) + node.getDependency());
+        node.getChildren().forEach(n -> logDependencyNode(n, level + 1));
     }
 
     private Optional<RemoteRepository> toRemoteRepository(Repository repository) {

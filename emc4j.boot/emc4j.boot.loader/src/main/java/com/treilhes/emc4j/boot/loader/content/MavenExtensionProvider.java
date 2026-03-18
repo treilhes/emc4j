@@ -92,6 +92,11 @@ public class MavenExtensionProvider implements ExtensionContentProvider {
         if (resolvedArtifact == null) {
             //resolvedArtifact = repositoryClient.localOnly().resolveWithDependencies(mavenArtifact).orElse(null);
             resolvedArtifact = repositoryClient.resolveWithDependencies(mavenArtifact).orElse(null);
+            
+            if (resolvedArtifact == null || resolvedArtifact.getPath() == null) {
+                throw new ArtifactNotFoundException(mavenArtifact);
+            }
+            
             buildAggregate(resolvedArtifact);
         }
     }
