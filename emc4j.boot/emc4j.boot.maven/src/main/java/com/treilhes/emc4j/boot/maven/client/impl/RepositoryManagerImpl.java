@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.metrics.ApplicationStartup;
 import org.springframework.core.metrics.StartupStep;
 import org.springframework.stereotype.Component;
@@ -58,7 +60,9 @@ import jakarta.annotation.PostConstruct;
 @Component
 @Lazy
 public class RepositoryManagerImpl implements RepositoryManager {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryManagerImpl.class);
+    
     private final MavenConfig config;
     private final RepositoryRepository jpaRepository;
     private final RepositoryMapper mapper;
@@ -93,29 +97,31 @@ public class RepositoryManagerImpl implements RepositoryManager {
             if (configRepositories != null) {
 
                 for (var configRepository : configRepositories) {
-                    if (configRepository.requestCredentials()) {
-                        // If requestCredentials is true, prompt the user for credentials
-                        try {
-                            var url = new URI(configRepository.url()).toURL();
+                    try {
+                        var url = new URI(configRepository.url()).toURL();
+                        var authenticatedRepository = new com.treilhes.emc4j.boot.maven.client.model.Repository();
+
+                        authenticatedRepository.setId(url.getHost());
+                        authenticatedRepository.setType(Maven.class);
+                        authenticatedRepository.setUrl(configRepository.url());
+                        
+                        if (configRepository.requestCredentials()) {
                             var credentials = CredentialPrompt.requestCredentialsFor(url);
                             if (credentials != null) {
-
-                                var authenticatedRepository = new com.treilhes.emc4j.boot.maven.client.model.Repository();
-
-                                authenticatedRepository.setId(url.getHost());
-                                authenticatedRepository.setType(Maven.class);
-                                authenticatedRepository.setUrl(configRepository.url());
                                 authenticatedRepository.setLogin(credentials.getUsername());
                                 authenticatedRepository.setPassword(credentials.getPassword());
-                                authenticatedRepository.setContentType(Content.SNAPSHOT_RELEASE);
-
-                                repositories.add(authenticatedRepository);
                             }
-
-                        } catch (MalformedURLException | URISyntaxException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                        } else {
+                            authenticatedRepository.setLogin(configRepository.user());
+                            authenticatedRepository.setPassword(configRepository.password());
                         }
+
+                        authenticatedRepository.setContentType(Content.SNAPSHOT_RELEASE);
+
+                        repositories.add(authenticatedRepository);
+
+                    } catch (Exception e) {
+                        logger.error("Unable to save configured repository {}", configRepository.url());
                     }
                 }
             }

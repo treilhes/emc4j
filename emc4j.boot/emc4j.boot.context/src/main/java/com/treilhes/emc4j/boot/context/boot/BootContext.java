@@ -84,6 +84,8 @@ public class BootContext {
         application.setWebApplicationType(type == null ? WebApplicationType.NONE : type);
         application.setAdditionalProfiles(BOOT_PROFILE);
 
+        DevYamlEnvironmentPostProcessor.register(application);
+
         var context = (EmContext)application.run(args);
 
         step.end();

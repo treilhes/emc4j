@@ -10,6 +10,12 @@
     <packaging>jar</packaging>
 
     <description> Run command: mvn com.treilhes.emc4j:emc4j-maven-plugin:run </description>
+    
+    <properties>
+        <debug>false</debug>
+        <debugPort>8000</debugPort>
+    </properties>
+    
     <build>
         <plugins>
             <plugin>
@@ -18,9 +24,14 @@
                 <version>${emc4j.version}</version>
                 <configuration>
                     <emc4jVersion>${emc4j.version}</emc4jVersion>
-                    <debug>false</debug>
-                    <profile>samples</profile>
-                    <profileFile>${basedir}/src/main/resources/application-samples.yaml</profileFile>
+                    <debug>${debug}</debug>
+                    <debugPort>${debugPort}</debugPort>
+                    <profiles>
+                        <profile>devlookup,samples</profile>
+                    </profiles>
+                    <profileFiles>
+                        <profileFile>${basedir}/src/main/resources/application-samples.yaml</profileFile>
+                    </profileFiles>
                     <applicationId>00000000-0000-0000-0000-000000000002</applicationId>
                     <javaOptions></javaOptions>
                 </configuration>
