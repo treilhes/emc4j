@@ -31,6 +31,8 @@
  */
 package com.treilhes.emc4j.boot.registry.internal.model;
 
+import java.io.File;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -64,6 +66,8 @@ public class RegistrySourceEntity {
     private String artifactId;
 
     private String version;
+    
+    private File localFolder;
 
     private boolean mandatory;
 
@@ -107,6 +111,14 @@ public class RegistrySourceEntity {
 
     public void setMandatory(boolean mandatory) {
         this.mandatory = mandatory;
+    }
+
+    public File getLocalFolder() {
+        return localFolder;
+    }
+
+    public void setLocalFolder(File localFolder) {
+        this.localFolder = localFolder;
     }
 
 }

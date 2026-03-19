@@ -27,11 +27,8 @@
                     <debug>${debug}</debug>
                     <debugPort>${debugPort}</debugPort>
                     <profiles>
-                        <profile>devlookup,samples</profile>
+                        <profile>devlookup,sampleslocal</profile>
                     </profiles>
-                    <profileFiles>
-                        <profileFile>${basedir}/src/main/resources/application-samples.yaml</profileFile>
-                    </profileFiles>
                     <applicationId>00000000-0000-0000-0000-000000000002</applicationId>
                     <javaOptions></javaOptions>
                 </configuration>

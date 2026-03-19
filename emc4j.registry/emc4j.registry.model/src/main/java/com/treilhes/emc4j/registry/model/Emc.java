@@ -39,6 +39,10 @@ public interface Emc {
     public static List<String> REGISTRY_FILE_FORMATS = List.of("json","xml");
 
     public static String registryResourcePath(String format) {
-        return REGISTRY_FILE_FOLDER + "/" + REGISTRY_FILE_NAME + "." + format;
+        return REGISTRY_FILE_FOLDER + "/" + registryFilename(format);
+    }
+    
+    public static String registryFilename(String format) {
+        return REGISTRY_FILE_NAME + "." + format;
     }
 }

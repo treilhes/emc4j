@@ -31,10 +31,13 @@
  */
 package com.treilhes.emc4j.boot.api.registry.model;
 
+import java.io.File;
+
 public record RegistryArtifact(
         String groupId,
         String artifactId,
         String version,
-        boolean mandatory
+        boolean mandatory,
+        File localFolder
         ) {
 }
