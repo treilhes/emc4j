@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.lang.ModuleLayer.Controller;
 import java.lang.module.ModuleReference;
 import java.lang.ref.WeakReference;
 import java.net.JarURLConnection;
@@ -120,6 +121,8 @@ public class LayerImpl implements Layer {
 
     private WeakReference<ClassLoader> classloader;
 
+    private WeakReference<Controller> moduleController;
+
     /**
      * Instantiates a new layer impl.
      *
@@ -127,14 +130,17 @@ public class LayerImpl implements Layer {
      * @param tempDirectory        the directory
      * @param moduleLayer      the module layer
      * @param moduleReferences the module references
+     * @param moduleController 
      */
-    public LayerImpl(UUID id, List<Path> paths, Path tempDirectory, ModuleLayer moduleLayer, Map<String, ModuleReference> moduleReferences) {
+    public LayerImpl(UUID id, List<Path> paths, Path tempDirectory, ModuleLayer moduleLayer,
+            Map<String, ModuleReference> moduleReferences, Controller moduleController) {
         super();
         this.id = id;
         this.paths = paths != null ? new ArrayList<>(paths) : Collections.emptyList();
         this.tempDirectory = tempDirectory;
         this.moduleLayerLock = moduleLayer;
         this.moduleLayer = new WeakReference<>(moduleLayer);
+        this.moduleController = new WeakReference<>(moduleController);
 
         this.parents = new HashSet<>();
         this.children = new HashSet<>();
@@ -175,6 +181,11 @@ public class LayerImpl implements Layer {
     @Override
     public ModuleLayer getModuleLayer() {
         return moduleLayer.get();
+    }
+    
+    @Override
+    public Controller getModuleController() {
+        return moduleController.get();
     }
 
     /**

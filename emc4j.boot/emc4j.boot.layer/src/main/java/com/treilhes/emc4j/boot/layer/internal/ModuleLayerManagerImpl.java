@@ -32,6 +32,7 @@
 package com.treilhes.emc4j.boot.layer.internal;
 
 import java.io.IOException;
+import java.lang.ModuleLayer.Controller;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.lang.module.ModuleReference;
@@ -126,8 +127,9 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
             var moduleLayerWithRef = Helper.createModuleLayer(parentLayers, paths, tempDirectory);
             var moduleLayer = moduleLayerWithRef.getModuleLayer();
             var moduleReferences = moduleLayerWithRef.getModuleReferences();
+            var moduleController = moduleLayerWithRef.getModuleController();
 
-            var layer = new LayerImpl(layerId, paths, tempDirectory, moduleLayer, moduleReferences);
+            var layer = new LayerImpl(layerId, paths, tempDirectory, moduleLayer, moduleReferences, moduleController);
 
             if (parent != null) {
                 layer.addParent(parent);
@@ -343,18 +345,9 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
             }
 
             var controller = ModuleLayer.defineModulesWithOneLoader(layerConfig, parents, layerParentClassLoader);
-
-
             var moduleLayer = controller.layer();
 
-            var d = moduleLayer.findModule("dorkbox.utilities");
-            var a = moduleLayer.findModule("java.desktop");
-
-            if (d.isPresent() && a.isPresent()) {
-                controller.addReads(d.get(), a.get());
-            }
-
-            return new ModuleLayerWithRef(moduleLayer, moduleReferences);
+            return new ModuleLayerWithRef(moduleLayer, moduleReferences, controller);
 
         }
 
@@ -445,16 +438,20 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
         /** The module references. */
         private Map<String, ModuleReference> moduleReferences;
 
+        private Controller moduleController;
+
         /**
          * Instantiates a new module layer with ref.
          *
          * @param moduleLayer      the module layer
          * @param moduleReferences the module references
+         * @param controller 
          */
-        public ModuleLayerWithRef(ModuleLayer moduleLayer, Map<String, ModuleReference> moduleReferences) {
+        public ModuleLayerWithRef(ModuleLayer moduleLayer, Map<String, ModuleReference> moduleReferences, Controller controller) {
             super();
             this.moduleLayer = moduleLayer;
             this.moduleReferences = moduleReferences;
+            this.moduleController = controller;
         }
 
         /**
@@ -475,6 +472,9 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
             return moduleReferences;
         }
 
+        public Controller getModuleController() {
+            return moduleController;
+        }
     }
 
     @Override

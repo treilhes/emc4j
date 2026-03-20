@@ -574,7 +574,8 @@ public class ApplicationManagerImpl implements ApplicationManager {
         getContext(editorId).ifPresent(c -> c.publishEvent(parameters));
     }
 
-    private boolean isStarted(UUID applicationId) {
+    @Override
+    public boolean isStarted(UUID applicationId) {
         return startedApplications.containsKey(applicationId);
     }
 

@@ -69,4 +69,6 @@ public interface ApplicationManager {
 
     void launchMandatoryDaemons();
 
+    boolean isStarted(UUID applicationId);
+
 }

@@ -33,6 +33,7 @@ package com.treilhes.emc4j.boot.api.layer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ModuleLayer.Controller;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URL;
@@ -254,6 +255,8 @@ public interface Layer {
         enumeration.asIterator().forEachRemaining(l::add);
         return l;
     }
+
+    Controller getModuleController();
 
 
 }
