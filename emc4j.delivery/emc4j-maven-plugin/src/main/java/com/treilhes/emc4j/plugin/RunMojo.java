@@ -36,17 +36,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.apache.maven.shared.filtering.MavenFileFilterRequest;
+import org.apache.maven.shared.filtering.MavenFilteringException;
 
 import com.treilhes.emc4j.plugin.javaconfig.JavaProcessConfig;
 import com.treilhes.emc4j.plugin.util.FsUtil;
@@ -60,6 +67,9 @@ public class RunMojo extends Emc4jAbstractMojo {
 
     private static final String DEBUG_OPTION = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=%s,address=0.0.0.0:%s";
 
+    @Component
+    private MavenFileFilter mavenFileFilter;
+    
     /**
      * The application identifier to run.
      * The application identifier must be contained in one of the provided registry dependencies.
@@ -93,13 +103,20 @@ public class RunMojo extends Emc4jAbstractMojo {
      */
     @Parameter(property = "debugPort", defaultValue = "8000")
     private int debugPort;
+    
+    @Parameter(property = "registry")
+    private Registry registry;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
+            getProfiles().add(0, "emc4jregistry");
 
             var localRepoPath = getRepositorySession().getLocalRepository().getBasedir().getAbsolutePath();
-            var classesDir = new File(project.getBuild().getOutputDirectory());
+            
+            var cpDirectories = List.of(
+                    new File(project.getBuild().getOutputDirectory()),
+                    new File(getRunDirectory(), "registry"));
 
             var javaProcessConfig = initializeJavaProcessConfig();
             javaProcessConfig.addJvmArg("-Demc4j.registry.snapshotsAllowed=true");
@@ -116,8 +133,24 @@ public class RunMojo extends Emc4jAbstractMojo {
                 copyDependencies(javaProcessConfig, getRunDirectory());
             }
 
-            generateConfigFile(javaProcessConfig, getRunDirectory(), classesDir);
+            generateConfigFile(javaProcessConfig, getRunDirectory(), cpDirectories);
             copyProfileToTarget();
+
+            var to = new File(getRunDirectory(), "registry").toPath();
+            Files.createDirectories(to);
+            
+            if (registry != null && registry.getLocalFolder() != null) { 
+                // copy and filter the registry
+                var from = registry.getLocalFolder().toPath();
+                copyRegistryToTarget(from, to);
+                registry.setLocalFolder(to.toFile());
+            }
+
+            if (registry != null) {
+                var profileContent = generateProfileContent(registry);
+                var profileFile = to.resolve("application-emc4jregistry.yaml");
+                Files.writeString(profileFile, profileContent);
+            }
 
             run(javaProcessConfig);
 
@@ -176,6 +209,16 @@ public class RunMojo extends Emc4jAbstractMojo {
             }
         }
     }
+    
+    private void copyRegistryToTarget(Path from, Path to) throws IOException, MojoExecutionException {
+        if (registry != null && registry.getLocalFolder() != null) {
+            var excluded = Pattern.compile("emc4j-registry\\.xml");
+            var registryFile = from.resolve("emc4j-registry.xml");
+            var targetRegistryFile = to.resolve("emc4j-registry.xml");
+            FsUtil.copyDirectory(from, to, excluded);
+            filter(registryFile, targetRegistryFile);
+        }
+    }
 
     protected void cleanRunDirectory() throws IOException {
         File runFolder = getRunDirectory();
@@ -190,7 +233,7 @@ public class RunMojo extends Emc4jAbstractMojo {
 
 
 
-    public void generateConfigFile(JavaProcessConfig jcfg, File targetFolder, File mvnTargetClassFolder) throws Exception {
+    public void generateConfigFile(JavaProcessConfig jcfg, File targetFolder, List<File> cpDirectories) throws Exception {
 
         File configFile = new File(targetFolder, BOOT_CONFIG_FILENAME);
 
@@ -206,8 +249,8 @@ public class RunMojo extends Emc4jAbstractMojo {
         List<String> cpItems = new ArrayList<>();
         cpItems.add("./cp/*");
 
-        if (mvnTargetClassFolder != null) {
-            cpItems.add(mvnTargetClassFolder.getAbsolutePath());
+        if (cpDirectories != null) {
+            cpDirectories.forEach(f -> cpItems.add(f.getAbsolutePath()));
         }
 
         // here the claspath definition will use file separator to separate items
@@ -245,5 +288,89 @@ public class RunMojo extends Emc4jAbstractMojo {
         }
 
         Files.writeString(configFile.toPath(), sb);
+    }
+    
+    private String generateProfileContent(Registry registry) {
+        
+        /*
+         emc4j:
+            registry:
+              snapshotsAllowed: true
+              defaults:
+                emc4j_registry:
+                  groupId: com.treilhes.emc4j
+                  artifactId: emc4j.it.samples.registry
+                  mandatory: true
+         */
+        StringBuilder sb = new StringBuilder();
+        sb.append("emc4j:").append("\n");
+        sb.append("  registry:").append("\n");
+        sb.append("    snapshotsAllowed: true").append("\n");
+        sb.append("    defaults:").append("\n");
+        sb.append("      emc4jregistry:").append("\n");
+        sb.append("        mandatory: true").append("\n");
+        sb.append("        groupId: ").append(registry.getGroupId()).append("\n");
+        sb.append("        artifactId: ").append(registry.getArtifactId()).append("\n");
+        
+        if (registry.getVersion() != null) {
+            sb.append("        version: ").append(registry.getVersion()).append("\n");
+        }
+        
+        if (registry.getLocalFolder() != null) {
+            sb.append("        localFolder: ").append(registry.getLocalFolder().getAbsolutePath()).append("\n");
+        }
+        
+        return sb.toString();
+    }
+    
+    private void filter(Path source, Path target) throws MojoExecutionException {
+
+        MavenFileFilterRequest request = new MavenFileFilterRequest();
+        request.setFrom(source.toFile());
+        request.setTo(target.toFile());
+
+        // VERY IMPORTANT
+        request.setMavenProject(project);
+        request.setMavenSession(getSession());
+
+        // enable filtering
+        request.setFiltering(true);
+
+        try {
+            mavenFileFilter.copyFile(request);
+        } catch (MavenFilteringException e) {
+            throw new MojoExecutionException("Filtering failed", e);
+        }
+    }
+    
+    public static class Registry {
+        String groupId; 
+        String artifactId; 
+        String version;
+        File localFolder;
+        public String getGroupId() {
+            return groupId;
+        }
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+        public String getArtifactId() {
+            return artifactId;
+        }
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+        public String getVersion() {
+            return version;
+        }
+        public void setVersion(String version) {
+            this.version = version;
+        }
+        public File getLocalFolder() {
+            return localFolder;
+        }
+        public void setLocalFolder(File localFolder) {
+            this.localFolder = localFolder;
+        }
     }
 }

@@ -53,7 +53,12 @@
             <artifactId>mojo-executor</artifactId>
             <version>2.4.1</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-filtering</artifactId>
+            <version>3.3.1</version>
+        </dependency>
         
         <dependency>
             <groupId>org.junit.jupiter</groupId>

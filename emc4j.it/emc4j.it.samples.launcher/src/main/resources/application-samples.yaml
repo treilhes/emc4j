@@ -1,12 +1,4 @@
 emc4j:
-  registry:
-    snapshotsAllowed: true
-    defaults:
-      samples:
-        groupId: com.treilhes.emc4j
-        artifactId: emc4j.it.samples.registry
-        mandatory: true
-
   maven:
     directory: ${user.home}/.m2/repository
 #    redirectionsEnabled: true

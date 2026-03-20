@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -87,6 +88,8 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
 
     @Component
     protected RepositorySystem repositorySystem;
+    
+    
 
     /**
      * The current repository/network configuration of Maven.
@@ -94,6 +97,10 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
     @Parameter(defaultValue = "${repositorySystemSession}")
     protected RepositorySystemSession repositorySession;
 
+    // Maven injects the current session here
+    @Parameter(defaultValue = "${session}", readonly = true, required = true)
+    private MavenSession session;
+    
     /**
      * The project's remote repositories to use for the resolution of project
      * dependencies.
@@ -175,6 +182,10 @@ public abstract class Emc4jAbstractMojo extends AbstractMojo {
 
     public RepositorySystemSession getRepositorySession() {
         return repositorySession;
+    }
+
+    public MavenSession getSession() {
+        return session;
     }
 
     public List<String> getProfiles() {

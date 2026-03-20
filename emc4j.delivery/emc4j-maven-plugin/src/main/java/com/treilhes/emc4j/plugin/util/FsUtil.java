@@ -33,9 +33,15 @@ package com.treilhes.emc4j.plugin.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class FsUtil {
@@ -46,6 +52,51 @@ public class FsUtil {
         .forEach(p -> {
             try { Files.delete(p); }
             catch (IOException e) { throw new RuntimeException(e); }
+        });
+    }
+    
+    public static void copyDirectory(Path sourceDir, Path targetDir) throws IOException {
+        copyDirectory(sourceDir, targetDir, null);
+    }
+    /**
+     * Recursively copies a directory to a target location.
+     *
+     * @param sourceDir the source directory to copy
+     * @param targetDir the target directory
+     * @throws IOException if an I/O error occurs
+     */
+    public static void copyDirectory(Path sourceDir, Path targetDir, Pattern excluded) throws IOException {
+        if (!Files.exists(sourceDir) || !Files.isDirectory(sourceDir)) {
+            throw new IllegalArgumentException("Source must be an existing directory");
+        }
+
+        // Create target directory if it does not exist
+        if (!Files.exists(targetDir)) {
+            Files.createDirectories(targetDir);
+        }
+
+        // Walk the file tree
+        Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                Path targetPath = targetDir.resolve(sourceDir.relativize(dir));
+                if (!Files.exists(targetPath)) {
+                    Files.createDirectory(targetPath);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                
+                if (excluded != null && excluded.matcher(file.getFileName().toString()).matches()) {
+                    return FileVisitResult.CONTINUE; // Skip excluded files
+                }
+                
+                Path targetPath = targetDir.resolve(sourceDir.relativize(file));
+                Files.copy(file, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
         });
     }
 
