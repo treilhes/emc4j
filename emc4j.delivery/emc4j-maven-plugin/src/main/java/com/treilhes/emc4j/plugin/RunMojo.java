@@ -104,13 +104,16 @@ public class RunMojo extends Emc4jAbstractMojo {
     @Parameter(property = "debugPort", defaultValue = "8000")
     private int debugPort;
     
-    @Parameter(property = "registry")
+    @Parameter
     private Registry registry;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            getProfiles().add(0, "emc4jregistry");
+            
+            if (registry != null) {
+                getProfiles().add(0, "emc4jregistry");
+            }
 
             var localRepoPath = getRepositorySession().getLocalRepository().getBasedir().getAbsolutePath();
             
