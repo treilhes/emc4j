@@ -14,7 +14,7 @@
             <dependency>
                 <groupId>com.treilhes.emc4j.it</groupId>
                 <artifactId>root</artifactId>
-                <version>0.0.0-FIXED</version>
+                <version>0.0.0-SNAPSHOT</version>
             </dependency>
             <description>
                 <image>sample.png</image>
@@ -27,7 +27,7 @@
                     <dependency>
                         <groupId>com.treilhes.emc4j.it</groupId>
                         <artifactId>root-ext1</artifactId>
-                        <version>0.0.0-FIXED</version>
+                        <version>0.0.0-SNAPSHOT</version>
                     </dependency>
                     <extensions>
                         <extension>
@@ -36,7 +36,7 @@
                             <dependency>
                                 <groupId>com.treilhes.emc4j.it</groupId>
                                 <artifactId>root-ext1-ext1</artifactId>
-                                <version>0.0.0-FIXED</version>
+                                <version>0.0.0-SNAPSHOT</version>
                             </dependency>
                         </extension>
                     </extensions>
@@ -49,7 +49,7 @@
             <dependency>
                 <groupId>com.treilhes.emc4j.it</groupId>
                 <artifactId>app1</artifactId>
-                <version>0.0.0-FIXED</version>
+                <version>0.0.0-SNAPSHOT</version>
             </dependency>
             <description>
                 <image>sample.png</image>
@@ -62,7 +62,7 @@
                     <dependency>
                         <groupId>com.treilhes.emc4j.it</groupId>
                         <artifactId>app1-ext1</artifactId>
-                        <version>0.0.0-FIXED</version>
+                        <version>0.0.0-SNAPSHOT</version>
                     </dependency>
                     <extensions>
                         <extension>
@@ -71,7 +71,7 @@
                             <dependency>
                                 <groupId>com.treilhes.emc4j.it</groupId>
                                 <artifactId>app1-ext1-ext1</artifactId>
-                                <version>0.0.0-FIXED</version>
+                                <version>0.0.0-SNAPSHOT</version>
                             </dependency>
                         </extension>
                     </extensions>

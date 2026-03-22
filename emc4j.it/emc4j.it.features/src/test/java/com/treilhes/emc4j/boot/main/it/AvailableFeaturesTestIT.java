@@ -186,10 +186,10 @@ public class AvailableFeaturesTestIT {
          * This is the test application and extensions
          */
         private LoadableContent rootApp() {
-            var p_root = Path.of(RES_IT, "root/target/root-0.0.0-FIXED.jar");
-            var p_root_merged = Path.of(RES_IT, "root-merged/target/root-merged-0.0.0-FIXED.jar");
-            var p_root_ext1 = Path.of(RES_IT, "root-ext1/target/root-ext1-0.0.0-FIXED.jar");
-            var p_root_ext1_ext1 = Path.of(RES_IT, "root-ext1-ext1/target/root-ext1-ext1-0.0.0-FIXED.jar");
+            var p_root = Path.of(RES_IT, "root/target/root-0.0.0-SNAPSHOT.jar");
+            var p_root_merged = Path.of(RES_IT, "root-merged/target/root-merged-0.0.0-SNAPSHOT.jar");
+            var p_root_ext1 = Path.of(RES_IT, "root-ext1/target/root-ext1-0.0.0-SNAPSHOT.jar");
+            var p_root_ext1_ext1 = Path.of(RES_IT, "root-ext1-ext1/target/root-ext1-ext1-0.0.0-SNAPSHOT.jar");
 
             var root = new LoadableContent();
             var rootExt = new Extension();
@@ -225,9 +225,9 @@ public class AvailableFeaturesTestIT {
          * This is the test application and extensions
          */
         private LoadableContent testApp() {
-            var p_app1 = Path.of(RES_IT, "app1/target/app1-0.0.0-FIXED.jar");
-            var p_app1_ext1 = Path.of(RES_IT, "app1-ext1/target/app1-ext1-0.0.0-FIXED.jar");
-            var p_app1_ext1_ext1 = Path.of(RES_IT, "app1-ext1-ext1/target/app1-ext1-ext1-0.0.0-FIXED.jar");
+            var p_app1 = Path.of(RES_IT, "app1/target/app1-0.0.0-SNAPSHOT.jar");
+            var p_app1_ext1 = Path.of(RES_IT, "app1-ext1/target/app1-ext1-0.0.0-SNAPSHOT.jar");
+            var p_app1_ext1_ext1 = Path.of(RES_IT, "app1-ext1-ext1/target/app1-ext1-ext1-0.0.0-SNAPSHOT.jar");
 
             var app1 = new LoadableContent();
             var app1Ext = new Extension();
