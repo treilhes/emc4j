@@ -86,7 +86,7 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
         <!-- internal -->
-        <sonar.projectKey>jfxapps_emc4j_e51e66a2-effb-4712-a664-f6026b788d72</sonar.projectKey>
+        <sonar.projectKey>jfxapps_emc4j_564ea921-e7b8-467d-a5fe-3b6d0c7d4d03</sonar.projectKey>
         <sonar.projectName>emc4j</sonar.projectName>
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
         <sonar.coverage.jacoco.xmlReportPaths>**/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
