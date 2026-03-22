@@ -48,13 +48,6 @@ import org.springframework.lang.Nullable;
 public class AopExtensionContextConfig {
 
     /**
-     * Creates a new instance of the default AOP extension context configuration.
-     */
-    public AopExtensionContextConfig() {
-        super();
-    }
-
-    /**
      * Creates an {@link AnnotationAwareAspectJAutoProxyCreator} bean with highest precedence.
      *
      * @param beanFactory the bean factory to use for class loader resolution

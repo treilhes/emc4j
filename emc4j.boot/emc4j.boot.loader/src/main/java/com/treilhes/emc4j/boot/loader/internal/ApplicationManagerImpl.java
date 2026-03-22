@@ -243,6 +243,8 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
         stopExtensionTree(Set.of(application));
         unloadApplication(editorId);
+        
+        startedApplications.remove(editorId);
     }
 
     /**
