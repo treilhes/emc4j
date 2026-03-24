@@ -57,7 +57,7 @@ import com.treilhes.emc4j.boot.api.maven.RepositoryType;
 @DeportedSingleton
 public class Maven implements RepositoryType {
 	
-	private static final Logger logger = LoggerFactory.getLogger(Maven.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Maven.class);
 	
     // maven
     private static final String URL_PREFIX = "https://search.maven.org/solrsearch/select?q=";
@@ -97,7 +97,7 @@ public class Maven implements RepositoryType {
                 }
             }
         } catch (Exception ex) {
-        	logger.error("error during search on {}", uriString, ex);
+        	LOGGER.error("error during search on {}", uriString, ex);
         }
         return null;
     }
@@ -115,8 +115,7 @@ public class Maven implements RepositoryType {
             String newUrl = url.toString().replace(host, newHost);
             return String.format(URL_PREFIX, newUrl);
         } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error("Malformed repository URL: {}", repositoryUrl, e);
         }
         return null;
     }

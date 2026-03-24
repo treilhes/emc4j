@@ -76,7 +76,7 @@ import com.treilhes.emc4j.boot.api.layer.Layer;
 public class LayerImpl implements Layer {
 
     /** The Constant logger. */
-    private static final Logger logger = LoggerFactory.getLogger(LayerImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LayerImpl.class);
 
     /** The Constant META_INF_MANIFEST_MF. */
     private static final String META_INF_MANIFEST_MF = "META-INF/MANIFEST.MF";
@@ -220,7 +220,7 @@ public class LayerImpl implements Layer {
                 }
                 jars = tmpjars;
             } catch (IOException e) {
-                logger.error("Unable to list jars in directory {}", tempDirectory, e);
+                LOGGER.error("Unable to list jars in directory {}", tempDirectory, e);
             }
         }
         return jars;
@@ -300,26 +300,26 @@ public class LayerImpl implements Layer {
 
         var task = new FutureTask<>(() -> {
             while (true) {
-                logger.debug("checking layer lock state");
+                LOGGER.debug("checking layer lock state");
                 try {
 
                     if (Thread.interrupted()) {
-                        logger.debug("layer unlock check interrupted");
+                        LOGGER.debug("layer unlock check interrupted");
                         return false;
                     }
 
                     System.gc();
 
                     if (jars().stream().filter(onlyJarsInTempDirectory()).anyMatch(LayerImpl::fileLockedCheck)) {
-                        logger.debug("layer unlock check failed");
+                        LOGGER.debug("layer unlock check failed");
                         Thread.sleep(200);
                     } else {
-                        logger.debug("layer unlocked");
+                        LOGGER.debug("layer unlocked");
                         return true;
                     }
 
                 } catch (InterruptedException e) {
-                    logger.debug("layer unlock check interrupted");
+                    LOGGER.debug("layer unlock check interrupted");
                     return false;
                 }
             }
@@ -364,9 +364,9 @@ public class LayerImpl implements Layer {
                 }
 
             } catch (MalformedURLException e) {
-                logger.error("Invalid jar path {}", jarPath, e);
+                LOGGER.error("Invalid jar path {}", jarPath, e);
             } catch (IOException e) {
-                logger.error("Unable to access jar path {}", jarPath, e);
+                LOGGER.error("Unable to access jar path {}", jarPath, e);
             }
         }
     }
@@ -388,7 +388,7 @@ public class LayerImpl implements Layer {
         try (var fis = new RandomAccessFile(file, "rw")) {
             fis.getChannel().lock().release();
         } catch (Exception ex) {
-        	logger.info("Unable to exclusively lock file {}", file, ex);
+        	LOGGER.info("Unable to exclusively lock file {}", file, ex);
             locked = true;
         }
         if (locked) {
@@ -428,8 +428,7 @@ public class LayerImpl implements Layer {
                             manifest.read(is);
                             is.close();
                         } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            LOGGER.error("Unable to read manifest for module {}", m.getName(), e);
                         }
 
                     });
@@ -449,7 +448,7 @@ public class LayerImpl implements Layer {
             }
 
         } catch (Exception e) {
-            logger.error("Unable to populate modules cache", e);
+            LOGGER.error("Unable to populate modules cache", e);
         }
     }
 

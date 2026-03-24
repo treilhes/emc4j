@@ -43,7 +43,8 @@ public class JpmsPatch {
 
     public static final String PATCH_DESCRIPTOR_FILE = "patch.jpms";
     public static final String PATCH_EXTENSION = ".patch";
-    private static final Pattern DEPENDENCY_PATCH_PATTERN = Pattern.compile(".*=.*");
+    private static final Pattern DEPENDENCY_PATCH_PATTERN = Pattern.compile(
+            "^[A-Za-z_$][A-Za-z\\d_$]*(\\.[A-Za-z_$][A-Za-z\\d_$]*)*=[A-Za-z_$][A-Za-z\\d_$]*(\\.[A-Za-z_$][A-Za-z\\d_$]*)*$");
 
     public static Optional<JpmsPatch> tryGetPatchJpms(Path path) {
         if (!path.toFile().isFile() || !path.toString().endsWith(PATCH_EXTENSION)) {

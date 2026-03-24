@@ -54,7 +54,7 @@ import com.treilhes.emc4j.boot.api.utils.ProgressListener;
 
 public class BootSplashScreen implements com.treilhes.emc4j.boot.api.splash.SplashScreen {
 
-	private static final Logger logger = LoggerFactory.getLogger(BootSplashScreen.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BootSplashScreen.class);
 	private static final int PROGRESS_BAR_HEIGHT = 4;
 	private static final Color PROGRESSBAR_BACKGROUND_COLOR = Color.BLACK;
 	private static final Color PROGRESSBAR_COLOR = Color.GREEN;
@@ -82,7 +82,7 @@ public class BootSplashScreen implements com.treilhes.emc4j.boot.api.splash.Spla
 	private BootSplashScreen(LoadingProgress loadingProgress, boolean useDefaultIfPossible) {
 		this.useDefaultIfPossible = useDefaultIfPossible;
 		if (GraphicsEnvironment.isHeadless()) {
-			logger.warn("Graphic environment is headless, loading progress is null");
+			LOGGER.warn("Graphic environment is headless, loading progress is null");
 			this.loadingProgress = null;
 			this.splash = null;
 			return;
@@ -97,13 +97,13 @@ public class BootSplashScreen implements com.treilhes.emc4j.boot.api.splash.Spla
 			return;
 		}
 
-		logger.debug("Starting splash");
+		LOGGER.debug("Starting splash");
 
 		final Graphics2D g;
 		final int width;
 		final int height;
 		if (splash == null || !splash.isVisible() || !useDefaultIfPossible) {
-			logger.info("FallBackSplashScreen with image {}", loadingProgress.getImageUrl());
+			LOGGER.info("FallBackSplashScreen with image {}", loadingProgress.getImageUrl());
 
 			fallbackSplash = new FallBackSplashScreen(loadingProgress.getImageUrl());
 			g = fallbackSplash.getGraphics();
@@ -111,7 +111,7 @@ public class BootSplashScreen implements com.treilhes.emc4j.boot.api.splash.Spla
 			height = fallbackSplash.getHeight();
 			fallbackSplash.repaint();
 		} else {
-			logger.info("Using default SplashScreen");
+			LOGGER.info("Using default SplashScreen");
 
 			g = splash.createGraphics();
 			width = splash.getSize().width;
@@ -127,7 +127,7 @@ public class BootSplashScreen implements com.treilhes.emc4j.boot.api.splash.Spla
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					LOGGER.info("Splash progress thread interrupted", e);
 				}
 			}
 
@@ -245,7 +245,7 @@ public class BootSplashScreen implements com.treilhes.emc4j.boot.api.splash.Spla
 			try {
 				return ImageIO.read(imageUrl);
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error("Error loading splash image from URL: {}", imageUrl, e);
 				return null;
 			}
 		}

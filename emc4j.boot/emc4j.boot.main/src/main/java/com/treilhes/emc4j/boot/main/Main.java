@@ -34,6 +34,9 @@ package com.treilhes.emc4j.boot.main;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
 import com.treilhes.emc4j.boot.main.command.StartCommand;
 
@@ -41,7 +44,9 @@ import picocli.CommandLine;
 
 public class Main {
 
-    private static Pattern PSN_PATTERN = Pattern.compile("-psn(_.*)?");
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
+    private static final Pattern PSN_PATTERN = Pattern.compile("-psn(_.*)?");
 
     public static void main(String[] args) {
 
@@ -51,8 +56,8 @@ public class Main {
         }
 
         var cmd = new CommandLine(new StartCommand());
-        cmd.setExecutionExceptionHandler((ex, commandLine, parseResult) -> {
-            ex.printStackTrace();
+        cmd.setExecutionExceptionHandler((ex, _, _) -> {
+            LOGGER.error("Error parsing/executing command", ex);
             System.exit(1);
             return 0;
         });

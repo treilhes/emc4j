@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2023, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -43,6 +43,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class implements an simple IPC.
  *
@@ -61,12 +64,14 @@ import java.nio.file.StandardCopyOption;
  */
 public class MessageBox<T extends Serializable> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageBox.class);
+
     public static final String MESSAGE_BOX_FOLDER = "MB";
 
     public static final long NAP_TIME = 100; // ms
 
-    final private File folder;
-    final private Class<T> messageClass;
+    private final File folder;
+    private final Class<T> messageClass;
     final int pollingTime; // milliseconds
     final Path messageFile;
     final FileMutex boxMutex;
@@ -126,7 +131,7 @@ public class MessageBox<T extends Serializable> {
             boxMutex.unlock();
         } catch(IOException x) {
             // Strange
-            x.printStackTrace();
+            LOGGER.error("Error unlocking box mutex", x);
         }
     }
 

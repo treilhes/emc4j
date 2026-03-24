@@ -72,7 +72,7 @@ import jakarta.persistence.Entity;
 public class EmcJpaRepositorySupport
         implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware, BeanFactoryAware, EnvironmentAware, ResourceLoaderAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(EmcJpaRepositorySupport.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmcJpaRepositorySupport.class);
 
     private EmContext applicationContext;
     private BeanFactory beanFactory;
@@ -110,25 +110,7 @@ public class EmcJpaRepositorySupport
                         continue;
                     }
                     if (JpaRepository.class.isAssignableFrom(beanClass) && beanClass.isInterface()) {
-
-
-
-//                        BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(factoryBeanClassName);
-//
-//                        builder.addConstructorArgValue(beanClass);
-//                        builder.addPropertyValue("lazyInit", lazy);
-//                        builder.setLazyInit(lazy);
-//                        builder.setPrimary(primary);
-//
-//                        RootBeanDefinition factoryDefinition = (RootBeanDefinition) builder.getBeanDefinition();
-//                        factoryDefinition.setTargetType(getFactoryBeanType(beanClass));
-//                        factoryDefinition.setResourceDescription(String.format("%s for %s", factoryBeanClassName, name));
-//                        //factoryDefinition.setScope(configuration.getBeanMetadata().getScope());
-//
-//                        String beanName = nameGenerator.generateBeanName(factoryDefinition, registry);
-                          registry.removeBeanDefinition(name);
-//                        registry.registerBeanDefinition(beanName, factoryDefinition);
-
+                        registry.removeBeanDefinition(name);
                         repositoriyCandidates.add(beanDefinition);
                         compositeLoader.addClassLoader(beanClass.getClassLoader());
                         continue;
@@ -151,7 +133,6 @@ public class EmcJpaRepositorySupport
                     }
 
                     emContext.registerBean(ResolvablePersistenceManagedTypes.class, () -> resolvableManagedTypes);
-                    //emContext.registerBean(PersistenceManagedTypes.class, () -> resolvableManagedTypes);
                 }
             }
 
@@ -172,26 +153,13 @@ public class EmcJpaRepositorySupport
             EmcJpaRepositoryConfigExtension jpaRepositoryConfigExtension = new EmcJpaRepositoryConfigExtension(
                     applicationContext, registry, resourceLoader);
 
-//        RepositoryBeanDefinitionBuilder builder = new RepositoryBeanDefinitionBuilder(registry, jpaRepositoryConfigExtension,
-//                configurationSource, resourceLoader, environment);
-
-//            Collection<RepositoryConfiguration<RepositoryConfigurationSource>> configurations = jpaRepositoryConfigExtension
-//                    .getRepositoryConfigurations(configurationSource, resourceLoader, inMultiStoreMode);
-
             RepositoryConfigurationDelegate delegate = new RepositoryConfigurationDelegate(configurationSource,
                     resourceLoader, environment);
 
             delegate.registerRepositoriesIn(registry, jpaRepositoryConfigExtension);
 
-
-
-
-
-
-
         } catch (BeanDefinitionStoreException | NoSuchBeanDefinitionException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error("Error processing JPA repositories", e);
         }
 
     }

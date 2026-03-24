@@ -50,7 +50,7 @@ import com.treilhes.emc4j.boot.maven.api.SearchService;
 
 public class SearchServiceImpl implements SearchService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SearchServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchServiceImpl.class);
 
     public SearchServiceImpl() {}
 
@@ -65,7 +65,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public Set<Artifact> search(String query, List<Repository> repositories) {
 
-        logger.info("Searching '{}' on {} repositories [{}]", query, repositories.size(), repositories);
+        LOGGER.info("Searching '{}' on {} repositories [{}]", query, repositories.size(), repositories);
 
         final ExecutorService exec = Executors.newFixedThreadPool(5, r -> {
             Thread t = new Thread(r);
@@ -85,7 +85,7 @@ public class SearchServiceImpl implements SearchService {
                 var list = f.get();
                 result.addAll(list);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error while searching on repository", e);
             }
         });
 
@@ -96,12 +96,12 @@ public class SearchServiceImpl implements SearchService {
 
     private Callable<Set<Artifact>> createSearchTask(String query, Repository repo) {
         return () -> {
-            logger.info("Searching on repository {} with type {}", repo.getName(), repo.getType().getSimpleName());
+            LOGGER.info("Searching on repository {} with type {}", repo.getName(), repo.getType().getSimpleName());
 
             RepositoryType search = repo.getType().getConstructor().newInstance();
             Set<Artifact> result = search.getCoordinates(repo, query);
 
-            logger.info("Search on repository {} with type {} returned {} items", repo.getName(), repo.getType().getSimpleName(), result.size());
+            LOGGER.info("Search on repository {} with type {} returned {} items", repo.getName(), repo.getType().getSimpleName(), result.size());
             return result;
         };
     }
