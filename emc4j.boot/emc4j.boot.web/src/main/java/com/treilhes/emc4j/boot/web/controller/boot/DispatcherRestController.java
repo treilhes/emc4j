@@ -99,15 +99,17 @@ public class DispatcherRestController {
 
     /**
      * Handles HTTP requests for a specific context and forwards them to the appropriate DispatcherServlet.
-     * <p>
      * This method is mapped to all major HTTP methods and dynamically routes requests based on the context identifier.
-     * </p>
+     * The http methods supported are GET, POST, PUT, DELETE, and PATCH. It is the responsability of the target DispatcherServlet
+     * to handle or not the request method and return the appropriate response.
+     * The context identifier is extracted from the URL path and must match an extension id with an UUID format.
+     * The remaining path is also extracted and is propagated to the target DispatcherServlet for further processing.
      *
      * @param contextId the unique identifier of the target application context
      * @param remains the remaining path after the context identifier
      * @param request the incoming HTTP servlet request
      * @param response the HTTP servlet response to be populated
-     * @throws Exception if an error occurs during request dispatching or context resolution
+     * @throws DispatcherException if an error occurs during request dispatching or context resolution
      */
     @RequestMapping(path = "/{contextId}/{*remains}", method = {GET, POST, PUT, DELETE, PATCH} )
     public void getCall(@PathVariable(name = "contextId") String contextId,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -46,6 +46,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.TargetSource;
@@ -69,13 +70,12 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.lang.Nullable;
 
 import com.treilhes.emc4j.boot.api.context.Application;
 import com.treilhes.emc4j.boot.api.context.ApplicationInstance;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
-import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.context.EmContext;
+import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.context.EmcBeanNameGenerator;
 import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
 import com.treilhes.emc4j.boot.api.context.ScopedExecutor;
@@ -319,7 +319,9 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
     }
 
     public static class EmcBeanFactoryImpl extends DefaultListableBeanFactory implements EmcBeanFactory {
-        private static final Logger logger = LoggerFactory.getLogger(EmcBeanFactoryImpl.class);
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(EmcBeanFactoryImpl.class);
+
         private final ApplicationScope applicationScope;
         private final ApplicationInstanceScope applicationInstanceScope;
         private final UUID id;
@@ -343,7 +345,7 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
             try {
                 return super.doGetBean(name, requiredType, args, typeCheckOnly);
             } catch (BeansException e) {
-                logger.error("Error getting bean: {} with type: {} from module {} in extension {}", name, requiredType,
+                LOGGER.error("Error getting bean: {} with type: {} from module {} in extension {}", name, requiredType,
                         requiredType != null ? requiredType.getModule() : null, id);
                 throw e;
             }

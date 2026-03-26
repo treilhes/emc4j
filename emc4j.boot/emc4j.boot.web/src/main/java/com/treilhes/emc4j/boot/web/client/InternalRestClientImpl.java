@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -39,6 +39,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -72,15 +73,14 @@ public class InternalRestClientImpl implements InternalRestClient {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    //private final ServerProperties serverProperties;
     private Integer serverPort;
     private final String basePath;
 
+    // @formatter:off
     protected InternalRestClientImpl(ServerProperties serverProperties,
             @Value(InternalRestClient.SERVLET_PATH_PROP) String servletPath,
             @Value(InternalRestClient.CONTEXT_PATH_PROP) String contextPath) {
-        //this.serverProperties = serverProperties;
-
+        // @formatter:on
         this.serverPort = serverProperties.getPort();
         this.basePath = ((StringUtils.hasText(contextPath) ? "/" + contextPath : "")
                 + (StringUtils.hasText(servletPath) ? "/" + servletPath : "")).replaceAll("/+", "/");
@@ -119,7 +119,8 @@ public class InternalRestClientImpl implements InternalRestClient {
         return HttpClient.newBuilder().authenticator(new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("username", "password".toCharArray());
+                // TODO: implement some form of security to connect to the extensions
+                return new PasswordAuthentication("username", "".toCharArray());
             }
         }).proxy(ProxySelector.getDefault());
     }
@@ -140,7 +141,7 @@ public class InternalRestClientImpl implements InternalRestClient {
 
     private RequestConfig getCustomization(RequestConfig customization) throws JsonProcessingException {
         RequestConfig localCustomization = customization == null ? r -> r : customization;
-        RequestConfig getCustomization = r -> r.GET();
+        RequestConfig getCustomization = Builder::GET;
         RequestConfig finalCustomization = localCustomization.andThen(getCustomization);
         return finalCustomization;
     }
@@ -169,7 +170,7 @@ public class InternalRestClientImpl implements InternalRestClient {
 
         RequestConfig postCustomization = switch (posted) {
 
-        case null -> (r) -> r.POST(HttpRequest.BodyPublishers.noBody());
+        case null -> r -> r.POST(HttpRequest.BodyPublishers.noBody());
 
         case String s -> r -> r.POST(HttpRequest.BodyPublishers.ofString(s));
 
@@ -206,7 +207,7 @@ public class InternalRestClientImpl implements InternalRestClient {
 
         RequestConfig putCustomization = switch (posted) {
 
-        case null -> (r) -> r.PUT(HttpRequest.BodyPublishers.noBody());
+        case null -> r -> r.PUT(HttpRequest.BodyPublishers.noBody());
 
         case String s -> r -> r.PUT(HttpRequest.BodyPublishers.ofString(s));
 
@@ -236,7 +237,7 @@ public class InternalRestClientImpl implements InternalRestClient {
 
     private RequestConfig deleteCustomization(RequestConfig customization) throws JsonProcessingException {
         RequestConfig localCustomization = customization == null ? r -> r : customization;
-        RequestConfig getCustomization = r -> r.DELETE();
+        RequestConfig getCustomization = Builder::DELETE;
         RequestConfig finalCustomization = localCustomization.andThen(getCustomization);
         return finalCustomization;
     }

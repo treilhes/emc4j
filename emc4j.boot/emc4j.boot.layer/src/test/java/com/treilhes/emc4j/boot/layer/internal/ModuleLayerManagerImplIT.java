@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -162,6 +162,8 @@ class ModuleLayerManagerImplIT {
         Layer root = manager.create(null, ROOT_ID, null, rootLayerDir);
         Layer ext = manager.create(root, EXT_ID, null, extDir);
 
+        assertNotNull(root);
+        assertNotNull(ext);
     }
 
     /**

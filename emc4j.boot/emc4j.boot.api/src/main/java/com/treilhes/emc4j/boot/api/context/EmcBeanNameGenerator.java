@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -42,13 +42,10 @@ import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGe
  */
 public class EmcBeanNameGenerator extends FullyQualifiedAnnotationBeanNameGenerator {
 
-    private static EmcBeanNameGenerator instance;
+    private static final EmcBeanNameGenerator INSTANCE = new EmcBeanNameGenerator();
 
     public static EmcBeanNameGenerator getInstance() {
-        if (instance == null) {
-            instance = new EmcBeanNameGenerator();
-        }
-        return instance;
+        return INSTANCE;
     }
 
 }
