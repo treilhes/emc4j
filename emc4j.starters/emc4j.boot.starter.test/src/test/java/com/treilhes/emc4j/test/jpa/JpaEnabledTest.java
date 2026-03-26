@@ -33,8 +33,6 @@ package com.treilhes.emc4j.test.jpa;
 
 
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -45,6 +43,8 @@ import com.treilhes.emc4j.test.Emc4jTest;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Emc4jTest(
         enableJpa = true,
