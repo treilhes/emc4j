@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2025, Pascal Treilhes and/or its affiliates.
+ * Copyright (c) 2021, 2026, Pascal Treilhes and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -29,6 +29,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+/**
+ * REST controller that dispatches HTTP requests to the appropriate Extension DispatcherServlet
+ * based on a context identifier (the extension id). This controller acts as a dynamic router, allowing requests
+ * to be forwarded to different application contexts managed by {@link ContextManager}.
+ * <p>
+ * The controller exposes endpoints under the REST path prefix defined by {@link EmcPlatform#EXTENSION_REST_PATH_PREFIX}.
+ * It supports all major HTTP methods and is primarily used for multi-context or modular Spring Boot applications.
+ * </p>
+ */
 package com.treilhes.emc4j.boot.web.controller.boot;
 
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
@@ -41,6 +50,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,29 +65,61 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping("/" + EmcPlatform.EXTENSION_REST_PATH_PREFIX)
 public class DispatcherRestController {
 
+    /**
+     * Request attribute key used to mark requests handled by EMC context routing.
+     */
     private static final String EMC_ATTRIBUTE = "EMC-ATTRIBUTE";
 
+    /**
+     * Logger for this controller.
+     */
     private static final Logger logger = LoggerFactory.getLogger(DispatcherRestController.class);
 
+    /**
+     * Context manager responsible for resolving application contexts by UUID.
+     */
     private final ContextManager ctxManager;
 
+    /**
+     * Default DispatcherServlet instance (may be used for fallback or initial routing).
+     */
     DispatcherServlet dso;
 
+    /**
+     * Constructs a DispatcherRestController with the given context manager and default DispatcherServlet.
+     *
+     * @param ctxManager the context manager responsible for resolving application contexts by UUID
+     * @param ds the default DispatcherServlet instance (may be used for fallback or initial routing)
+     */
     public DispatcherRestController(ContextManager ctxManager, DispatcherServlet ds) {
         super();
         this.ctxManager = ctxManager;
         this.dso = ds;
     }
 
+    /**
+     * Handles HTTP requests for a specific context and forwards them to the appropriate DispatcherServlet.
+     * <p>
+     * This method is mapped to all major HTTP methods and dynamically routes requests based on the context identifier.
+     * </p>
+     *
+     * @param contextId the unique identifier of the target application context
+     * @param remains the remaining path after the context identifier
+     * @param request the incoming HTTP servlet request
+     * @param response the HTTP servlet response to be populated
+     * @throws Exception if an error occurs during request dispatching or context resolution
+     */
     @RequestMapping(path = "/{contextId}/{*remains}", method = {GET, POST, PUT, DELETE, PATCH} )
     public void getCall(@PathVariable(name = "contextId") String contextId,
             @PathVariable(name = "remains") String remains, HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+            throws DispatcherException {
         contextCall(contextId, request, response);
     }
 
     private void contextCall(String contextId, HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+            throws DispatcherException {
+
+        logger.debug("Received request for contextId: {}, path: {}", contextId, request.getRequestURI());
 
         var id = UUID.fromString(contextId);
         var ctx = ctxManager.get(id);
@@ -87,37 +129,18 @@ public class DispatcherRestController {
         }
 
         try {
-
-            // check if we are looping
-//            if (request.getAttribute(EMC_ATTRIBUTE) != null) {
-//                throw new IllegalStateException("Looping request, Emc attribute already set");
-//            }
             request.setAttribute(EMC_ATTRIBUTE, contextId);
 
-            DispatcherServlet ds = (DispatcherServlet) ctx.getBean("redirector");
-
-
-            if (ds == null) {
-                throw new IllegalStateException("DispatcherServlet bean not found for context: " + contextId);
-            }
-
-//            RequestPath path = (RequestPath) request.getAttribute("org.springframework.web.util.ServletRequestPathUtils.PATH");
-//            path.contextPath();
-//
-//            Enumeration<String> e = request.getAttributeNames();
-//            while (e.hasMoreElements()) {
-//                request.removeAttribute(e.nextElement());
-//            }
-
+            var ds = (DispatcherServlet) ctx.getBean("redirector");
             ds.service(request, response);
 
+        } catch (NoSuchBeanDefinitionException e) {
+            throw new IllegalStateException("DispatcherServlet bean not found for context: " + contextId, e);
         } catch (Exception e) {
-            logger.error("Error in context call", e);
-
             if (e.getCause() instanceof RuntimeException) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
-            throw e;
+            throw new DispatcherException("An error occurred while dispatching the request to context: " + contextId, e);
         }
     }
 }
