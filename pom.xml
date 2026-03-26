@@ -335,9 +335,8 @@
                     <artifactId>flatten-maven-plugin</artifactId>
                     <version>${flatten-maven-plugin.version}</version>
                     <configuration>
-                        <flattenDependencyMode>all</flattenDependencyMode>
+                        <flattenDependencyMode>direct</flattenDependencyMode>
                         <flattenMode>bom</flattenMode> <!-- Resolve properties like ${emc4j.version} -->
-                        <!--<flattenMode>resolveCiFriendliesOnly</flattenMode>-->
                     </configuration>
                     <executions>
                         <!-- enable flattening -->
