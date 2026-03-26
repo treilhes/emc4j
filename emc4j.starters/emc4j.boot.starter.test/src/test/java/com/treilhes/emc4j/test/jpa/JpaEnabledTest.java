@@ -31,6 +31,8 @@
  */
 package com.treilhes.emc4j.test.jpa;
 
+
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
