@@ -60,8 +60,11 @@
     <properties>
         <emc4j.version>1.0.0-SNAPSHOT</emc4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- exporting a package from system module java.base is not allowed with release -->
-        <!--<maven.compiler.release>25</maven.compiler.release> -->
+        <!-- 
+            exporting a package from system module java.base is not allowed with release 
+            emc4j relies on this export to patch java.base and spring.core modules,
+            so this is forbiden : <maven.compiler.release>25</maven.compiler.release> 
+        -->
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
 

@@ -42,8 +42,8 @@ import com.treilhes.emc4j.boot.api.layer.Layer;
  * Represents an extension module in the EMC4J boot system.<br>
  * Some rules about extensions <br>
  * <ul>
- *   <li>Only one extension in the jar</li>
- *   <li>No extensions in dependencies</li>
+ *   <li>Only one main extension in the jar</li>
+ *   <li>No extensions in dependencies excepted merged extensions (see: {@link #getMergedExtensions()}</li>
  *   <li>The extended extension maven dependency must have a provided scope or else emc4j will try to reload the module</li>
  * </ul>
  * Provides identification, context/layer initialization and finalization, and ordering for extensions.
@@ -55,11 +55,11 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
     /**
      * The UUID for the boot extension.
      */
-    public final static UUID BOOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    public static final UUID BOOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     /**
      * The UUID for the root extension.
      */
-    public final static UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    public static final UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     /**
      * Returns the unique identifier for this extension.
@@ -148,9 +148,5 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
     public default Set<UUID> getMergedExtensions() {
         return Set.of();
     }
-//    InputStream getLicense();
-//    InputStream getDescription();
-//    InputStream getLoadingImage();
-//    InputStream getIcon();
-//    InputStream getIconX2();
+
 }
