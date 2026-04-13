@@ -151,6 +151,47 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
     }
 
     /**
+     * Sets the metadata for the bean being proxied.
+     *
+     * @param beanMetadata the bean metadata to set
+     */
+    public void setBeanMetadata(AopMetadata beanMetadata) {
+        this.beanMetadata = beanMetadata;
+    }
+
+    /**
+     * Sets the Spring application context.
+     *
+     * @param applicationContext the application context to set
+     * @throws BeansException if the context cannot be set
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
+
+    public AopContext getAopContext() {
+        return aopContext;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public BeanFactory getBeanFactory() {
+        return beanFactory;
+    }
+
+    public AopMetadata getBeanMetadata() {
+        return beanMetadata;
+    }
+
+    public ApplicationContext getContext() {
+        return context;
+    }
+
+
+    /**
      * Method interceptor that calls methods on the target object.
      */
     static class ImplementationInterceptor implements MethodInterceptor {
@@ -195,25 +236,4 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
             }
         }
     }
-
-    /**
-     * Sets the metadata for the bean being proxied.
-     *
-     * @param beanMetadata the bean metadata to set
-     */
-    public void setBeanMetadata(AopMetadata beanMetadata) {
-        this.beanMetadata = beanMetadata;
-    }
-
-    /**
-     * Sets the Spring application context.
-     *
-     * @param applicationContext the application context to set
-     * @throws BeansException if the context cannot be set
-     */
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
-
 }
