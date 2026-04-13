@@ -31,6 +31,8 @@
  */
 package com.treilhes.emc4j.boot.api.aop;
 
+import java.util.function.Function;
+
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -59,6 +61,7 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
     private final Class<?> beanClass;
     private final AopMetadata<?, ?> beanMetadata;
 
+    private Function<AopContext<M, ?, META>, AopFactory> factorySupplier = null;
     private AopFactory factory;
     private ClassLoader classLoader;
     private BeanFactory beanFactory;
@@ -86,7 +89,7 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
      * @return the bean class factory
      */
     protected AopFactory createBeanFactory() {
-        var beanClassFactory = new AopFactory(aopContext);
+        var beanClassFactory = factorySupplier != null ? factorySupplier.apply(aopContext) : new AopFactory(aopContext);
         beanClassFactory.setBeanClassLoader(classLoader);
         beanClassFactory.setBeanFactory(beanFactory);
         beanClassFactory.setApplicationContext(context);
@@ -146,6 +149,14 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.context = applicationContext;
+    }
+
+    public Function<AopContext<M, ?, META>, AopFactory> getFactorySupplier() {
+        return factorySupplier;
+    }
+
+    public void setFactorySupplier(Function<AopContext<M, ?, META>, AopFactory> factorySupplier) {
+        this.factorySupplier = factorySupplier;
     }
 
 }
