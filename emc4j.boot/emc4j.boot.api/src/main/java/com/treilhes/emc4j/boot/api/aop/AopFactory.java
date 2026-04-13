@@ -136,7 +136,7 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
         // TODO: check if this realy needed
         result.addAdvisor(ExposeInvocationInterceptor.ADVISOR);
 
-        AopFactory.class.getModule().addReads(beanClass.getModule());
+        addRead(beanClass);
 
         result.addAdvice(new DefaultMethodInterceptor());
         result.addAdvice(new ImplementationInterceptor(target, beanClass));
@@ -148,6 +148,10 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
         }
 
         return proxy;
+    }
+
+    protected <T> void addRead(Class<T> beanClass) {
+        AopFactory.class.getModule().addReads(beanClass.getModule());
     }
 
     /**
