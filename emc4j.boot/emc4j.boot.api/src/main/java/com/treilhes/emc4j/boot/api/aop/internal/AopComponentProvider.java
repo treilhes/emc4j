@@ -59,14 +59,10 @@ public class AopComponentProvider {
     }
 
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-
-        boolean isInterface = beanDefinition.getMetadata().isInterface();
         boolean isContextCandidate = aopContext.isCandidateComponent(beanDefinition);
-
         boolean isTopLevelType = !beanDefinition.getMetadata().hasEnclosingClass();
-        boolean considerNested = isConsiderNested();
-
-        return isInterface && isContextCandidate && (isTopLevelType || considerNested);
+        boolean isConsiderNested = isConsiderNested();
+        return isContextCandidate && (isTopLevelType || isConsiderNested);
     }
 
     /**
