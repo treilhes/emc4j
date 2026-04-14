@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
 @Bean
 public @interface ApplicationSingleton {
 
-    public final static String SCOPE_NAME = "applicationSingleton";
+    public static final String SCOPE_NAME = "applicationSingleton";
     /**
      * Alias for {@link Component#value}.
      */

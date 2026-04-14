@@ -35,6 +35,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.core.TypeInformation;
@@ -63,7 +64,7 @@ public abstract class AopMetadata<A extends Annotation, M> {
      * @param markerClass must not be {@literal null}.
      * @param beanClass must not be {@literal null}.
      */
-    public AopMetadata(Class<A> annotationClass, Class<M> markerClass, Class<?> beanClass) {
+    protected AopMetadata(Class<A> annotationClass, Class<M> markerClass, Class<?> beanClass) {
 
         Assert.notNull(beanClass, "Given type must not be null");
 
@@ -86,8 +87,14 @@ public abstract class AopMetadata<A extends Annotation, M> {
 
 
         A contextAnnotation = AnnotationUtils.findAnnotation(beanClass, annotationClass);
-        this.scope = AnnotationUtils.findAnnotation(beanClass, Scope.class).scopeName();
 
+        var scopeAnnotation = AnnotationUtils.findAnnotation(beanClass, Scope.class);
+
+        if (scopeAnnotation == null) {
+            this.scope = ConfigurableBeanFactory.SCOPE_SINGLETON;
+        } else {
+            this.scope = scopeAnnotation.scopeName();
+        }
         this.hasAnnotation = contextAnnotation != null;
 
         loadMetadata(contextAnnotation);
