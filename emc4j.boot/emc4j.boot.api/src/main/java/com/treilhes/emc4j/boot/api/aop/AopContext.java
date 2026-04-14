@@ -52,6 +52,7 @@ import com.treilhes.emc4j.boot.api.context.EmContext;
  */
 public abstract class AopContext<M, A extends Annotation, META extends AopMetadata<A, M>> {
 
+    public static final String ORIGINAL_BEAN_SUFFIX = "$Original";
     /**
      * The marker interface class for AOP context.
      */

@@ -31,25 +31,25 @@
  */
 package com.treilhes.emc4j.boot.api.aop.internal;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.AnnotationConfigUtils;
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import com.treilhes.emc4j.boot.api.aop.AopContext;
 
 public class AopComponentProvider {
 
-    private final AopContext aopContext;
+    private final AopContext<?,?,?> aopContext;
     private boolean considerNested;
     private BeanDefinitionRegistry registry;
 
-    public AopComponentProvider(AopContext aopContext, BeanDefinitionRegistry registry) {
+    public AopComponentProvider(AopContext<?,?,?> aopContext, BeanDefinitionRegistry registry) {
 
         Assert.notNull(aopContext, "AopContext must not be null");
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
@@ -68,20 +68,19 @@ public class AopComponentProvider {
     /**
      * Customizes the detection and triggers annotation detection on them.
      */
-    public Set<AnnotatedBeanDefinition> findCandidateComponents() {
+    public Map<String, AnnotatedBeanDefinition> findCandidateComponents() {
 
-        Set<AnnotatedBeanDefinition> candidates = new HashSet<>();
+        Map<String, AnnotatedBeanDefinition> candidates = new HashMap<>();
 
         for (String candidateName : registry.getBeanDefinitionNames()) {
             BeanDefinition candidate = registry.getBeanDefinition(candidateName);
 
-            if (candidate instanceof AnnotatedBeanDefinition annotatedCandidate) {
-                if (isCandidateComponent(annotatedCandidate)) {
-                    registry.removeBeanDefinition(candidateName);
-                    candidates.add(annotatedCandidate);
-                    AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedCandidate);
-                }
+            if (candidate instanceof AnnotatedBeanDefinition annotatedCandidate
+                    && isCandidateComponent(annotatedCandidate)) {
+                candidates.put(candidateName, annotatedCandidate);
+                AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedCandidate);
             }
+
         }
 
         return candidates;

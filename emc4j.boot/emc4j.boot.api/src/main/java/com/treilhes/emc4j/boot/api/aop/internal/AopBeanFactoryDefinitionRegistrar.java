@@ -38,7 +38,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.ResolvableType;
 
@@ -54,7 +53,7 @@ public class AopBeanFactoryDefinitionRegistrar {
     }
 
 
-    public void register(AopBeanConfiguration configuration, BeanNameGenerator nameGenerator) {
+    public void register(String originalBeanName, AopBeanConfiguration configuration) {
         BeanDefinitionBuilder definitionBuilder = buildDefinitionBuilder(configuration);
 
         RootBeanDefinition beanDefinition = (RootBeanDefinition) definitionBuilder.getBeanDefinition();
@@ -62,9 +61,8 @@ public class AopBeanFactoryDefinitionRegistrar {
         beanDefinition.setResourceDescription(configuration.getResourceDescription());
         beanDefinition.setScope(configuration.getBeanMetadata().getScope());
 
-        String beanName = nameGenerator.generateBeanName(beanDefinition, registry);
-
-        registry.registerBeanDefinition(beanName, beanDefinition);
+        registry.removeBeanDefinition(originalBeanName);
+        registry.registerBeanDefinition(originalBeanName, beanDefinition);
     }
 
 

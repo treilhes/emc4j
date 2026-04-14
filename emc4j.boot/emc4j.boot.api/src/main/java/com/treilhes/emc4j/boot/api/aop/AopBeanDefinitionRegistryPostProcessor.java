@@ -36,14 +36,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 
 import com.treilhes.emc4j.boot.api.aop.internal.AopBeanConfiguration;
 import com.treilhes.emc4j.boot.api.aop.internal.AopBeanFactoryDefinitionRegistrar;
-import com.treilhes.emc4j.boot.api.aop.internal.AopBeanNameGenerator;
 import com.treilhes.emc4j.boot.api.aop.internal.AopComponentProvider;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 
@@ -73,11 +70,8 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
     /**
      * The AOP context used for processing and configuration.
      */
-    private final AopContext aopContext;
-    /**
-     * Bean name generator for Spring beans, defaults to {@link AnnotationBeanNameGenerator}.
-     */
-    private final BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
+    private final AopContext<?, ?, ?> aopContext;
+
     /**
      * The Spring application context, set via {@link #setApplicationContext(ApplicationContext)}.
      */
@@ -88,7 +82,7 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
      *
      * @param aopContext the AOP context to be used for processing
      */
-    public AopBeanDefinitionRegistryPostProcessor(AopContext aopContext) {
+    protected AopBeanDefinitionRegistryPostProcessor(AopContext<?, ?, ?> aopContext) {
         super();
         this.aopContext = aopContext;
     }
@@ -117,14 +111,24 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
 
             var candidates = scanner.findCandidateComponents();
 
-            for (var candidate : candidates) {
-                logger.debug("Candidate: {}", candidate.getBeanClassName());
+            for (var candidate : candidates.entrySet()) {
+                var beanName = candidate.getKey();
+                var beanDefinition = candidate.getValue();
 
-                var clazz = emc.getRegisteredClass(candidate.getBeanClassName());
-                var generator = new AopBeanNameGenerator(clazz.getClassLoader(), beanNameGenerator);
-                var pc = new AopBeanConfiguration(clazz.getClassLoader(), aopContext, candidate);
+                registry.removeBeanDefinition(beanName);
 
-                registrar.register(pc, generator);
+                logger.debug("Candidate: {}", beanDefinition.getBeanClassName());
+                var clazz = emc.getRegisteredClass(beanDefinition.getBeanClassName());
+                var pc = new AopBeanConfiguration(clazz.getClassLoader(), aopContext, beanDefinition);
+
+                registrar.register(beanName, pc);
+
+                if (!clazz.isInterface()) {
+                    // keep the original bean definition but relocate it
+                    var relocatedBeanName = beanName + AopContext.ORIGINAL_BEAN_SUFFIX;
+                    pc.getBeanMetadata().setOriginalBeanName(relocatedBeanName);
+                    registry.registerBeanDefinition(relocatedBeanName, beanDefinition);
+                }
             }
 
         }

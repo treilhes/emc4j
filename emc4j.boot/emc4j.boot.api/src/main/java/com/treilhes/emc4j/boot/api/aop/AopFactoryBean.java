@@ -40,7 +40,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.util.Lazy;
@@ -51,18 +51,18 @@ import org.springframework.util.Assert;
  * interface to create bean class factories
  *
  * @param <M>    the marker interface class
- * @param <META> the metadata class
+ * @param <D> the metadata class
  */
-public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
+public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
         implements InitializingBean, FactoryBean, BeanClassLoaderAware,
         BeanFactoryAware, ApplicationContextAware {
 
-    private final AopContext<M, ?, META> aopContext;
+    private final AopContext<M, ?, D> aopContext;
     private final Class<?> beanClass;
     private final AopMetadata<?, ?> beanMetadata;
 
-    private Function<AopContext<M, ?, META>, AopFactory> factorySupplier = null;
-    private AopFactory factory;
+    private Function<AopContext<M, ?, D>, AopFactory> factorySupplier = null;
+
     private ClassLoader classLoader;
     private BeanFactory beanFactory;
     private boolean lazyInit = false;
@@ -76,7 +76,7 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
      * @param beanClass must not be {@literal null}.
      * @param aopContext the AOP context
      */
-    public AopFactoryBean(Class<?> beanClass, AopContext<M, ?, META> aopContext) {
+    protected AopFactoryBean(Class<?> beanClass, AopContext<M, ?, D> aopContext) {
         Assert.notNull(beanClass, "Bean class must not be null");
         this.aopContext = aopContext;
         this.beanClass = beanClass;
@@ -132,17 +132,17 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
 
     @Override
     public boolean isSingleton() {
-        return DefaultListableBeanFactory.SCOPE_SINGLETON.equals(beanMetadata.getScope());
+        return ConfigurableBeanFactory.SCOPE_SINGLETON.equals(beanMetadata.getScope());
     }
 
     @Override
     public void afterPropertiesSet() {
 
-        this.factory = createBeanFactory();
-        this.beanProxy = Lazy.of(() -> this.factory.getProxy(beanClass));
+        final var factory = createBeanFactory();
+        beanProxy = Lazy.of(() -> factory.getProxy(beanClass));
 
         if (!lazyInit && isSingleton()) {
-            this.beanProxy.get();
+            beanProxy.get();
         }
     }
 
@@ -151,11 +151,11 @@ public abstract class AopFactoryBean<M, META extends AopMetadata<?, M>>
         this.context = applicationContext;
     }
 
-    public Function<AopContext<M, ?, META>, AopFactory> getFactorySupplier() {
+    public Function<AopContext<M, ?, D>, AopFactory> getFactorySupplier() {
         return factorySupplier;
     }
 
-    public void setFactorySupplier(Function<AopContext<M, ?, META>, AopFactory> factorySupplier) {
+    public void setFactorySupplier(Function<AopContext<M, ?, D>, AopFactory> factorySupplier) {
         this.factorySupplier = factorySupplier;
     }
 
