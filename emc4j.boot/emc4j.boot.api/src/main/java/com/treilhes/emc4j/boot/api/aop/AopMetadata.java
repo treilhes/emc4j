@@ -66,7 +66,6 @@ public abstract class AopMetadata<A extends Annotation, M> {
     public AopMetadata(Class<A> annotationClass, Class<M> markerClass, Class<?> beanClass) {
 
         Assert.notNull(beanClass, "Given type must not be null");
-        Assert.isTrue(beanClass.isInterface(), "Given type must be an interface");
 
         this.beanClass = beanClass;
         this.typeInformation = TypeInformation.of(beanClass);
