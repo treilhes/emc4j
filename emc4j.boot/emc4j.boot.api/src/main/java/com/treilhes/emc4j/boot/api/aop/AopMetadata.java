@@ -115,7 +115,7 @@ public abstract class AopMetadata<A extends Annotation, M> {
      *
      * @return the type information of the bean class.
      */
-    public TypeInformation<?> getTypeInformation() {
+    public TypeInformation getTypeInformation() {
         return typeInformation;
     }
 
@@ -161,7 +161,7 @@ public abstract class AopMetadata<A extends Annotation, M> {
      *
      * @return the content type information.
      */
-    public TypeInformation<?> getGenericTypeInformation() {
+    public TypeInformation getGenericTypeInformation() {
         return this.genericTypeInformation;
     }
 

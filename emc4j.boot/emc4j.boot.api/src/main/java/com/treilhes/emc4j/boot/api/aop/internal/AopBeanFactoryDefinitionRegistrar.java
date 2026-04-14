@@ -61,7 +61,6 @@ public class AopBeanFactoryDefinitionRegistrar {
         beanDefinition.setResourceDescription(configuration.getResourceDescription());
         beanDefinition.setScope(configuration.getBeanMetadata().getScope());
 
-        registry.removeBeanDefinition(originalBeanName);
         registry.registerBeanDefinition(originalBeanName, beanDefinition);
     }
 
