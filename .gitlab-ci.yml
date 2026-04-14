@@ -21,7 +21,7 @@ build-job:
       paths:
           - /repository
   script:
-    - mvn -Dmaven.repo.local=/repository -B -ntp clean deploy
+    - mvn -Dmaven.repo.local=/repository -B -ntp clean deploy -P delivery -T 1C $GITLAB_OPS
 
 build-sonar:
   tags:
@@ -39,7 +39,7 @@ build-sonar:
         - ~/repository
       
   script: 
-    - mvn -Dmaven.repo.local=/repository -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -P coverage
+    - mvn -Dmaven.repo.local=/repository -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -P coverage -T 1C
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
