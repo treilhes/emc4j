@@ -31,7 +31,7 @@ build-sonar:
     - linux
   stage: build-sonar
   script: 
-    - mvn -Dmaven.repo.local=/cache/repository -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -P coverages -T 1C
+    - mvn -Dmaven.repo.local=/cache/repository -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -P coverage -T 1C
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
