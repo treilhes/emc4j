@@ -77,8 +77,8 @@ public class AopComponentProvider {
 
             if (candidate instanceof AnnotatedBeanDefinition annotatedCandidate
                     && isCandidateComponent(annotatedCandidate)) {
-                candidates.put(candidateName, annotatedCandidate);
                 AnnotationConfigUtils.processCommonDefinitionAnnotations(annotatedCandidate);
+                candidates.put(candidateName, annotatedCandidate);
             }
 
         }

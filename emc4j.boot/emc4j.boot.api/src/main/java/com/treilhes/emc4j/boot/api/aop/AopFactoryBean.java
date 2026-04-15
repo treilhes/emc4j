@@ -66,6 +66,7 @@ public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
     private ClassLoader classLoader;
     private BeanFactory beanFactory;
     private boolean lazyInit = false;
+    private String beanName = null;
 
     private Lazy<?> beanProxy;
     private ApplicationContext context;
@@ -94,6 +95,7 @@ public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
         beanClassFactory.setBeanFactory(beanFactory);
         beanClassFactory.setApplicationContext(context);
         beanClassFactory.setBeanMetadata(beanMetadata);
+        beanClassFactory.setBeanName(beanName);
         return beanClassFactory;
     }
 
@@ -106,6 +108,10 @@ public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
      */
     public void setLazyInit(boolean lazy) {
         this.lazyInit = lazy;
+    }
+
+    public void setBeanName(String beanName) {
+        this.beanName = beanName;
     }
 
     @Override

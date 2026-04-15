@@ -53,6 +53,9 @@ import com.treilhes.emc4j.boot.api.context.EmContext;
 public abstract class AopContext<M, A extends Annotation, META extends AopMetadata<A, M>> {
 
     public static final String ORIGINAL_BEAN_SUFFIX = "$Original";
+
+    public static final String BEAN_NAME_ATTRIBUTE = "aopBeanName";
+
     /**
      * The marker interface class for AOP context.
      */
@@ -117,12 +120,14 @@ public abstract class AopContext<M, A extends Annotation, META extends AopMetada
 
     /**
      * Creates the target object for the given context and metadata.
+     * @param aopFactory
      *
+     * @param aopFactory  the factory requesting the target creation
      * @param context  the EmContext
      * @param metadata the metadata
      * @return the target object
      */
-    public abstract M createTarget(EmContext context, META metadata);
+    public abstract M createTarget(AopFactory aopFactory, EmContext context, META metadata);
 
     /**
      * Returns the exclusion annotation class for this context.

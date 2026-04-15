@@ -56,7 +56,6 @@ public abstract class AopMetadata<A extends Annotation, M> {
 
     private final boolean hasAnnotation;
     private final String scope;
-    private String originalBeanName;
 
     /**
      * Creates a new {@link AopMetadata} for the given bean class.
@@ -191,14 +190,5 @@ public abstract class AopMetadata<A extends Annotation, M> {
 
         return arguments.get(index);
     }
-
-    public String getOriginalBeanName() {
-        return originalBeanName;
-    }
-
-    protected void setOriginalBeanName(String originalBeanName) {
-        this.originalBeanName = originalBeanName;
-    }
-
 
 }

@@ -126,8 +126,7 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
                 if (!clazz.isInterface()) {
                     // keep the original bean definition but relocate it
                     var relocatedBeanName = beanName + AopContext.ORIGINAL_BEAN_SUFFIX;
-                    pc.getBeanMetadata().setOriginalBeanName(relocatedBeanName);
-                    registry.registerBeanDefinition(relocatedBeanName, beanDefinition);
+                    //registry.registerBeanDefinition(relocatedBeanName, beanDefinition);
                 }
             }
 

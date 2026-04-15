@@ -77,6 +77,8 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
     /** The Spring application context. */
     private ApplicationContext context;
 
+    private String beanName;
+
     /**
      * Creates a new {@link AopFactory} with the specified AOP context.
      *
@@ -126,7 +128,7 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
 
         Assert.notNull(beanClass, "Bean class must not be null");
 
-        var target = aopContext.createTarget((EmContext) context, beanMetadata);
+        var target = aopContext.createTarget(this, (EmContext) context, beanMetadata);
 
         // Create proxy
         var result = new ProxyFactory();
@@ -192,6 +194,15 @@ public class AopFactory implements BeanClassLoaderAware, BeanFactoryAware, Appli
 
     public ApplicationContext getContext() {
         return context;
+    }
+
+
+    public String getBeanName() {
+        return beanName;
+    }
+
+    public void setBeanName(String beanName) {
+        this.beanName = beanName;
     }
 
 

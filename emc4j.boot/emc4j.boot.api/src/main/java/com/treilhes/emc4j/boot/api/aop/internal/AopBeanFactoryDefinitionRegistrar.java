@@ -53,25 +53,26 @@ public class AopBeanFactoryDefinitionRegistrar {
     }
 
 
-    public void register(String originalBeanName, AopBeanConfiguration configuration) {
-        BeanDefinitionBuilder definitionBuilder = buildDefinitionBuilder(configuration);
+    public void register(String beanName, AopBeanConfiguration configuration) {
+        BeanDefinitionBuilder definitionBuilder = buildDefinitionBuilder(configuration, beanName);
 
         RootBeanDefinition beanDefinition = (RootBeanDefinition) definitionBuilder.getBeanDefinition();
         beanDefinition.setTargetType(getFactoryBeanType(configuration));
         beanDefinition.setResourceDescription(configuration.getResourceDescription());
         beanDefinition.setScope(configuration.getBeanMetadata().getScope());
 
-        registry.registerBeanDefinition(originalBeanName, beanDefinition);
+        registry.registerBeanDefinition(beanName, beanDefinition);
     }
 
 
-    private BeanDefinitionBuilder buildDefinitionBuilder(AopBeanConfiguration configuration) {
+    private BeanDefinitionBuilder buildDefinitionBuilder(AopBeanConfiguration configuration, String beanName) {
 
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .rootBeanDefinition(configuration.getFactoryBeanClass());
 
         builder.addConstructorArgValue(configuration.getBeanClass());
         builder.addPropertyValue("lazyInit", configuration.isLazyInit());
+        builder.addPropertyValue("beanName", beanName);
         builder.setLazyInit(configuration.isLazyInit());
         builder.setPrimary(configuration.isPrimary());
 
