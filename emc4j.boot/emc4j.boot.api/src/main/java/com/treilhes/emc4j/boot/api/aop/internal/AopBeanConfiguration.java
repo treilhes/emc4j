@@ -52,7 +52,7 @@ public class AopBeanConfiguration {
     private final AopMetadata beanMetadata;
     private final Class<?> factoryBeanClass;
 
-    public AopBeanConfiguration(ClassLoader loader, AopContext<?, ?, ?> aopContext, BeanDefinition definition) {
+    public AopBeanConfiguration(ClassLoader loader, AopContext<?> aopContext, BeanDefinition definition) {
 
         this.definition = definition;
         this.beanClass = loadBeanClass(loader);

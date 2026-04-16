@@ -17,33 +17,25 @@ import com.treilhes.emc4j.boot.api.context.EmContext;
 class AopContextTest {
 
     static interface Marker{}
-    static @interface TestAnnotation {}
-    static class TestAnnotationMetadata extends AopMetadata<TestAnnotation, Marker> {
 
-        public TestAnnotationMetadata(Class<TestAnnotation> annotationClass, Class<Marker> markerClass,
-                Class<?> beanClass) {
-            super(annotationClass, markerClass, beanClass);
-        }
+    static class MarkedClass implements Marker {}
 
-        @Override
-        protected void loadMetadata(TestAnnotation annotation) {
-        }
-
-    }
-    static class TestAopFactoryBean extends AopFactoryBean<Marker, TestAnnotationMetadata> {
-
-        protected TestAopFactoryBean(Class<?> beanClass) {
+    static class TestAopFactoryBean extends AopFactoryBean<Marker> {
+        public TestAopFactoryBean(Class<?> beanClass) {
             super(beanClass, new TestAopContext());
         }
     }
 
-    @TestAnnotation
-    static class MarkedClass implements Marker {}
+    static class TestControllerAopBeanPostProcessor extends AopBeanDefinitionRegistryPostProcessor {
+        public TestControllerAopBeanPostProcessor() {
+            super(new TestAopContext());
+        }
+    }
 
-    static class TestAopContext extends AopContext<Marker, TestAnnotation, TestAnnotationMetadata> {
+    static class TestAopContext extends AopContext<Marker> {
 
         public TestAopContext() {
-            super(Marker.class, TestAnnotation.class);
+            super(Marker.class);
         }
 
         @Override
@@ -52,20 +44,9 @@ class AopContextTest {
         }
 
         @Override
-        public Class<? extends AopFactoryBean<Marker, TestAnnotationMetadata>> factoryBeanClass() {
-            return TestAopFactoryBean.class;
-        }
-
-        @Override
-        public TestAnnotationMetadata loadMetadata(Class<?> clazz) {
-            return new TestAnnotationMetadata(getContexAnnotationClass(), getMarkerClass(), clazz);
-        }
-
-        @Override
-        public Marker createTarget(AopFactory aopFactory, EmContext context, TestAnnotationMetadata metadata) {
-            return new Marker() {
-
-            };
+        public Object createProxy(AopFactory aopFactory, EmContext context, AopMetadata metadata) {
+            var original = context.getBean(aopFactory.getBeanName() + AopContext.ORIGINAL_BEAN_SUFFIX);
+            return new MarkedClass();
         }
 
         @Override
@@ -73,12 +54,14 @@ class AopContextTest {
             return null;
         }
 
-    }
-    static class TestControllerAopBeanPostProcessor extends AopBeanDefinitionRegistryPostProcessor {
-        public TestControllerAopBeanPostProcessor() {
-            super(new TestAopContext());
+        @Override
+        public Class<? extends AopFactoryBean<?>> factoryBeanClass() {
+            return TestAopFactoryBean.class;
         }
+
+
     }
+
 
     @Spy
     SemiMockTestContext testContext;

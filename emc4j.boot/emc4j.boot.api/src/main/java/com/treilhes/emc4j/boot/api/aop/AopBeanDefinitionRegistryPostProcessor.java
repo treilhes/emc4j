@@ -70,7 +70,7 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
     /**
      * The AOP context used for processing and configuration.
      */
-    private final AopContext<?, ?, ?> aopContext;
+    private final AopContext<?> aopContext;
 
     /**
      * The Spring application context, set via {@link #setApplicationContext(ApplicationContext)}.
@@ -82,7 +82,7 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
      *
      * @param aopContext the AOP context to be used for processing
      */
-    protected AopBeanDefinitionRegistryPostProcessor(AopContext<?, ?, ?> aopContext) {
+    protected AopBeanDefinitionRegistryPostProcessor(AopContext<?> aopContext) {
         super();
         this.aopContext = aopContext;
     }
@@ -114,19 +114,22 @@ public abstract class AopBeanDefinitionRegistryPostProcessor
             for (var candidate : candidates.entrySet()) {
                 var beanName = candidate.getKey();
                 var beanDefinition = candidate.getValue();
-
-                registry.removeBeanDefinition(beanName);
-
-                logger.debug("Candidate: {}", beanDefinition.getBeanClassName());
                 var clazz = emc.getRegisteredClass(beanDefinition.getBeanClassName());
                 var pc = new AopBeanConfiguration(clazz.getClassLoader(), aopContext, beanDefinition);
 
+                logger.debug("Candidate: {} - {}", beanName, beanDefinition.getBeanClassName());
+
+                registry.removeBeanDefinition(beanName);
                 registrar.register(beanName, pc);
 
                 if (!clazz.isInterface()) {
-                    // keep the original bean definition but relocate it
                     var relocatedBeanName = beanName + AopContext.ORIGINAL_BEAN_SUFFIX;
-                    //registry.registerBeanDefinition(relocatedBeanName, beanDefinition);
+
+                    logger.debug("Relocating bean: {} - {} to {}", beanName, beanDefinition.getBeanClassName(), relocatedBeanName);
+
+                    // keep the original bean definition but relocate it
+                    beanDefinition.setFallback(true);
+                    registry.registerBeanDefinition(relocatedBeanName, beanDefinition);
                 }
             }
 

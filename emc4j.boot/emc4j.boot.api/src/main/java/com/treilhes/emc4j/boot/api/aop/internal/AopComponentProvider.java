@@ -45,11 +45,11 @@ import com.treilhes.emc4j.boot.api.aop.AopContext;
 
 public class AopComponentProvider {
 
-    private final AopContext<?,?,?> aopContext;
+    private final AopContext<?> aopContext;
     private boolean considerNested;
     private BeanDefinitionRegistry registry;
 
-    public AopComponentProvider(AopContext<?,?,?> aopContext, BeanDefinitionRegistry registry) {
+    public AopComponentProvider(AopContext<?> aopContext, BeanDefinitionRegistry registry) {
 
         Assert.notNull(aopContext, "AopContext must not be null");
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null");

@@ -53,15 +53,15 @@ import org.springframework.util.Assert;
  * @param <M>    the marker interface class
  * @param <D> the metadata class
  */
-public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
+public class AopFactoryBean<M>
         implements InitializingBean, FactoryBean, BeanClassLoaderAware,
         BeanFactoryAware, ApplicationContextAware {
 
-    private final AopContext<M, ?, D> aopContext;
+    private final AopContext<M> aopContext;
     private final Class<?> beanClass;
-    private final AopMetadata<?, ?> beanMetadata;
+    private final AopMetadata beanMetadata;
 
-    private Function<AopContext<M, ?, D>, AopFactory> factorySupplier = null;
+    private Function<AopContext<M>, AopFactory> factorySupplier = null;
 
     private ClassLoader classLoader;
     private BeanFactory beanFactory;
@@ -77,7 +77,7 @@ public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
      * @param beanClass must not be {@literal null}.
      * @param aopContext the AOP context
      */
-    protected AopFactoryBean(Class<?> beanClass, AopContext<M, ?, D> aopContext) {
+    protected AopFactoryBean(Class<?> beanClass, AopContext<M> aopContext) {
         Assert.notNull(beanClass, "Bean class must not be null");
         this.aopContext = aopContext;
         this.beanClass = beanClass;
@@ -157,11 +157,11 @@ public abstract class AopFactoryBean<M, D extends AopMetadata<?, M>>
         this.context = applicationContext;
     }
 
-    public Function<AopContext<M, ?, D>, AopFactory> getFactorySupplier() {
+    public Function<AopContext<M>, AopFactory> getFactorySupplier() {
         return factorySupplier;
     }
 
-    public void setFactorySupplier(Function<AopContext<M, ?, D>, AopFactory> factorySupplier) {
+    public void setFactorySupplier(Function<AopContext<M>, AopFactory> factorySupplier) {
         this.factorySupplier = factorySupplier;
     }
 

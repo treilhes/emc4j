@@ -40,17 +40,15 @@ import org.springframework.stereotype.Component;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 
 /**
- * Abstract context for AOP operations, providing marker, annotation, and metadata management.
+ * Abstract context for AOP operations by providing marker interface.
  * <p>
- * This class defines the contract for AOP context implementations, including metadata loading,
- * candidate component detection, factory bean class resolution, target creation, and exclusion annotation handling.
+ * This class defines the contract for AOP context implementations, including methods for
+ * candidate component detection, factory bean class creation, target creation, and exclusion annotation handling.
  * </p>
  *
  * @param <M>    the marker interface type
- * @param <A>    the context annotation type
- * @param <META> the metadata type extending {@link AopMetadata}
  */
-public abstract class AopContext<M, A extends Annotation, META extends AopMetadata<A, M>> {
+public abstract class AopContext<M> {
 
     public static final String ORIGINAL_BEAN_SUFFIX = "$Original";
 
@@ -60,39 +58,15 @@ public abstract class AopContext<M, A extends Annotation, META extends AopMetada
      * The marker interface class for AOP context.
      */
     private final Class<M> markerClass;
-    /**
-     * The annotation class used for context.
-     */
-    private final Class<A> contexAnnotationClass;
 
     /**
      * Constructs an AopContext with the given marker and annotation classes.
      *
      * @param markerClass           the marker interface class
-     * @param contexAnnotationClass the annotation class for context
      */
-    public AopContext(Class<M> markerClass, Class<A> contexAnnotationClass) {
+    protected AopContext(Class<M> markerClass) {
         super();
         this.markerClass = markerClass;
-        this.contexAnnotationClass = contexAnnotationClass;
-    }
-
-    /**
-     * Returns the marker interface class.
-     *
-     * @return the marker class
-     */
-    public Class<M> getMarkerClass() {
-        return markerClass;
-    }
-
-    /**
-     * Returns the annotation class used for context.
-     *
-     * @return the annotation class
-     */
-    public Class<A> getContexAnnotationClass() {
-        return contexAnnotationClass;
     }
 
     /**
@@ -108,26 +82,7 @@ public abstract class AopContext<M, A extends Annotation, META extends AopMetada
      *
      * @return the factory bean class
      */
-    public abstract Class<? extends AopFactoryBean<M, META>> factoryBeanClass();
-
-    /**
-     * Loads metadata for the given class.
-     *
-     * @param clazz the class to load metadata for
-     * @return the loaded metadata
-     */
-    public abstract META loadMetadata(Class<?> clazz);
-
-    /**
-     * Creates the target object for the given context and metadata.
-     * @param aopFactory
-     *
-     * @param aopFactory  the factory requesting the target creation
-     * @param context  the EmContext
-     * @param metadata the metadata
-     * @return the target object
-     */
-    public abstract M createTarget(AopFactory aopFactory, EmContext context, META metadata);
+    public abstract Class<? extends AopFactoryBean<?>> factoryBeanClass();
 
     /**
      * Returns the exclusion annotation class for this context.
@@ -135,7 +90,36 @@ public abstract class AopContext<M, A extends Annotation, META extends AopMetada
      * @param <EX> the exclusion annotation type
      * @return the exclusion annotation class
      */
-    public abstract <EX extends Annotation> Class<EX> getExclusionAnnotation();
+    public abstract <E extends Annotation> Class<E> getExclusionAnnotation();
+
+    /**
+     * Creates the target object for the given context and metadata.
+     * @param aopFactory
+     *
+     * @param aopFactory  the factory requesting the target creation
+     * @param context  the EmContext
+     * @return the target object
+     */
+    public abstract Object createProxy(AopFactory aopFactory, EmContext context, AopMetadata metadata);
+
+    /**
+     * Returns the marker interface class.
+     *
+     * @return the marker class
+     */
+    public Class<M> getMarkerClass() {
+        return markerClass;
+    }
+
+    /**
+     * Loads metadata for the given class.
+     *
+     * @param clazz the class to load metadata for
+     * @return the loaded metadata
+     */
+    public AopMetadata loadMetadata(Class<?> clazz){
+        return new AopMetadata(getMarkerClass(), clazz);
+    }
 
     /**
      * Instantiates an object of the given class, using the context if it is a Spring component.

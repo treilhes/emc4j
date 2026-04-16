@@ -31,7 +31,6 @@
  */
 package com.treilhes.emc4j.boot.api.aop;
 
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -43,28 +42,23 @@ import org.springframework.util.Assert;
 
 /**
  * Inspect types extending/implementing the marker class and annotated with the metadata annotation.
- * @param <A> the annotation type holding the metadata.
- * @param <M> the marker class type.
  */
-public abstract class AopMetadata<A extends Annotation, M> {
+public class AopMetadata {
 
     private static final String MUST_BE_A = "Type must be a %s";
 
     private final Class<?> beanClass;
     private final TypeInformation<?> typeInformation;
     private final TypeInformation<?> genericTypeInformation;
-
-    private final boolean hasAnnotation;
     private final String scope;
 
     /**
      * Creates a new {@link AopMetadata} for the given bean class.
      *
-     * @param annotationClass must not be {@literal null}.
      * @param markerClass must not be {@literal null}.
      * @param beanClass must not be {@literal null}.
      */
-    protected AopMetadata(Class<A> annotationClass, Class<M> markerClass, Class<?> beanClass) {
+    protected AopMetadata(Class<?> markerClass, Class<?> beanClass) {
 
         Assert.notNull(beanClass, "Given type must not be null");
 
@@ -85,9 +79,6 @@ public abstract class AopMetadata<A extends Annotation, M> {
                     () -> String.format("Could not resolve type of %s", beanClass));
         }
 
-
-        A contextAnnotation = AnnotationUtils.findAnnotation(beanClass, annotationClass);
-
         var scopeAnnotation = AnnotationUtils.findAnnotation(beanClass, Scope.class);
 
         if (scopeAnnotation == null) {
@@ -95,19 +86,8 @@ public abstract class AopMetadata<A extends Annotation, M> {
         } else {
             this.scope = scopeAnnotation.scopeName();
         }
-        this.hasAnnotation = contextAnnotation != null;
-
-        loadMetadata(contextAnnotation);
 
     }
-
-    /**
-     * Loads the metadata from the given annotation.
-     *
-     * @param annotation the annotation instance, may be {@literal null} if the bean class is not annotated
-     *                   with the metadata annotation.
-     */
-    protected abstract void loadMetadata(A annotation);
 
     /**
      * Returns the type information of the bean class.
@@ -125,15 +105,6 @@ public abstract class AopMetadata<A extends Annotation, M> {
      */
     public Class<?> getBeanClass() {
         return this.beanClass;
-    }
-
-    /**
-     * Returns whether the bean class is annotated with the metadata annotation.
-     *
-     * @return {@literal true} if the bean class is annotated with the metadata annotation.
-     */
-    public boolean hasAnnotation() {
-        return hasAnnotation;
     }
 
     /**
