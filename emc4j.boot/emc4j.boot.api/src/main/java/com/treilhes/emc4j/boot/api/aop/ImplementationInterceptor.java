@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Method interceptor that calls methods on the target object.
@@ -44,8 +44,8 @@ public class ImplementationInterceptor implements MethodInterceptor {
         try {
             return method.invoke(base, arguments);
         } catch (Exception e) {
-            if (e instanceof InvocationTargetException) {
-                throw ((InvocationTargetException) e).getTargetException();
+            if (e instanceof InvocationTargetException ite) {
+                throw ite.getTargetException();
             }
             throw e;
         }

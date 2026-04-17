@@ -81,6 +81,13 @@ public class DefaultMethodInterceptor implements MethodInterceptor {
 
     private static MethodHandle lookup(Method method) throws ReflectiveOperationException {
 
+        var callerModule = DefaultMethodInterceptor.class.getModule();
+        var module = method.getDeclaringClass().getModule();
+
+        if (!callerModule.canRead(module)) {
+            callerModule.addReads(module);
+        }
+
         Lookup lookup = MethodHandles.privateLookupIn(method.getDeclaringClass(), LOOKUP);
         MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
         Class<?> declaringClass = method.getDeclaringClass();

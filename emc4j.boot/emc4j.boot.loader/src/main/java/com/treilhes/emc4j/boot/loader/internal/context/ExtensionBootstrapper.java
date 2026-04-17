@@ -184,7 +184,7 @@ public class ExtensionBootstrapper {
 
         var mainExtDefinition = loadMainExtension(loader, layer);
         var childrenExtDefinitions = loadChildExtensions(loader, content.getExtensions());
-        var isSealed = SealedExtension.class.isInstance(mainExtDefinition.getExtension());
+        var isSealed = mainExtDefinition.getExtension() instanceof SealedExtension;
 
         validateExtensions(id, parentContextId, mainExtDefinition, childrenExtDefinitions);
 
@@ -209,9 +209,7 @@ public class ExtensionBootstrapper {
         configuration.addSingletonInstances(singletons);
         configuration.setProgressListener(progressListener);
 
-        var context = contextManager.create(configuration);
-
-        return context;
+        return contextManager.create(configuration);
     }
 
     private void initializeExtensions(ExtensionDefinition extension, Set<ExtensionDefinition> extensions)
@@ -318,7 +316,7 @@ public class ExtensionBootstrapper {
      * @throws InvalidExtensionException the invalid extension exception
      */
     private Set<ExtensionDefinition> loadChildExtensions(ServiceLoader loader, Set<LoadableContent> loadableContents)
-            throws LayerNotFoundException, InvalidExtensionException {
+            throws LayerNotFoundException {
 
         var extensions = new HashSet<ExtensionDefinition>();
 
@@ -405,7 +403,7 @@ public class ExtensionBootstrapper {
         return true;
     }
 
-    private void initializeExtension(Layer layer, Extension extension) throws LayerNotFoundException {
+    private void initializeExtension(Layer layer, Extension extension) {
 
         var module = extension.getClass().getModule();
 
