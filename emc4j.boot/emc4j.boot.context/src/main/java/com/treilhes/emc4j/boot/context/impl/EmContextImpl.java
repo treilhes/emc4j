@@ -56,6 +56,7 @@ import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
 import org.springframework.beans.factory.config.DependencyDescriptor;
 import org.springframework.beans.factory.support.AutowireCandidateResolver;
 import org.springframework.beans.factory.support.BeanDefinitionReaderUtils;
@@ -533,6 +534,16 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
     @Override
     public <T> void registerBean(Class<T> cls, Supplier<T> supplier) {
         super.registerBean(cls, supplier);
+    }
+
+    @Override
+    public <T> void registerBean(String name, Class<T> cls, Supplier<T> supplier) {
+        super.registerBean(name, cls, supplier);
+    }
+
+    @Override
+    public <T> void registerBean(String name, Class<T> cls, Supplier<T> supplier, BeanDefinitionCustomizer... customizers) {
+        super.registerBean(name, cls, supplier, customizers);
     }
 
     @Override

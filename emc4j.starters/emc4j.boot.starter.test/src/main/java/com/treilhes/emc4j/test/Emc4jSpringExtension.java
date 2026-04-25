@@ -7,7 +7,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 
 /**
- * SpringExtension that excludes EmContext parameters from being resolved by the original SpringExtension.
+ * SpringExtension that excludes EmContext parameters from being resolved by the
+ * original SpringExtension.
  */
 public class Emc4jSpringExtension extends SpringExtension {
 

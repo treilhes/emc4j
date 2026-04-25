@@ -3,6 +3,7 @@ package com.treilhes.emc4j.test;
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import org.springdoc.core.properties.SwaggerUiConfigProperties;
 import org.springdoc.core.properties.SwaggerUiOAuthProperties;
 import org.springdoc.core.providers.ObjectMapperProvider;
 import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -34,6 +36,8 @@ import org.springframework.boot.test.context.SpringBootTestContextBootstrapper;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.core.annotation.MergedAnnotations.SearchStrategy;
@@ -64,16 +68,18 @@ import com.treilhes.emc4j.test.mapper.BootConfigMerger;
 import com.treilhes.emc4j.test.mapper.ContextConfig;
 
 public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback, ParameterResolver {
-    private final static Logger logger = LoggerFactory.getLogger(Emc4jExtension.class);
-    private final static Namespace EMC4J = create("com.treilhes.emc4j");
+    private static final Logger logger = LoggerFactory.getLogger(Emc4jExtension.class);
+    private static final Namespace EMC4J = create("com.treilhes.emc4j");
 
     // This constructor is invoked by JUnit Jupiter via reflection or ServiceLoader
     @SuppressWarnings("unused")
     public Emc4jExtension() {
+        // no-op
     }
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
+        // no-op
     }
 
 
@@ -84,9 +90,67 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
      */
     @Override
     public void beforeEach(final ExtensionContext context) {
+        Object testInstance = context.getRequiredTestInstance();
+        var contextHolder = Emc4jContextLoader.testContextHolder.get();
+        var contextMap = contextHolder;
+        //var contextMap = contextHolder != null ? contextHolder.get(testInstance.getClass()) : null;
 
+        for (Field field : testInstance.getClass().getDeclaredFields()) {
+            handleEmcInject(testInstance, field, contextMap);
+            handleMockEmcInject(testInstance, field, contextMap);
+            handleSpyEmcInject(testInstance, field, contextMap);
+        }
     }
 
+    private void handleEmcInject(Object testInstance, Field field, Map<UUID, EmContext> contextMap) {
+        if (field.isAnnotationPresent(EmcInject.class)) {
+            field.setAccessible(true);
+
+            EmcInject annotation = field.getAnnotation(EmcInject.class);
+
+            Object dependency = getEmInjectBean(field.getType(), annotation, contextMap);
+
+            try {
+                field.set(testInstance, dependency);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void handleSpyEmcInject(Object testInstance, Field field, Map<UUID, EmContext> contextMap) {
+        if (field.isAnnotationPresent(EmcInjectSpy.class)) {
+            field.setAccessible(true);
+
+            EmcInjectSpy annotation = field.getAnnotation(EmcInjectSpy.class);
+
+            Object dependency = getEmInjectBean(field.getType(), annotation, contextMap);
+
+            try {
+                field.set(testInstance, Mockito.spy(dependency));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void handleMockEmcInject(Object testInstance, Field field, Map<UUID, EmContext> contextMap) {
+        if (field.isAnnotationPresent(EmcInjectMock.class)) {
+            field.setAccessible(true);
+
+            EmcInjectMock annotation = field.getAnnotation(EmcInjectMock.class);
+            Scope scope = field.getAnnotation(Scope.class);
+            Primary primary = field.getAnnotation(Primary.class);
+
+            Object dependency = setEmInjectMockBean(field.getType(), annotation, scope, primary, contextMap);
+
+            try {
+                field.set(testInstance, dependency);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -110,30 +174,56 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
         var parameter = parameterContext.getParameter();
         var type = parameter.getType();
-        var emContext = parameter.getAnnotation(com.treilhes.emc4j.test.EmInject.class);
+        var emcInject = parameter.getAnnotation(EmcInject.class);
+        var emcMock = parameter.getAnnotation(EmcInjectMock.class);
+        var emcSpy = parameter.getAnnotation(EmcInjectSpy.class);
 
         return EmContext.class.isAssignableFrom(type) ||
-                emContext != null;
+                emcInject != null ||
+                emcMock != null ||
+                emcSpy != null;
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
         // Provide the instance of the parameter
+        var contextHolder = Emc4jContextLoader.testContextHolder.get();
+        var contextMap = contextHolder;
+        //var contextMap = contextHolder != null ? contextHolder.get(extensionContext.getTestClass().orElseThrow()) : null;
+
+        System.out.println("Using contexts: " + Emc4jContextLoader.testContextHolder.get());
+        System.out.println("In : " + extensionContext.getTestClass().get());
+        System.out.println("method : " + extensionContext.getTestMethod().get().getName());
+
         var parameter = parameterContext.getParameter();
         var type = parameterContext.getParameter().getType();
-        var emContext = parameter.getAnnotation(com.treilhes.emc4j.test.EmInject.class);
 
-        var uuid = emContext != null && !emContext.value().isBlank() ? UUID.fromString(emContext.value()) : SealedExtension.BOOT_ID;
+        var emcInject = parameter.getAnnotation(EmcInject.class);
+        if (emcInject != null) {
+            return getEmInjectBean(type, emcInject, contextMap);
+        }
 
-        var context = Emc4jContextLoader.testContextHolder.get();
+        var emcSpy = parameter.getAnnotation(EmcInjectSpy.class);
+        if (emcSpy != null) {
+            return Mockito.spy(getEmInjectBean(type, emcInject, contextMap));
+        }
+
+        var emcMock = parameter.getAnnotation(EmcInjectMock.class);
+        if (emcMock != null) {
+            var scope = parameter.getAnnotation(Scope.class);
+            var primary = parameter.getAnnotation(Primary.class);
+            var mock = setEmInjectMockBean(type, emcMock, scope, primary, contextMap);
+            return mock;
+        }
 
         if (EmContext.class.isAssignableFrom(type)) {
-            return context.get(uuid);
+            var context = contextMap.get(Extension.BOOT_ID);
+            if (context !=null) {
+                return context;
+            }
         }
 
-        if (emContext != null) {
-            return context.get(uuid).getBean(type);
-        }
+        return null;
 
 //        if (type == Stage.class) {
 //            return FxToolkit.toolkitContext().getRegisteredStage();
@@ -147,7 +237,73 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 //            return builder;
 //        }
 
-        return null;
+    }
+
+    private Object getEmInjectBean(Class<?> type, EmcInject emContext, Map<UUID, EmContext> contextMap) {
+        var uuid = emContext != null && !emContext.contextId().isBlank() ? UUID.fromString(emContext.contextId()) : Extension.BOOT_ID;
+        var name = emContext != null && !emContext.qualifier().isBlank() ? emContext.qualifier() : null;
+        var context = contextMap.get(uuid);
+
+        if (EmContext.class.isAssignableFrom(type)) {
+            return context;
+        }
+
+        if (context == null) {
+            return null;
+        }
+
+        if (name != null) {
+            return context.getBean(name, type);
+        }
+        return context.getBean(type);
+    }
+
+    private Object getEmInjectBean(Class<?> type, EmcInjectSpy emContext, Map<UUID, EmContext> contextMap) {
+        var uuid = emContext != null && !emContext.contextId().isBlank() ? UUID.fromString(emContext.contextId()) : Extension.BOOT_ID;
+        var name = emContext != null && !emContext.qualifier().isBlank() ? emContext.qualifier() : null;
+        var context = contextMap.get(uuid);
+
+        if (EmContext.class.isAssignableFrom(type)) {
+            return context;
+        }
+
+        if (context == null) {
+            return null;
+        }
+
+        if (name != null) {
+            return context.getBean(name, type);
+        }
+        return context.getBean(type);
+    }
+
+    private <T> T setEmInjectMockBean(Class<T> type, EmcInjectMock emContext, Scope scope, Primary primary, Map<UUID, EmContext> contextMap) {
+        var uuid = emContext != null && !emContext.contextId().isBlank() ? UUID.fromString(emContext.contextId()) : Extension.BOOT_ID;
+        var name = emContext != null && !emContext.qualifier().isBlank() ? emContext.qualifier() : null;
+        var context = contextMap.get(uuid);
+
+        if (context == null) {
+            return null;
+        }
+
+        var customizers = new ArrayList<BeanDefinitionCustomizer>();
+        if (scope != null) {
+            customizers.add(bd -> bd.setScope(scope.value()));
+        }
+        if (primary != null) {
+            customizers.add(bd -> bd.setPrimary(true));
+        }
+
+        if (name != null) {
+            if (context.containsBean(name)) {
+                context.removeBeanDefinition(name);
+            }
+            context.registerBean(name, type, () -> Mockito.mock(type), customizers.toArray(BeanDefinitionCustomizer[]::new));
+            return context.getBean(name, type); // force initialization to register the mock in the context
+        } else {
+            context.registerBean(type, () -> Mockito.mock(type), customizers.toArray(BeanDefinitionCustomizer[]::new));
+            return context.getBean(type);
+        }
     }
 
     public static class Emc4jTestContextBootstrapper extends SpringBootTestContextBootstrapper {
@@ -159,7 +315,13 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
         @Override
         protected String[] getProperties(Class<?> testClass) {
-            return Emc4jAnnotationCache.get(testClass).getProperties().toArray(String[]::new);
+            var properties = Emc4jAnnotationCache.get(testClass).getProperties();
+
+            // add the test class name as a property to prevent Spring from caching the
+            // context between different test classes with the same configuration
+            properties.add("testClass=" + testClass.getName());
+
+            return properties.toArray(String[]::new);
         }
 
         @Override
@@ -177,6 +339,7 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
     public static class Emc4jContextLoader extends AbstractContextLoader {
 
+        //protected static final ThreadLocal<Map<Class<?>, Map<UUID, EmContext>>> testContextHolder = new ThreadLocal<>();
         protected static final ThreadLocal<Map<UUID, EmContext>> testContextHolder = new ThreadLocal<>();
 
         private BootConfig bootConfig;
@@ -252,6 +415,9 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             if (bootConfig.isEnableJpa()) {
                 classes.addAll(new JpaBootClasses().classes());
             }
+            if (bootConfig.isLoadDefaultScopes()) {
+                classes.addAll(new JpaBootClasses().classes());
+            }
 
             //@formatter:on
 
@@ -287,7 +453,20 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
             }
 
+            System.out.println("Previous contexts: " + testContextHolder.get());
+
+            var ctxHolder = testContextHolder.get();
+
+            if (ctxHolder == null) {
+                ctxHolder = new HashMap<>();
+            }
+
             testContextHolder.set(contextMap);
+//          ctxHolder.put(mergedConfig.getTestClass(), contextMap);
+//          testContextHolder.set(ctxHolder);
+
+            System.out.println("AFter contexts: " + testContextHolder.get());
+
 
             return bootContext;
         }

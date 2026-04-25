@@ -27,13 +27,13 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     @Override
     public void setServletContext(@Nullable ServletContext servletContext) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void setServletConfig(@Nullable ServletConfig servletConfig) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -45,7 +45,7 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     @Override
     public void setNamespace(@Nullable String namespace) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -57,13 +57,13 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     @Override
     public void setConfigLocation(String configLocation) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void setConfigLocations(String... configLocations) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -81,7 +81,7 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     @Override
     public void addProgressListener(MultipleProgressListener progressListener) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -171,19 +171,25 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     @Override
     public void destroyBean(Object existingBean) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void destroyScopedBean(String beanName) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public <T> void registerBean(Class<T> class1, Supplier<T> object) {
         // TODO Auto-generated method stub
-        
+
+    }
+
+    @Override
+    public <T> void registerBean(String name, Class<T> class1, Supplier<T> object) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override

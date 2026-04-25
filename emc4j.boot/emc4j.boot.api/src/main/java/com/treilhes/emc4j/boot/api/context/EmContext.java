@@ -39,6 +39,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 public interface EmContext extends ConfigurableWebApplicationContext {
@@ -84,6 +85,12 @@ public interface EmContext extends ConfigurableWebApplicationContext {
 
     <T> void registerBean(Class<T> class1, Supplier<T> object);
 
+    <T> void registerBean(String name, Class<T> cls, Supplier<T> supplier);
+
+    <T> void registerBean(Class<T> class1, Supplier<T> object, BeanDefinitionCustomizer... customizers);
+
+    <T> void registerBean(String name, Class<T> cls, Supplier<T> supplier, BeanDefinitionCustomizer... customizers);
+
     ScopedExecutor<Application> getApplicationExecutor();
 
     ScopedExecutor<ApplicationInstance> getApplicationInstanceExecutor();
@@ -97,4 +104,6 @@ public interface EmContext extends ConfigurableWebApplicationContext {
      * @return
      */
     <T> T getLayerBean(Class<?> layerClass, Class<T> cls);
+
+
 }
