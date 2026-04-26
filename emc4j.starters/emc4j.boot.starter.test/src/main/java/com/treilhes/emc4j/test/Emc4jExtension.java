@@ -28,8 +28,12 @@ import org.springdoc.core.properties.SpringDocConfigProperties;
 import org.springdoc.core.properties.SwaggerUiConfigProperties;
 import org.springdoc.core.properties.SwaggerUiOAuthProperties;
 import org.springdoc.core.providers.ObjectMapperProvider;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -242,46 +246,6 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
         return new InjectDefinition(InjectType.EMC_INJECT_SPY ,type, contextId, qualifier, create);
     }
 
-    private Object getEmInjectBean(InjectDefinition def, Map<UUID, EmContext> contextMap) {
-        var type = def.getType();
-        var uuid = def.getContextId();
-        var name = def.getQualifier();
-        var create = def.isCreate();
-        var context = contextMap.get(uuid);
-
-        if (EmContext.class.isAssignableFrom(type)) {
-            return context;
-        }
-
-        if (context == null) {
-            return null;
-        }
-
-        if (create) {
-
-            var customizers = new ArrayList<BeanDefinitionCustomizer>();
-            if (def.getScope() != null) {
-                customizers.add(bd -> bd.setScope(def.getScope().value()));
-            }
-            if (def.getPrimary() != null) {
-                customizers.add(bd -> bd.setPrimary(true));
-            }
-
-            if (name != null) {
-                if (context.containsBean(name)) {
-                    context.removeBeanDefinition(name);
-                }
-                context.registerBean(name, type, customizers.toArray(BeanDefinitionCustomizer[]::new));
-            } else {
-                context.registerBean(type, customizers.toArray(BeanDefinitionCustomizer[]::new));
-            }
-        }
-        if (name != null) {
-            return context.getBean(name, type);
-        }
-        return context.getBean(type);
-    }
-
     private void registerEmInjectBean(InjectDefinition def, Map<UUID, EmContext> contextMap) {
         var type = def.getType();
         var uuid = def.getContextId();
@@ -315,37 +279,6 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             } else {
                 context.registerBean(type, customizers.toArray(BeanDefinitionCustomizer[]::new));
             }
-        }
-    }
-
-    private <T> T setEmInjectMockBean(InjectDefinition def, Map<UUID, EmContext> contextMap) {
-        Class<T> type = (Class<T>) def.getType();
-        var uuid = def.getContextId();
-        var name = def.getQualifier();
-        var create = def.isCreate();
-        var context = contextMap.get(uuid);
-
-        if (context == null) {
-            return null;
-        }
-
-        var customizers = new ArrayList<BeanDefinitionCustomizer>();
-        if (def.getScope() != null) {
-            customizers.add(bd -> bd.setScope(def.getScope().value()));
-        }
-        if (def.getPrimary() != null) {
-            customizers.add(bd -> bd.setPrimary(true));
-        }
-
-        if (name != null) {
-            if (context.containsBean(name)) {
-                context.removeBeanDefinition(name);
-            }
-            context.registerBean(name, type, () -> Mockito.mock(type), customizers.toArray(BeanDefinitionCustomizer[]::new));
-            return context.getBean(name, type); // force initialization to register the mock in the context
-        } else {
-            context.registerBean(type, () -> Mockito.mock(type), customizers.toArray(BeanDefinitionCustomizer[]::new));
-            return context.getBean(type);
         }
     }
 
@@ -481,6 +414,7 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             // add the test class name as a property to prevent Spring from caching the
             // context between different test classes with the same configuration
             properties.add("testClass=" + testClass.getName());
+            properties.add("spring.main.lazy-initialization=true");
 
             return properties.toArray(String[]::new);
         }
@@ -554,9 +488,6 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             if (bootConfig.isEnableJpa()) {
                 classes.addAll(new JpaBootClasses().classes());
             }
-            if (bootConfig.isLoadDefaultScopes()) {
-                classes.addAll(new JpaBootClasses().classes());
-            }
 
             WebApplicationType webAppType = bootConfig.getWebEnvironment() != WebEnvironment.NONE
                     ? WebApplicationType.SERVLET
@@ -612,7 +543,7 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
                 customizer.customizeContext(ctx, mergedConfig);
             }
 
-
+            ctx.addBeanFactoryPostProcessor(new ForceLazyPostProcessor());
             ctx.refresh();
             return ctx;
         }
@@ -768,6 +699,8 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
             };
 
+            context.addBeanFactoryPostProcessor(new ForceLazyPostProcessor());
+
             context.setParent(parent);
             context.register(classes.toArray(Class<?>[]::new));
             context.deport(deportedClasses.toArray(new Class<?>[0]));
@@ -779,6 +712,20 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             return context;
         }
 
+    }
+
+    /**
+     * BeanFactoryPostProcessor to force all beans to be lazy initialized.
+     * Mainly to allow emc4j annotation to be used before any initialization of the beans.
+     */
+    private static class ForceLazyPostProcessor implements BeanFactoryPostProcessor {
+        @Override
+        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+            for (String name : beanFactory.getBeanDefinitionNames()) {
+                BeanDefinition bd = beanFactory.getBeanDefinition(name);
+                bd.setLazyInit(true);
+            }
+        }
     }
 
     class Helper {
