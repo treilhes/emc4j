@@ -105,5 +105,9 @@ public interface EmContext extends ConfigurableWebApplicationContext {
      */
     <T> T getLayerBean(Class<?> layerClass, Class<T> cls);
 
+    <T> void registerBean(Class<T> cls, BeanDefinitionCustomizer... customizers);
+
+    <T> void registerBean(String name, Class<T> cls, BeanDefinitionCustomizer... customizers);
+
 
 }

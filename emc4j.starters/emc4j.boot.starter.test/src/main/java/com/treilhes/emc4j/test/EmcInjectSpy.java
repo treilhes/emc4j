@@ -47,4 +47,11 @@ public @interface EmcInjectSpy {
      * be used if available, otherwise an unqualified bean will be used.
      */
     String qualifier() default "";
+    /**
+     * Whether to create the definition in the context. If set to true, the
+     * framework will attempt to create definition of the required type and inject
+     * it. The default is false, which means that if the instance is not found in
+     * the context, null will be injected.
+     */
+    boolean create() default false;
 }
