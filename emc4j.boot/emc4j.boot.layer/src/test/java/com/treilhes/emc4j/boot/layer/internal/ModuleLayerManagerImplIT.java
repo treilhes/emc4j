@@ -66,10 +66,10 @@ import com.treilhes.emc4j.boot.layer.validation.LayerValidator;
 class ModuleLayerManagerImplIT {
 
     /** The Constant ROOT_ID. */
-    private final static UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     /** The Constant EXT_ID. */
-    private final static UUID EXT_ID = UUID.randomUUID();
+    private static final UUID EXT_ID = UUID.randomUUID();
 
     /** The root dir. */
     @TempDir

@@ -99,9 +99,9 @@ public class MavenRepositorySystem {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenRepositorySystem.class);
 
-    private final static String ALL_VERSION_SEARCH = "[0,)";
+    private static final String ALL_VERSION_SEARCH = "[0,)";
 
-    private final static String SNAPSHOT_SUFFIX = "snapshot";
+    private static final String SNAPSHOT_SUFFIX = "snapshot";
 
     private RepositorySystem system;
 

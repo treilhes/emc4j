@@ -59,7 +59,7 @@ import picocli.CommandLine.Spec;
 @Command(subcommands = { RunFxmlCommand.class })
 public class StartCommand implements Runnable, MessageBox.Delegate<MessageBoxMessage> {
 
-    private final static Logger logger = LoggerFactory.getLogger(StartCommand.class);
+    private static final Logger logger = LoggerFactory.getLogger(StartCommand.class);
 
     private static MessageBox<MessageBoxMessage> messageBox;
 

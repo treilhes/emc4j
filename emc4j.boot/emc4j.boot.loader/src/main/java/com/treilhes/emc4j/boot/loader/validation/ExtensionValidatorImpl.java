@@ -13,7 +13,7 @@ import com.treilhes.emc4j.boot.api.loader.extension.OpenExtension;
 @Component
 public class ExtensionValidatorImpl implements ExtensionValidator {
 
-    private final static Logger logger = LoggerFactory.getLogger(ExtensionValidatorImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExtensionValidatorImpl.class);
 
     private final List<ExtensionCheck> checks;
 

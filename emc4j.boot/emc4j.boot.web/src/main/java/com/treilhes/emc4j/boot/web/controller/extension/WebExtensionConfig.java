@@ -154,7 +154,7 @@ import jakarta.servlet.ServletException;
 @PropertySource(value = "classpath:/application.properties", ignoreResourceNotFound = true)
 public class WebExtensionConfig {
 
-    private final static Logger logger = LoggerFactory.getLogger(WebExtensionConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(WebExtensionConfig.class);
 
     public WebExtensionConfig() {
         super();

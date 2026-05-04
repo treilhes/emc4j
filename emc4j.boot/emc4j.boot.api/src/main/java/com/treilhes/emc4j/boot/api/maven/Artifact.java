@@ -37,9 +37,9 @@ import java.util.Objects;
 
 public class Artifact implements Comparable<Artifact> {
 
-    private final static String COORDINATE_FORMAT = "%s:%s";
+    private static final String COORDINATE_FORMAT = "%s:%s";
 
-    private final static Comparator<Artifact> comparator = Comparator.comparing(Artifact::getGroupId)
+    private static final Comparator<Artifact> comparator = Comparator.comparing(Artifact::getGroupId)
             .thenComparing(Artifact::getArtifactId);
 
     private final String groupId;

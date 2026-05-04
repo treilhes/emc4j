@@ -43,7 +43,7 @@ import com.treilhes.emc4j.boot.api.platform.PlatformConfig;
 @Component
 public class EmcPlatformImpl implements EmcPlatform {
 
-	private final static int NUM_THREADS = Runtime.getRuntime().availableProcessors();
+	private static final int NUM_THREADS = Runtime.getRuntime().availableProcessors();
 
     private final PlatformConfig config;
 

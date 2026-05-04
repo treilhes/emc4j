@@ -76,7 +76,7 @@ import com.treilhes.emc4j.boot.layer.validation.LayerValidator;
 class LayerImplIT {
 
     /** The Constant ROOT_ID. */
-    private final static UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID ROOT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     /** The root dir. */
     @TempDir

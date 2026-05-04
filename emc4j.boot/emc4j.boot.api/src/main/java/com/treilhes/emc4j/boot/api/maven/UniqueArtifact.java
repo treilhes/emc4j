@@ -37,9 +37,9 @@ import java.util.Objects;
 
 public class UniqueArtifact implements Comparable<UniqueArtifact> {
 
-    private final static String COORDINATE_FORMAT = "%s:%s";
+    private static final String COORDINATE_FORMAT = "%s:%s";
 
-    private final static Comparator<UniqueArtifact> comparator = Comparator
+    private static final Comparator<UniqueArtifact> comparator = Comparator
             .comparing(UniqueArtifact::getArtifact)
             .thenComparing(UniqueArtifact::getVersion);
 
@@ -198,9 +198,9 @@ public class UniqueArtifact implements Comparable<UniqueArtifact> {
 
     private static class Version implements Comparable<Version> {
 
-        //private final static Logger logger = LoggerFactory.getLogger(Version.class);
+        //private static final Logger logger = LoggerFactory.getLogger(Version.class);
 
-        private final static Comparator<Version> comparator = Comparator.comparing(Version::getMajor)
+        private static final Comparator<Version> comparator = Comparator.comparing(Version::getMajor)
                 .thenComparing(Version::getMinor).thenComparing(Version::getPatch);
 
         private String major = "";

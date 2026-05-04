@@ -314,9 +314,9 @@ public class AvailableFeaturesTestIT {
                 Arguments.of(APP1_EXT1_EXT1_ID, List.of(ROOT_ID, APP1_ID, APP1_EXT1_ID)));
     }
 
-    private final static InternalRestClient.RequestConfig jsonHeader = r -> r.header("Content-Type",
+    private static final InternalRestClient.RequestConfig jsonHeader = r -> r.header("Content-Type",
             "application/json");
-    private final static InternalRestClient.RequestConfig jsonHeaderNew = r -> r.header("Content-Type",
+    private static final InternalRestClient.RequestConfig jsonHeaderNew = r -> r.header("Content-Type",
             "application/json");
 
     /**

@@ -60,9 +60,9 @@ import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 public class StateProviderImpl implements StateProvider {
 
     /** The Constant logger. */
-    private final static Logger logger = LoggerFactory.getLogger(StateProviderImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(StateProviderImpl.class);
 
-    private final static UUID ROOT_ID = com.treilhes.emc4j.boot.api.loader.extension.Extension.ROOT_ID;
+    private static final UUID ROOT_ID = com.treilhes.emc4j.boot.api.loader.extension.Extension.ROOT_ID;
 
     private final RegistryManager registryManager;
     private final RepositoryClient repositoryClient;

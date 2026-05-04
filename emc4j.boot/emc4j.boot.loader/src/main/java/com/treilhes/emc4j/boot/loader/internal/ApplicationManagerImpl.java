@@ -71,9 +71,9 @@ import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 public class ApplicationManagerImpl implements ApplicationManager {
 
     /** The Constant logger. */
-    private final static Logger logger = LoggerFactory.getLogger(ApplicationManagerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationManagerImpl.class);
 
-    private final static UUID ROOT_ID = com.treilhes.emc4j.boot.api.loader.extension.Extension.ROOT_ID;
+    private static final UUID ROOT_ID = com.treilhes.emc4j.boot.api.loader.extension.Extension.ROOT_ID;
 
     private final EmContext context;
 

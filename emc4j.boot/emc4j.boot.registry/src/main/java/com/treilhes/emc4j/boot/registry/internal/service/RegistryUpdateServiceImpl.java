@@ -70,7 +70,7 @@ import jakarta.validation.Valid;
 @Service
 public class RegistryUpdateServiceImpl implements RegistryUpdateService {
 
-    private final static Logger logger = LoggerFactory.getLogger(RegistryUpdateServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(RegistryUpdateServiceImpl.class);
 
     /** The maven client. */
     private final RepositoryClient mavenClient;

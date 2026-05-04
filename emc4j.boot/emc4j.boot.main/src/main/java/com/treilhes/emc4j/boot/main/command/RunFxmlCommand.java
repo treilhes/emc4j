@@ -45,9 +45,9 @@ import picocli.CommandLine.Option;
 @Command(name = "run")
 public class RunFxmlCommand implements Runnable {
 
-    private final static Logger logger = LoggerFactory.getLogger(RunFxmlCommand.class);
+    private static final Logger logger = LoggerFactory.getLogger(RunFxmlCommand.class);
 
-    final static String RUNNER_APPLICATION = "/runner.json";
+    static final String RUNNER_APPLICATION = "/runner.json";
 
     @Option(names = {"--dev", "-d"}, description = "Enable development mode, project extensions sources are resolved localy using classes folder")
     public boolean devMode;

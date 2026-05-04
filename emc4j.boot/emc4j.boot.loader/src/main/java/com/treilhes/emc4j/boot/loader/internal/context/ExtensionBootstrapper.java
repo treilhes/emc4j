@@ -361,7 +361,7 @@ public class ExtensionBootstrapper {
         // After removing the merged extensions from the list, only one extension should remain, which is the one we will use as the main extension for the layer
         var mergeTree = new ArrayList<>(extensions);
         for (Extension e : extensions) {
-            boolean isMerged = mergeTree.stream().anyMatch(ext -> ext.getMergedExtensions().contains(e.getId()));
+            boolean isMerged = extensions.stream().anyMatch(ext -> ext.getMergedExtensions().contains(e.getId()));
 
             if (isMerged) {
                 mergeTree.remove(e);
@@ -369,7 +369,11 @@ public class ExtensionBootstrapper {
         }
 
         if (mergeTree.size() != 1) {
-            var msg = "Multiple extensions found in layer %s but they are not part of the same merge tree";
+            var unmergedExtensions = mergeTree.stream()
+                    .filter(e -> !e.equals(extension))
+                    .map(e -> e.getId().toString()).collect(Collectors.joining(","));
+            var msg = "Multiple extensions found in layer %s but they are not part of the same merge tree, unmerged extensions : "
+                    + unmergedExtensions;
             throw new ExtensionNotFoundException(layer.getId(), msg);
         }
 

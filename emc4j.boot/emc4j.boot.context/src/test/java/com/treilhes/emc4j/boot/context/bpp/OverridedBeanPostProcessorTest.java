@@ -47,9 +47,9 @@ import com.treilhes.emc4j.boot.context.impl.EmContextImpl;
 
 class OverridedBeanPostProcessorTest {
 
-    private final static String ORIGINAL = "ORIGINAL";
-    private final static String OVERRIDE = "OVERRIDE";
-    private final static String PRM = "PRM";
+    private static final String ORIGINAL = "ORIGINAL";
+    private static final String OVERRIDE = "OVERRIDE";
+    private static final String PRM = "PRM";
 
     @Test
     void must_override_only_second_method() {

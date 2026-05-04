@@ -67,7 +67,7 @@ import jakarta.annotation.PostConstruct;
 @Lazy
 public class RegistryManagerImpl implements RegistryManager, RegistryArtifactManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(RegistryManagerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(RegistryManagerImpl.class);
 
     private final RegistryService registryGlobalService;
     private final RegistryDtoMappers infoMappers;

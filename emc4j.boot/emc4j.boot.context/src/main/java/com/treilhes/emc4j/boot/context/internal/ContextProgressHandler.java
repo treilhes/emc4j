@@ -18,7 +18,7 @@ import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
 public class ContextProgressHandler implements DestructionAwareBeanPostProcessor,
         ApplicationListener<ContextRefreshedEvent>, BeanFactoryPostProcessor {
 
-    private final static Logger logger = LoggerFactory.getLogger(ContextProgressHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContextProgressHandler.class);
 
     private final UUID taskId;
     private final MultipleProgressListener progressListener;

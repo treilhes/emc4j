@@ -43,35 +43,35 @@ public interface Constants {
         return Paths.get(String.format(IT_CLASSES_ROOT, name));
     }
 
-    final static String IT_JAR_ROOT = "./src/test/resources-its/common/%s/target/%s";
-    final static String IT_CLASSES_ROOT = "./src/test/resources-its/common/%s/target/classes";
-    final static String IT_VERSION = "1.0.0-SNAPSHOT";
-    final static String JAR_FORMAT = "%s-%s.jar";
+    static final String IT_JAR_ROOT = "./src/test/resources-its/common/%s/target/%s";
+    static final String IT_CLASSES_ROOT = "./src/test/resources-its/common/%s/target/classes";
+    static final String IT_VERSION = "1.0.0-SNAPSHOT";
+    static final String JAR_FORMAT = "%s-%s.jar";
 
-    final static Path IT_MODULE_JAR = createJarPath("module");
-    final static Path IT_MODULE_CLASSES = createTargetPath("module");
-    final static String IT_MODULE_NAME = "it.modul";
-    final static String IT_MODULE_CLASS = "it.modul.ModuleClass";
-    final static String IT_MODULE_RESOURCE = "module.txt";
+    static final Path IT_MODULE_JAR = createJarPath("module");
+    static final Path IT_MODULE_CLASSES = createTargetPath("module");
+    static final String IT_MODULE_NAME = "it.modul";
+    static final String IT_MODULE_CLASS = "it.modul.ModuleClass";
+    static final String IT_MODULE_RESOURCE = "module.txt";
 
-    final static Path IT_AUTOMATIC_MODULE_JAR = createJarPath("automatic-modul");
-    final static Path IT_AUTOMATIC_MODULE_CLASSES = createTargetPath("automatic-modul");
-    final static String IT_AUTOMATIC_MODULE_NAME = "automatic.modul";
-    final static String IT_AUTOMATIC_MODULE_CLASS = "it.automatic.modul.AutoModuleClass";
-    final static String IT_AUTOMATIC_MODULE_RESOURCE = "automatic-modul.txt";
+    static final Path IT_AUTOMATIC_MODULE_JAR = createJarPath("automatic-modul");
+    static final Path IT_AUTOMATIC_MODULE_CLASSES = createTargetPath("automatic-modul");
+    static final String IT_AUTOMATIC_MODULE_NAME = "automatic.modul";
+    static final String IT_AUTOMATIC_MODULE_CLASS = "it.automatic.modul.AutoModuleClass";
+    static final String IT_AUTOMATIC_MODULE_RESOURCE = "automatic-modul.txt";
 
-    final static Path IT_CLASSPATH_JAR = createJarPath("classpath");
-    final static Path IT_CLASSPATH_CLASSES = createTargetPath("classpath");
-    final static String IT_CLASSPATH_MODULE_NAME = "classpath";
-    final static String IT_CLASSPATH_CLASS = "classpath.ClasspathClass";
-    final static String IT_CLASSPATH_RESOURCE = "classpath.txt";
+    static final Path IT_CLASSPATH_JAR = createJarPath("classpath");
+    static final Path IT_CLASSPATH_CLASSES = createTargetPath("classpath");
+    static final String IT_CLASSPATH_MODULE_NAME = "classpath";
+    static final String IT_CLASSPATH_CLASS = "classpath.ClasspathClass";
+    static final String IT_CLASSPATH_RESOURCE = "classpath.txt";
 
-    final static Path IT_MODULE_WITH_DEPENDENCY_JAR = createJarPath("module-with-dependency");
-    final static Path IT_MODULE_WITH_DEPENDENCY_CLASSES = createTargetPath("module-with-dependency");
-    final static String IT_MODULE_WITH_DEPENDENCY_NAME = "it.modul.wiz.dependency";
-    final static String IT_MODULE_WITH_DEPENDENCY_CLASS = "it.modul.wiz.dependency.ModuleWithDependencyClass";
-    final static String IT_MODULE_WITH_DEPENDENCY_RESOURCE = "module-with-dependency.txt";
+    static final Path IT_MODULE_WITH_DEPENDENCY_JAR = createJarPath("module-with-dependency");
+    static final Path IT_MODULE_WITH_DEPENDENCY_CLASSES = createTargetPath("module-with-dependency");
+    static final String IT_MODULE_WITH_DEPENDENCY_NAME = "it.modul.wiz.dependency";
+    static final String IT_MODULE_WITH_DEPENDENCY_CLASS = "it.modul.wiz.dependency.ModuleWithDependencyClass";
+    static final String IT_MODULE_WITH_DEPENDENCY_RESOURCE = "module-with-dependency.txt";
 
-    final static Path IT_MODULE_WITH_SERVICE_JAR = createJarPath("module-with-service");
+    static final Path IT_MODULE_WITH_SERVICE_JAR = createJarPath("module-with-service");
 
 }

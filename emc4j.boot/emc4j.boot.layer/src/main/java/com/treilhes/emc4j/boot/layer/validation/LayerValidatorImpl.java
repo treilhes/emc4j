@@ -14,7 +14,7 @@ import com.treilhes.emc4j.boot.api.layer.Layer;
 @Component
 public class LayerValidatorImpl implements LayerValidator {
 
-    private final static Logger logger = LoggerFactory.getLogger(LayerValidatorImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(LayerValidatorImpl.class);
 
     /** The Constant INVALID_DIRECTORY. */
     private static final String INVALID_DIRECTORY = "invalid directory : %s";

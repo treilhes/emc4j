@@ -38,7 +38,7 @@ import com.treilhes.emc4j.boot.context.impl.EmContextImpl.EmcBeanFactoryImpl;
 
 public class ApplicationScope extends ObjectScope<Object, Application, ApplicationInstance> {
 
-    public final static String SCOPE_NAME = ApplicationSingleton.SCOPE_NAME;
+    public static final String SCOPE_NAME = ApplicationSingleton.SCOPE_NAME;
 
     public ApplicationScope(EmcBeanFactoryImpl beanFactoryImpl,
             ObjectScopeHolder<Object, Application, ApplicationInstance> scopeHolder) {

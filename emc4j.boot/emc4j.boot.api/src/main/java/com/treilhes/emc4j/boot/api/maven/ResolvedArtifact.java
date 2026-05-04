@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 public class ResolvedArtifact implements Comparable<ResolvedArtifact> {
 
-    private final static Comparator<ResolvedArtifact> comparator = Comparator
+    private static final Comparator<ResolvedArtifact> comparator = Comparator
             .comparing(ResolvedArtifact::getUniqueArtifact);
 
     private final UniqueArtifact uniqueArtifact;
