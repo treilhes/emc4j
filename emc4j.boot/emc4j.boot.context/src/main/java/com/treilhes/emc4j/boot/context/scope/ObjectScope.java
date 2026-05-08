@@ -155,9 +155,7 @@ public abstract class ObjectScope<P, O, D> implements Scope {
             Object bean = scopedObjects.getBean(name);
 
             if (bean == null) {
-                if (logger.isDebugEnabled()){
-                    logger.debug("Creating bean {} in scope {}", name, activeScope.getId());
-                }
+                logger.debug("Creating bean {} in scope {}", name, activeScope.getId());
 
                 bean = objectFactory.getObject();
                 scopedObjects.putBean(name, bean);
