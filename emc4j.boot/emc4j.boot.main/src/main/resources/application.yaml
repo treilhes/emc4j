@@ -44,4 +44,5 @@ spring:
     url: jdbc:h2:file:${emc4j.platform.rootPath}/emc4j-h2-db
     username: sa
     password: ""
-
+  mvc:
+    apiversion.use.header: "API-Version"

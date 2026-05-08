@@ -38,16 +38,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.treilhes.emc4j.boot.api.maven.Artifact;
 import com.treilhes.emc4j.boot.api.maven.Classifier;
 import com.treilhes.emc4j.boot.api.maven.MavenConfig;
+import com.treilhes.emc4j.boot.api.maven.MavenConfig.Redirect;
 import com.treilhes.emc4j.boot.api.maven.Repository;
 import com.treilhes.emc4j.boot.api.maven.RepositoryClient;
 import com.treilhes.emc4j.boot.api.maven.RepositoryType;
 import com.treilhes.emc4j.boot.api.maven.ResolvedArtifact;
 import com.treilhes.emc4j.boot.api.maven.UniqueArtifact;
-import com.treilhes.emc4j.boot.api.maven.MavenConfig.Redirect;
 import com.treilhes.emc4j.boot.maven.api.RepositoryMapper;
 
 
@@ -66,8 +67,34 @@ public class RedirectedRepositoryClientImpl implements RepositoryClient {
     }
 
     private Optional<Redirect> findMatch(Artifact artifact) {
-        return config.getRedirect().stream().filter(r -> Objects.equals(artifact.getGroupId(), r.groupId()))
-                .filter(r -> Objects.equals(artifact.getArtifactId(), r.artifactId())).findAny();
+        return config.getRedirect().stream()
+                .filter(r -> Objects.equals(artifact.getGroupId(), r.groupId()))
+                .filter(r -> {
+                    if (r.useRegex()) {
+                        return artifact.getArtifactId().matches(r.artifactId());
+                    } else {
+                        return Objects.equals(artifact.getArtifactId(), r.artifactId());
+                    }
+                })
+                .map(r -> {
+                    if (r.useRegex()) {
+                        var groupId = artifact.getGroupId();
+                        var artifactId = artifact.getArtifactId();
+                        var pattern = Pattern.compile(r.artifactId());
+
+                        var matcher = pattern.matcher(artifactId);
+                        if (matcher.matches()) {
+                            // Replace placeholders with captured groups
+                            var path = matcher.replaceAll(r.path());
+                            return new Redirect(groupId, artifactId, path, true);
+                        }
+                        return null;
+                    } else {
+                        return r;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findAny();
     }
 
     @Override

@@ -100,8 +100,6 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
     private final Optional<ApplicationStartup> startup;
 
-    private boolean started = false;
-
     private final LoaderProperties loaderProperties;
 
     /**
@@ -243,7 +241,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
         stopExtensionTree(Set.of(application));
         unloadApplication(editorId);
-        
+
         startedApplications.remove(editorId);
     }
 
@@ -255,7 +253,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
      * @return
      */
     public void loadApplication(LoadableContent application, LoadType loadType, ProgressListener progressListener) {
-        Objects.nonNull(application);
+        Objects.requireNonNull(application);
 
         var applicationId = application.getId();
 
@@ -283,8 +281,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
     private void loadExtensionTree(GroupTaskExecutor executor, Layer parentLayer,
             Set<? extends LoadableContent> extensionSet, MultipleProgressListener progressListener) {
 
-        var extensionLoadings = extensionSet.stream().map(ext -> {
-            Runnable runnable = () -> {
+        var extensionLoadings = extensionSet.stream().map(ext -> (Runnable)() -> {
                 if (ext.getLoadState() != LoadState.Deleted && ext.getLoadState() != LoadState.Disabled) {
                     logger.info("Loading extension layer {}", ext.getId());
                     Layer layer = null;
@@ -303,9 +300,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
                         loadExtensionTree(executor, layer, ext.getExtensions(), progressListener);
                     }
                 }
-            };
-            return runnable;
-        }).toList();
+            }).toList();
 
         try {
             var loadKey = parentLayer == null ? "ROOT" : parentLayer.getId().toString();
@@ -365,10 +360,8 @@ public class ApplicationManagerImpl implements ApplicationManager {
     private void launchExtensionTree(GroupTaskExecutor executor, EmContext parentContext,
             Set<? extends LoadableContent> extensionSet, MultipleProgressListener progressListener) {
 
-        var extensionStartings = extensionSet.stream().map(ext -> {
-            Runnable runnable = () -> {
+        var extensionStartings = extensionSet.stream().map(ext -> (Runnable)() -> {
                 try {
-                    // List<Object> singletonInstances = List.of(this);
                     List<Object> singletonInstances = List.of();
                     EmContext extContext = contexts.create(parentContext, ext, singletonInstances, progressListener);
                     launchExtensionTree(executor, extContext, ext.getExtensions(), progressListener);
@@ -376,9 +369,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
                     ext.setLoadState(LoadState.Error);
                     reportOf(ext.getId()).error("", e);
                 }
-            };
-            return runnable;
-        }).toList();
+            }).toList();
         try {
             executor.submitGroupTasks(parentContext == null ? "ROOT" : parentContext.getId(), extensionStartings);
         } catch (InterruptedException e) {
@@ -478,25 +469,16 @@ public class ApplicationManagerImpl implements ApplicationManager {
         builder.append(String.format("> layer : %s", layer)).append("\n");
 
         if (layer != null) {
-            layer.jars().forEach(j -> {
-                builder.append(String.format(">> jar : %s", j.getFileName())).append("\n");
-                ;
-            });
-            layer.modules().forEach(m -> {
-                builder.append(String.format(">> module : %s", m.get().getName())).append("\n");
-                ;
-            });
-            layer.automaticModules().forEach(m -> {
-                builder.append(String.format(">> auto : %s", m.get().getName())).append("\n");
-                ;
-            });
-            layer.unnamedModules().forEach(m -> {
-                builder.append(String.format(">> unnamed : %s", m.get().getName())).append("\n");
-                ;
-            });
+            layer.jars().forEach(j -> builder.append(String.format(">> jar : %s", j.getFileName())).append("\n"));
+            layer.modules()
+                    .forEach(m -> builder.append(String.format(">> module : %s", m.get().getName())).append("\n"));
+            layer.automaticModules()
+                    .forEach(m -> builder.append(String.format(">> auto : %s", m.get().getName())).append("\n"));
+            layer.unnamedModules()
+                    .forEach(m -> builder.append(String.format(">> unnamed : %s", m.get().getName())).append("\n"));
         } else {
             reportOf(ext.getId()).getThrowable()
-                    .ifPresent(e -> builder.append(String.format(">> error : %s", e.getMessage(), e)).append("\n"));
+                    .ifPresent(e -> builder.append(String.format(">> error : %s%n%s", e.getMessage(), e)).append("\n"));
         }
 
         var ctx = contexts.get(ext);
@@ -511,7 +493,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
         } else {
             reportOf(ext.getId()).getThrowable()
-                    .ifPresent(e -> builder.append(String.format(">> error : %s", e.getMessage(), e)).append("\n"));
+                    .ifPresent(e -> builder.append(String.format(">> error : %s%n %s", e.getMessage(), e)).append("\n"));
         }
 
         logger.info("State of {}: \n{}", ext, builder);

@@ -38,8 +38,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.treilhes.emc4j.boot.api.loader.LoadType;
@@ -58,11 +56,6 @@ import com.treilhes.emc4j.boot.loader.model.LoadableContent;
 
 @Component
 public class StateProviderImpl implements StateProvider {
-
-    /** The Constant logger. */
-    private static final Logger logger = LoggerFactory.getLogger(StateProviderImpl.class);
-
-    private static final UUID ROOT_ID = com.treilhes.emc4j.boot.api.loader.extension.Extension.ROOT_ID;
 
     private final RegistryManager registryManager;
     private final RepositoryClient repositoryClient;
@@ -96,7 +89,12 @@ public class StateProviderImpl implements StateProvider {
             // first time running the application, change loadType to install the application
             loadType = LoadType.FullUpdate;
         }
-        return mergeStates(savedState, registryState, loadType);
+        try {
+            return mergeStates(savedState, registryState, loadType);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Unable to find a valid definition in the database (registry or saved state) for application " + applicationId + " with load type " + loadType, e);
+        }
     }
 
     private LoadableContent mergeStates(Optional<Extension> savedState, Optional<LayerDefinition> registryState, LoadType loadType) {
@@ -130,10 +128,8 @@ public class StateProviderImpl implements StateProvider {
             savedState.ifPresent(e -> flattenExtension(Set.of(e)));
             registryState.ifPresent(e -> flattenLayerDefinition(Set.of(e)));
 
-            LoadableContent loadableContent = mergeItem(null, savedState.orElse(null), registryState.orElse(null), loadType);
+            return mergeItem(null, savedState.orElse(null), registryState.orElse(null), loadType);
 
-
-            return loadableContent;
         }
 
         private LoadableContent mergeItem(LoadableContent parent, Extension savedState, LayerDefinition registryState,
@@ -162,8 +158,7 @@ public class StateProviderImpl implements StateProvider {
                 }
                 break;
             }
-            case LocalUpdateOnly:
-            case UpdateOnly: {
+            case LocalUpdateOnly, UpdateOnly: {
                 if (savedState != null) {
                     loadableContent = new LoadableContent();
                     loadableContent.setExtension(savedState);
@@ -186,8 +181,7 @@ public class StateProviderImpl implements StateProvider {
                 }
                 break;
             }
-            case LocalFullUpdate:
-            case FullUpdate: {
+            case LocalFullUpdate, FullUpdate: {
                 if (registryState != null) {
                     Extension extension = new Extension();
                     extension.setId(registryState.getId());
@@ -228,11 +222,9 @@ public class StateProviderImpl implements StateProvider {
                     if (!updated) {
                         contentProvider = new CreateOnlyContentProvider(mavenProvider);
                     }
-                case LocalUpdateOnly:
-                case LocalFullUpdate:
+                case LocalUpdateOnly, LocalFullUpdate:
                     mavenProvider.setRepositoryClient(repositoryClient.localOnly());
-                case UpdateOnly:
-                case FullUpdate:
+                case UpdateOnly,FullUpdate:
                     mavenProvider.setRepositoryClient(repositoryClient);
                     break;
                 default:

@@ -39,12 +39,15 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties(prefix = MavenConfig.PREFIX)
-//@Profile("!it")
 public class MavenConfig {
 
     public static final String PREFIX = "emc4j.maven";
 
-    public static record Redirect(String groupId, String artifactId, File path) {
+    /**
+     * artifactId can be used as regex if useRegex is true. If useRegex is false, they are treated as literal strings.
+     * when useRegex is true, any capturing groups in the regex will be available for substitution in the path using $1, $2, etc.
+     */
+    public static record Redirect(String groupId, String artifactId, String path, boolean useRegex) {
     }
 
     public static record Repository(String url, String user, String password, boolean requestCredentials) {

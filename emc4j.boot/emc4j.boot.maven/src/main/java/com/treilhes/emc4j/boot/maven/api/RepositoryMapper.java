@@ -66,8 +66,8 @@ public interface RepositoryMapper {
     ResolvedArtifact map(Redirect redirect);
 
     @Named("fileToPath")
-    public static Path fileToPath(File file) {
-        return file.toPath();
+    public static Path fileToPath(String file) {
+        return new File(file).toPath();
     }
 
     com.treilhes.emc4j.boot.api.maven.Repository mapConfigRepository(MavenConfig.Repository repository);

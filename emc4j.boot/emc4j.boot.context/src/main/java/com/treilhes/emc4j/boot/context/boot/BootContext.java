@@ -78,7 +78,7 @@ public class BootContext {
         }
 
         SpringApplication application = new SpringApplication(BootConfig.class);
-        //application.setApplicationStartup(startup);
+        application.setApplicationStartup(startup);
         application.setApplicationContextFactory(new BootContextFactory());
         application.setInitializers(initializerList);
         application.setWebApplicationType(type == null ? WebApplicationType.NONE : type);

@@ -51,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -337,19 +336,6 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
 
             // addBeanPostProcessor(new FxmlControllerBeanPostProcessor());
             setAutowireCandidateResolver(new EmContextAnnotationAutowireCandidateResolver());
-        }
-
-        @Override
-        protected <T> T doGetBean(String name, @Nullable Class<T> requiredType, @Nullable Object[] args,
-                boolean typeCheckOnly) throws BeansException {
-
-            try {
-                return super.doGetBean(name, requiredType, args, typeCheckOnly);
-            } catch (BeansException e) {
-                LOGGER.error("Error getting bean: {} with type: {} from module {} in extension {}", name, requiredType,
-                        requiredType != null ? requiredType.getModule() : null, id);
-                throw e;
-            }
         }
 
         public void cleanScopedBeans() {
