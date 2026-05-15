@@ -54,6 +54,7 @@
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <argLine>
+                        ${argLine}
                         --patch-module
                         maven.model=${org.apache.maven:maven-model-builder:jar}
                     </argLine>

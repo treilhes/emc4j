@@ -47,6 +47,7 @@
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <argLine>
+                        ${argLine}
                         --add-reads
                         org.hibernate.validator=org.apache.tomcat.embed.el
                         --add-exports

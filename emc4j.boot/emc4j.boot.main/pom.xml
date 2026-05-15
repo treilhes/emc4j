@@ -115,6 +115,7 @@
                 <configuration>
                     <useModulePath>false</useModulePath>
                     <argLine>
+                        ${argLine}
                         --patch-module
                         spring.core=${com.treilhes.emc4j:spring.core.patch:jar}
                         --patch-module
