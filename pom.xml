@@ -443,6 +443,7 @@
                             <java.awt.headless>true</java.awt.headless>
                         </systemPropertyVariables>
                         <useModulePath>false</useModulePath>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -453,6 +454,7 @@
                         <systemPropertyVariables>
                             <java.awt.headless>true</java.awt.headless>
                         </systemPropertyVariables>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                 </plugin>
                 <plugin>
