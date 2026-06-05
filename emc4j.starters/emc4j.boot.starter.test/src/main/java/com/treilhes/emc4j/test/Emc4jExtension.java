@@ -130,17 +130,13 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             switch (def.injectType) {
                 case EMC_INJECT -> registerEmInjectBean(def, contextMap);
                 case EMC_INJECT_MOCK -> registerEmInjectMockBean(def, contextMap);
-                case EMC_INJECT_SPY -> registerEmInjectBean(def, contextMap);
+                case EMC_INJECT_SPY -> registerEmInjectSpyBean(def, contextMap);
             }
         });
 
         emcInjectFields.forEach((field, def) -> {
             field.setAccessible(true);
             Object dependency = getBean(def, contextMap);
-
-            if (def.injectType == InjectType.EMC_INJECT_SPY && dependency != null) {
-                dependency = Mockito.spy(dependency);
-            }
 
             try {
                 field.set(testInstance, dependency);
@@ -210,16 +206,9 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             switch (def.injectType) {
                 case EMC_INJECT -> registerEmInjectBean(def, contextMap);
                 case EMC_INJECT_MOCK -> registerEmInjectMockBean(def, contextMap);
-                case EMC_INJECT_SPY -> registerEmInjectBean(def, contextMap);
+                case EMC_INJECT_SPY -> registerEmInjectSpyBean(def, contextMap);
             }
-
-            Object bean = getBean(def, contextMap);
-
-            if (def.injectType == InjectType.EMC_INJECT_SPY && bean != null) {
-                bean = Mockito.spy(bean);
-            }
-
-            return bean;
+            return getBean(def, contextMap);
         }
 
         return null;
@@ -282,6 +271,58 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
         }
     }
 
+    private <T> void registerEmInjectSpyBean(InjectDefinition def, Map<UUID, EmContext> contextMap) {
+        var type = def.getType();
+        var uuid = def.getContextId();
+        var name = def.getQualifier();
+        var create = def.isCreate();
+        var context = contextMap.get(uuid);
+
+        if (EmContext.class.isAssignableFrom(type)) {
+            return;
+        }
+
+        if (context == null) {
+            return;
+        }
+
+        var customizers = new ArrayList<BeanDefinitionCustomizer>();
+        if (def.getScope() != null) {
+            customizers.add(bd -> bd.setScope(def.getScope().value()));
+        }
+        //if (def.getPrimary() != null) {
+            customizers.add(bd -> bd.setPrimary(true));
+        //}
+
+        if (create) {
+            if (name != null) {
+                if (context.containsBean(name)) {
+                    context.removeBeanDefinition(name);
+                }
+                context.registerBean(name, type, customizers.toArray(BeanDefinitionCustomizer[]::new));
+            } else {
+                context.registerBean(type, customizers.toArray(BeanDefinitionCustomizer[]::new));
+            }
+        }
+
+        Object beanInstance = getBean(def, contextMap);
+        if (Mockito.mockingDetails(beanInstance).isSpy()) {
+            Mockito.reset(beanInstance);
+            return;
+        }
+
+
+        Class<T> beanType = (Class<T>)beanInstance.getClass();
+        Object spyInstance = Mockito.spy(beanInstance);
+
+        if (name != null) {
+            context.removeBeanDefinition(name);
+            context.registerBean(name, beanType, () -> beanType.cast(spyInstance), customizers.toArray(BeanDefinitionCustomizer[]::new));
+        } else {
+            context.registerBean(beanType, () -> beanType.cast(spyInstance), customizers.toArray(BeanDefinitionCustomizer[]::new));
+        }
+    }
+
     private <T> void registerEmInjectMockBean(InjectDefinition def, Map<UUID, EmContext> contextMap) {
         Class<T> type = (Class<T>) def.getType();
         var uuid = def.getContextId();
@@ -299,6 +340,16 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
         }
         if (def.getPrimary() != null) {
             customizers.add(bd -> bd.setPrimary(true));
+        }
+
+        try {
+            Object existingBean = getBean(def, contextMap);
+            if (existingBean != null) {
+                Mockito.reset(existingBean);
+                return;
+            }
+        } catch (BeansException e) {
+            // Bean does not exist, proceed to create a mock
         }
 
         if (name != null) {
@@ -450,7 +501,6 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
 
         @Override
         public ApplicationContext loadContext(MergedContextConfiguration mergedConfig) throws Exception {
-            EmContextImpl.applicationScope.clear();
 
             var classes = new ArrayList<Class<?>>();
 
@@ -574,6 +624,7 @@ public class Emc4jExtension implements BeforeAllCallback, BeforeEachCallback, Af
             var extDefinition = new ExtensionDefinition(mockExtension, Set.of());
 
             var configuration = new ContextConfiguration();
+            configuration.setExtension(mockExtension);
             configuration.setId(id);
             configuration.setParentContext(parentContext);
             configuration.setSealed(sealed);

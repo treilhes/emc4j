@@ -32,18 +32,24 @@
 package com.treilhes.emc4j.boot.context.impl;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.stereotype.Component;
@@ -53,22 +59,25 @@ import com.treilhes.emc4j.boot.api.context.ContextCustomizer;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.EmcReadyEvent;
-import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
 import com.treilhes.emc4j.boot.api.context.annotation.ApplicationConfiguration;
 import com.treilhes.emc4j.boot.api.context.annotation.ApplicationInstancePrototype;
 import com.treilhes.emc4j.boot.api.context.annotation.ApplicationInstanceSingleton;
 import com.treilhes.emc4j.boot.api.context.annotation.ApplicationPrototype;
 import com.treilhes.emc4j.boot.api.context.annotation.ApplicationSingleton;
 import com.treilhes.emc4j.boot.api.context.annotation.DeportedSingleton;
-import com.treilhes.emc4j.boot.api.layer.Layer;
+import com.treilhes.emc4j.boot.api.context.beans.ExtensionDefinition;
+import com.treilhes.emc4j.boot.api.loader.ExtensionContextConfigClasses;
 import com.treilhes.emc4j.boot.api.loader.extension.Extension;
+import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
+import com.treilhes.emc4j.boot.context.internal.ContextHolder;
 
 @Component
 public class ContextManagerImpl implements ContextManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ContextManagerImpl.class);
+    private static final ContextHolder NULL_CONTEXT = new ContextHolder(null, null);
 
-    private final Map<UUID, EmContext> uuidToContexts;
+    private final Map<UUID, ContextHolder> uuidToContexts;
     private final Map<ModuleLayer, EmContext> layerToContexts;
 
     private final EmContext bootContext;
@@ -91,7 +100,7 @@ public class ContextManagerImpl implements ContextManager {
             var emContext = bootContext;
             var uuid = emContext.getUuid();
             var moduleLayer = this.getClass().getModule().getLayer();
-            uuidToContexts.put(uuid, emContext);
+            uuidToContexts.put(uuid, new ContextHolder(null, emContext));
             layerToContexts.put(moduleLayer, emContext);
         } else {
             logger.warn("Boot context is null, cannot register it in ContextManager");
@@ -99,8 +108,13 @@ public class ContextManagerImpl implements ContextManager {
     }
 
     @Override
+    public EmContext getBootContext() {
+        return bootContext;
+    }
+
+    @Override
     public EmContext get(UUID contextId) {
-        return uuidToContexts.get(contextId);
+        return uuidToContexts.getOrDefault(contextId, NULL_CONTEXT).getContext();
     }
 
     @Override
@@ -116,14 +130,14 @@ public class ContextManagerImpl implements ContextManager {
     @Override
     public EmContext create(ContextConfiguration configuration) {
 
-        EmContext parentContext = configuration.getParentContext();
-        UUID parentContextId = parentContext != null ? parentContext.getUuid() : null;
+        final var extension = configuration.getExtension();
+        final var parentContext = configuration.getParentContext();
+        final var parentContextId = parentContext != null ? parentContext.getUuid() : null;
+        final var layer = configuration.getLayer();
+        final var singletonInstances = configuration.getSingletonInstances();
+        final var progressListener = configuration.getProgressListener();
 
-        Layer layer = configuration.getLayer();
-        List<Object> singletonInstances = configuration.getSingletonInstances();
-        MultipleProgressListener progressListener = configuration.getProgressListener();
-
-        final UUID uuid = configuration.getId();
+        final var uuid = configuration.getId();
         final ClassLoader loader;
         final ModuleLayer moduleLayer;
 
@@ -153,7 +167,9 @@ public class ContextManagerImpl implements ContextManager {
             step.tag("modules", layer.allModules().toString());
         }
 
-        EmContext parent = uuidToContexts.get(parentContextId);
+        var parentHolder = uuidToContexts.get(parentContextId);
+        var parent = parentHolder != null ? parentHolder.getContext() : null;
+
         if (parentContext != parent) {
             throw new IllegalStateException("Mismatched parent context !");
         }
@@ -164,7 +180,11 @@ public class ContextManagerImpl implements ContextManager {
                 singletonInstances, WebApplicationType.NONE);
 
         context.setApplicationStartup(startup);
-        uuidToContexts.put(uuid, context);
+
+        var holder = new ContextHolder(extension, context);
+        holder.inherit(parentHolder);
+
+        uuidToContexts.put(uuid, holder);
 
         if (moduleLayer != null) {
             layerToContexts.put(moduleLayer, context);
@@ -194,6 +214,8 @@ public class ContextManagerImpl implements ContextManager {
 
         }
 
+        extension.initializeContext(context, holder.getShutdownHooks());
+
         context.refresh();
         context.start();
 
@@ -214,15 +236,95 @@ public class ContextManagerImpl implements ContextManager {
     }
 
     @Override
+    public EmContext createInstance(UUID contextId) {
+
+        final var uuid = UUID.randomUUID();
+        final var parentContext = get(contextId);
+        final var loader = parentContext.getClassLoader();
+
+        var deportedClasses = parentContext.getDeportedClasses();
+        var processorClasses = parentContext.getRegisteredClasses().stream()
+            .filter(c -> BeanPostProcessor.class.isAssignableFrom(c) || BeanFactoryPostProcessor.class.isAssignableFrom(c))
+            .toList();
+
+        // framework classes offer default features
+        var frameworkClasses = BeanFactoryUtils.beansOfTypeIncludingAncestors(parentContext, ExtensionContextConfigClasses.class)
+            .values().stream()
+            .map(ExtensionContextConfigClasses::classes)
+            .flatMap(List::stream)
+            .toList();
+
+        // there isn't any extension to initialize the context, so we need to create one
+        var extension = new SealedExtension() {
+
+            @Override
+            public List<Class<?>> localContextClasses() {
+                return List.of();
+            }
+
+            @Override
+            public UUID getParentId() {
+                return parentContext.getUuid();
+            }
+
+            @Override
+            public UUID getId() {
+                return uuid;
+            }
+        };
+
+        var definition = new ExtensionDefinition(extension, Set.of());
+
+        List<Class<?>> contextClasses = new ArrayList<Class<?>>();
+        contextClasses.addAll(processorClasses);
+        contextClasses.addAll(deportedClasses);
+        contextClasses.addAll(frameworkClasses);
+        contextClasses = contextClasses.stream().distinct().toList();
+
+        EmContext context = contextFactory.create(parentContext, uuid, loader, contextClasses, List.of(),
+                List.of(), WebApplicationType.NONE);
+
+        context.registerBean(SealedExtension.class, () -> extension);
+        context.registerBean(ExtensionDefinition.class, () -> definition);
+
+        context.refresh();
+        context.start();
+
+        var parentHolder = uuidToContexts.get(parentContext.getUuid());
+        var holder = new ContextHolder(extension, context);
+        holder.inherit(parentHolder);
+
+        if (context.isRunning()) {
+            context.publishEvent(new EmcReadyEvent(context));
+            uuidToContexts.put(uuid, holder);
+        }
+
+        logger.info("Instance context {} has started successfully (active: {}, running: {}, beans: {})", context.getId(),
+                context.isActive(), context.isRunning(), context.getBeanDefinitionCount());
+
+        if (logger.isDebugEnabled()) {
+            Arrays.stream(context.getBeanDefinitionNames()).sorted().forEach(c -> logger.debug("Bean {}", c));
+        }
+
+        return context;
+    }
+
+    @Override
     public void clear() {
-        uuidToContexts.values().forEach(EmContext::close);
+        uuidToContexts.keySet().forEach(this::close);
         uuidToContexts.clear();
         layerToContexts.clear();
     }
 
     @Override
-    public void close(UUID id) {
-        EmContext ctx = uuidToContexts.remove(id);
+    public synchronized void close(UUID id) {
+        ContextHolder holder = uuidToContexts.remove(id);
+
+        if (holder == null) {
+            return;
+        }
+
+        EmContext ctx = holder.getContext();
 
         var layer = layerToContexts.entrySet().stream().filter(c -> c.getValue().getUuid().equals(id)).findFirst();
         if (layer.isPresent()) {
@@ -230,11 +332,17 @@ public class ContextManagerImpl implements ContextManager {
         }
 
         if (ctx != null) {
+            holder.executeInheritedHooks();
+            holder.executeHooks();
+            if (holder.getExtension() != null) {
+                holder.getExtension().finalizeContext(ctx);
+            }
             ctx.close();
         }
+
     }
 
-    public static class ClassTriage {
+    static class ClassTriage {
 
         public final Set<Class<?>> contextClasses = new HashSet<>();
         public final Set<Class<?>> deportedClasses = new HashSet<>();
@@ -269,7 +377,15 @@ public class ContextManagerImpl implements ContextManager {
      * <p>
      * The result is a {@code ClassTriage} object containing the partitioned sets of context and deported classes.
      */
-    public static class ClassTriageExecutor {
+    static class ClassTriageExecutor {
+
+        private static class NoAnnotation implements Annotation {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return NoAnnotation.class;
+            }
+        }
+        private static final NoAnnotation NO_ANNOTATION = new NoAnnotation();
 
         //@formatter:off
         private static final Set<Class<? extends Annotation>> deportableAnnotations = Set.of(
@@ -281,7 +397,14 @@ public class ContextManagerImpl implements ContextManager {
                 DeportedSingleton.class);
         //@formatter:on
 
-        public ClassTriage execute(ContextConfiguration configuration) {
+
+        //@formatter:off
+        private static final Set<Class<? extends Annotation>> deportableInstanceAnnotations = Set.of(
+                ApplicationInstanceSingleton.class,
+                ApplicationInstancePrototype.class);
+        //@formatter:on
+
+        public ClassTriage executeOld(ContextConfiguration configuration) {
             var triage = new ClassTriage();
             var parentContext = configuration.getParentContext();
             var parentContextId = parentContext != null ? parentContext.getUuid() : null;
@@ -311,9 +434,23 @@ public class ContextManagerImpl implements ContextManager {
                 //do nothing, let sealed children know about deported classes
             } else if (isSealed ) {
                 // if the extension is sealed it musn't deport classes but load them locally
-                effectiveLocalClasses.addAll(parentDeportedClasses);
-                effectiveLocalClasses.addAll(childrenDeportedClasses);
-                childrenDeportedClasses = null; // deported classes are handled, so clear them
+                // except for deportableInstanceAnnotations classes that are only for the instance context and should be deported even in sealed extensions
+                var parentInstanceMapClasses = parentDeportedClasses.stream()
+                        .collect(Collectors.partitioningBy(this::isDeportableInstanceClass));
+                var parentLocalDeportedClasses = parentInstanceMapClasses.getOrDefault(Boolean.FALSE, List.of());
+                var parentInstanceDeportedClasses = parentInstanceMapClasses.getOrDefault(Boolean.TRUE, List.of());
+
+                var childrenInstanceMapClasses = childrenDeportedClasses.stream()
+                        .collect(Collectors.partitioningBy(this::isDeportableInstanceClass));
+                var childrenLocalDeportedClasses = childrenInstanceMapClasses.getOrDefault(Boolean.FALSE, List.of());
+                var childrenInstanceDeportedClasses = childrenInstanceMapClasses.getOrDefault(Boolean.TRUE, List.of());
+
+                effectiveLocalClasses.addAll(parentLocalDeportedClasses);
+                effectiveLocalClasses.addAll(childrenLocalDeportedClasses);
+
+                childrenDeportedClasses = new ArrayList<>(); // deported classes are handled, so clear them
+                childrenDeportedClasses.addAll(parentInstanceDeportedClasses);
+                childrenDeportedClasses.addAll(childrenInstanceDeportedClasses);
             }
 
             if (!Extension.BOOT_ID.equals(parentContextId)) {
@@ -325,6 +462,90 @@ public class ContextManagerImpl implements ContextManager {
 
             if (childrenDeportedClasses != null) {
                 effectiveDeportedClasses.addAll(childrenDeportedClasses);
+            }
+
+            triage.setContextClasses(effectiveLocalClasses);
+            triage.setDeportedClasses(effectiveDeportedClasses);
+
+            return triage;
+        }
+
+        public ClassTriage execute(ContextConfiguration configuration) {
+            var triage = new ClassTriage();
+            var parentContext = configuration.getParentContext();
+            var parentContextId = parentContext != null ? parentContext.getUuid() : null;
+            var isSealed = configuration.isSealed();
+
+            var parentClasses = parentContext != null ? parentContext.getDeportedClasses() : Set.<Class<?>>of();
+            var childrenClasses = configuration.getChildrenClasses();
+            var localClasses = configuration.getClasses();
+
+            var annotationMap = Stream.of(parentClasses, childrenClasses, localClasses).flatMap(Set::stream).collect(
+                    Collectors.groupingBy(c -> this.findDeportableAnnotation(c).orElse(NO_ANNOTATION)));
+
+            var effectiveLocalClasses = new HashSet<Class<?>>();
+            var effectiveDeportedClasses = new HashSet<Class<?>>();
+
+            if (parentContext == null) { // boot context
+                // let children know about deported classes
+                for (var entry : annotationMap.entrySet()) {
+                    var annotation = entry.getKey();
+                    var classes = entry.getValue();
+                    switch (annotation) {
+                        case NoAnnotation _ -> effectiveLocalClasses.addAll(classes);
+                        case ApplicationConfiguration _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationSingleton _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationPrototype _ -> effectiveDeportedClasses.addAll(classes);
+                        case DeportedSingleton _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationInstanceSingleton _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationInstancePrototype _ -> effectiveDeportedClasses.addAll(classes);
+                        default -> {
+                            // no default possible
+                        }
+                    }
+                }
+            } else if (isSealed ) { // application context
+                // if the extension is sealed it musn't deport classes but load them locally
+                // except for instance classes that are only for the instance context and should be deported even in sealed extensions
+                for (var entry : annotationMap.entrySet()) {
+                    var annotation = entry.getKey();
+                    var classes = entry.getValue();
+                    switch (annotation) {
+                        case NoAnnotation _ -> effectiveLocalClasses.addAll(classes);
+                        case ApplicationConfiguration _ -> effectiveLocalClasses.addAll(classes);
+                        case ApplicationSingleton _ -> effectiveLocalClasses.addAll(classes);
+                        case ApplicationPrototype _ -> effectiveLocalClasses.addAll(classes);
+                        case DeportedSingleton _ -> {
+                            effectiveLocalClasses.addAll(classes);
+                            effectiveDeportedClasses.addAll(classes);
+                        }
+                        case ApplicationInstanceSingleton _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationInstancePrototype _ -> effectiveDeportedClasses.addAll(classes);
+                        default -> {
+                            // no default possible
+                        }
+                    }
+                }
+            } else { // extension context
+                for (var entry : annotationMap.entrySet()) {
+                    var annotation = entry.getKey();
+                    var classes = entry.getValue();
+                    switch (annotation) {
+                        case NoAnnotation _ -> effectiveLocalClasses.addAll(classes);
+                        case ApplicationConfiguration _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationSingleton _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationPrototype _ -> effectiveDeportedClasses.addAll(classes);
+                        case DeportedSingleton _ -> {
+                            effectiveLocalClasses.addAll(classes);
+                            effectiveDeportedClasses.addAll(classes);
+                        }
+                        case ApplicationInstanceSingleton _ -> effectiveDeportedClasses.addAll(classes);
+                        case ApplicationInstancePrototype _ -> effectiveDeportedClasses.addAll(classes);
+                        default -> {
+                            // no default possible
+                        }
+                    }
+                }
             }
 
             triage.setContextClasses(effectiveLocalClasses);
@@ -348,6 +569,16 @@ public class ContextManagerImpl implements ContextManager {
             return deportableAnnotations.stream().anyMatch(a -> cls.getDeclaredAnnotationsByType(a).length > 0);
         }
 
+        private boolean isDeportableInstanceClass(Class<?> cls) {
+            return deportableInstanceAnnotations.stream().anyMatch(a -> cls.getDeclaredAnnotationsByType(a).length > 0);
+        }
 
+        private Optional<Annotation> findDeportableAnnotation(Class<?> cls) {
+            return deportableAnnotations.stream()
+                    .map(cls::getDeclaredAnnotationsByType)
+                    .filter(l -> l.length > 0)
+                    .map(l -> (Annotation)l[0])
+                    .findFirst();
+        }
     }
 }

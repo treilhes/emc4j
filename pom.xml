@@ -48,12 +48,12 @@
     </scm>
 
     <modules>
+        <module>emc4j.jpms.patches</module>
         <module>emc4j.boot</module>
         <module>emc4j.registry</module>
         <module>emc4j.utils</module>
         <module>emc4j.delivery</module>
         <module>emc4j.starters</module>
-        <module>emc4j.jpms.patches</module>
         <module>emc4j.it</module>
     </modules>
 
@@ -85,7 +85,7 @@
 
         <flatten-maven-plugin.version>1.7.4-SNAPSHOT</flatten-maven-plugin.version>
         
-        <spring.boot.version>4.0.0</spring.boot.version>
+        <spring.boot.version>4.0.6</spring.boot.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
         <!-- internal -->
@@ -136,6 +136,16 @@
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>spring.core.patch.link</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>spring.aop.patch</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>spring.aop.patch.link</artifactId>
                 <version>${emc4j.version}</version>
             </dependency>
             <dependency>
@@ -506,6 +516,21 @@
                                         <versionRange>[0.0.0,)</versionRange>
                                         <goals>
                                             <goal>properties</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute>
+                                            <runOnConfiguration>true</runOnConfiguration>
+                                        </execute>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.treilhes.emc4j</groupId>
+                                        <artifactId>emc4j-helper-plugin</artifactId>
+                                        <versionRange>[0.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>argline</goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>

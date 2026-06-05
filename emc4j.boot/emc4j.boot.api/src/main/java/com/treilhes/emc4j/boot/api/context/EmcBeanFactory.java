@@ -31,6 +31,7 @@
  */
 package com.treilhes.emc4j.boot.api.context;
 
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -38,5 +39,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 public interface EmcBeanFactory extends ConfigurableListableBeanFactory, BeanDefinitionRegistry {
+    UUID getUuid();
     boolean hasAnyBeanMatching(Predicate<BeanDefinition> predicate);
 }

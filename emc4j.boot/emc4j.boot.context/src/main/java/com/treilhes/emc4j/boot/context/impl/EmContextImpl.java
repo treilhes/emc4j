@@ -71,29 +71,16 @@ import org.springframework.expression.EvaluationException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.treilhes.emc4j.boot.api.context.Application;
-import com.treilhes.emc4j.boot.api.context.ApplicationInstance;
 import com.treilhes.emc4j.boot.api.context.ContextManager;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.context.EmcBeanNameGenerator;
 import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
-import com.treilhes.emc4j.boot.api.context.ScopedExecutor;
 import com.treilhes.emc4j.boot.api.context.annotation.LayerContext;
 import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
 import com.treilhes.emc4j.boot.context.internal.ContextProgressHandler;
-import com.treilhes.emc4j.boot.context.scope.ApplicationInstanceScope;
-import com.treilhes.emc4j.boot.context.scope.ApplicationInstanceScopeHolder;
-import com.treilhes.emc4j.boot.context.scope.ApplicationScope;
-import com.treilhes.emc4j.boot.context.scope.ApplicationScopeHolder;
 
 public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationContext implements EmContext {
-
-    /** The scope holder */
-    public static final ApplicationScopeHolder applicationScope = new ApplicationScopeHolder();
-
-    /** The scope holder */
-    public static final ApplicationInstanceScopeHolder applicationInstanceScope = new ApplicationInstanceScopeHolder(applicationScope);
 
     private final EmcBeanFactoryImpl beanFactory;
     private final UUID id;
@@ -255,28 +242,6 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
     }
 
     @Override
-    public boolean isApplicationScope(Class<?> cls) {
-        String[] names = getBeanNamesForType(cls);
-
-        if (names.length == 0) {
-            return false;
-        }
-        BeanDefinition definition = getBeanDefinition(names[0]);
-        return ApplicationInstanceScope.SCOPE_NAME.equals(definition.getScope());
-    }
-
-    @Override
-    public boolean isApplicationInstanceScope(Class<?> cls) {
-        String[] names = getBeanNamesForType(cls);
-
-        if (names.length == 0) {
-            return false;
-        }
-        BeanDefinition definition = getBeanDefinition(names[0]);
-        return ApplicationInstanceScope.SCOPE_NAME.equals(definition.getScope());
-    }
-
-    @Override
     public List<Class<?>> getBeanClassesForAnnotation(Class<? extends Annotation> annotationType) {
         return Arrays.stream(getBeanNamesForAnnotation(annotationType)).map(this::getType).collect(Collectors.toList());
     }
@@ -308,45 +273,30 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
     }
 
     @Override
-    public void destroyScopedBean(String beanName) {
-        beanFactory.destroyScopedBean(beanName);
-    }
+    public void destroySingleton(Object existingBean) {
+        String[] names = getBeanNamesForType(existingBean.getClass());
 
-    @Override
-    public void close() {
-        beanFactory.cleanScopedBeans();
-        super.close();
+        for (String name : names) {
+            Object bean = getBean(name);
+
+            if (bean == existingBean) { // identity check
+                beanFactory.destroySingleton(name);
+            }
+        }
     }
 
     public static class EmcBeanFactoryImpl extends DefaultListableBeanFactory implements EmcBeanFactory {
 
         private static final Logger LOGGER = LoggerFactory.getLogger(EmcBeanFactoryImpl.class);
 
-        private final ApplicationScope applicationScope;
-        private final ApplicationInstanceScope applicationInstanceScope;
         private final UUID id;
+
         public EmcBeanFactoryImpl(UUID contextId) {
             super();
             this.id = contextId;
-            this.applicationScope = new ApplicationScope(this, EmContextImpl.applicationScope);
-            this.applicationInstanceScope = new ApplicationInstanceScope(this, EmContextImpl.applicationInstanceScope);
-
-            registerScope(ApplicationScope.SCOPE_NAME, this.applicationScope);
-            registerScope(ApplicationInstanceScope.SCOPE_NAME, this.applicationInstanceScope);
 
             // addBeanPostProcessor(new FxmlControllerBeanPostProcessor());
             setAutowireCandidateResolver(new EmContextAnnotationAutowireCandidateResolver());
-        }
-
-        public void cleanScopedBeans() {
-            var applicationHolders = applicationScope.getAllContext().stream()
-                    .filter(c -> c.getScopeHolder() == applicationScope).toList();
-
-            applicationHolders.forEach(h -> EmContextImpl.applicationScope.removeScope(h.getScopedObject()));
-
-            var applicationInstanceHolders = applicationInstanceScope.getAllContext().stream()
-                    .filter(c -> c.getScopeHolder() == applicationInstanceScope).toList();
-            applicationInstanceHolders.forEach(h -> EmContextImpl.applicationInstanceScope.removeScope(h.getScopedObject()));
         }
 
 //        @Override
@@ -507,12 +457,9 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
 
         }
 
-        public ApplicationScope getApplicationScope() {
-            return applicationScope;
-        }
-
-        public ApplicationInstanceScope getApplicationInstanceScope() {
-            return applicationInstanceScope;
+        @Override
+        public UUID getUuid() {
+            return id;
         }
 
     }
@@ -539,16 +486,6 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
 
     public void deport(Class<?>... deportedClasses) {
         this.deportedClasses.addAll(Arrays.asList(deportedClasses));
-    }
-
-    @Override
-    public ScopedExecutor<Application> getApplicationExecutor() {
-        return EmContextImpl.applicationScope;
-    }
-
-    @Override
-    public ScopedExecutor<ApplicationInstance> getApplicationInstanceExecutor() {
-        return EmContextImpl.applicationInstanceScope;
     }
 
 	@Override

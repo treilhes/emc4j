@@ -37,14 +37,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-@Scope(ApplicationInstanceSingleton.SCOPE_NAME)
+//@Scope(ApplicationInstanceSingleton.SCOPE_NAME)
 @Component
+@Lazy
 @Bean
 public @interface ApplicationInstanceSingleton {
 

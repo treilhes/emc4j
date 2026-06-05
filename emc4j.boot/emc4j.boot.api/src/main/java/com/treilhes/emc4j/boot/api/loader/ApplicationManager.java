@@ -47,11 +47,13 @@ public interface ApplicationManager {
 
     /**
      * Start the sub application
-     * @param editorId
+     * @param applicationId
      */
-    void startApplication(UUID editorId);
+    void startApplication(UUID applicationId);
 
-    void stopApplication(UUID editorId);
+    void stopApplication(UUID applicationId);
+
+    void reloadApplication(UUID applicationId);
 
     /**
      * Send a command to the core dispatcher

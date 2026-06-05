@@ -42,7 +42,6 @@ import org.springframework.stereotype.Component;
 
 import com.treilhes.emc4j.boot.api.context.annotation.OverrideBean;
 import com.treilhes.emc4j.boot.api.context.annotation.OverridedBeanAware;
-import com.treilhes.emc4j.boot.context.bpp.OverridedBeanPostProcessor;
 import com.treilhes.emc4j.boot.context.impl.EmContextImpl;
 
 class OverridedBeanPostProcessorTest {

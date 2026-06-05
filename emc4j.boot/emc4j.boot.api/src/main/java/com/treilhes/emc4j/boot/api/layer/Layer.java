@@ -256,7 +256,10 @@ public interface Layer {
         return l;
     }
 
+    /**
+     * Gets the module controller.
+     * @return the module controller
+     */
     Controller getModuleController();
-
 
 }

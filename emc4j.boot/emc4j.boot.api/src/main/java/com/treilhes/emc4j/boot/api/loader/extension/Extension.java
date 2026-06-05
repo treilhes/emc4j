@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.treilhes.emc4j.boot.api.context.EmContext;
+import com.treilhes.emc4j.boot.api.context.EmContextShutdownHooks;
 import com.treilhes.emc4j.boot.api.layer.Layer;
 
 /**
@@ -96,9 +97,7 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
      * @param context the context to initialize
      * @throws UnsupportedOperationException if not implemented
      */
-    //FIXME this method isn't called yet
-    public default void initializeContext(EmContext context) {
-        throw new UnsupportedOperationException("Never called yet");
+    public default void initializeContext(EmContext context, EmContextShutdownHooks shutdownHooks) {
     }
 
     /**
@@ -107,9 +106,7 @@ public sealed interface Extension permits OpenExtension, SealedExtension, RootEx
      * @param context the context to finalize
      * @throws UnsupportedOperationException if not implemented
      */
-    //FIXME this method isn't called yet
     public default void finalizeContext(EmContext context) {
-        throw new UnsupportedOperationException("Never called yet");
     }
 
     /**
