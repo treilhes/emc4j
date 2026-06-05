@@ -40,6 +40,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Loaded in the targeted context and in all the targeted context children
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 @Component

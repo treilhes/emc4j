@@ -31,6 +31,7 @@
  */
 package com.treilhes.emc4j.spring.core.patch;
 
+import org.springframework.core.io.support.SpringFactoriesLoaderCacheCleaner;
 
 public class PatchLink {
 
@@ -40,5 +41,9 @@ public class PatchLink {
 
     public static boolean addOpen(Module module, String packageName) {
         return org.springframework.core.Patch.addOpen(module, packageName);
+    }
+
+    public static void clearFactoriesCache(ClassLoader classLoader) {
+        SpringFactoriesLoaderCacheCleaner.clearCache(classLoader);
     }
 }

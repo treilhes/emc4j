@@ -32,6 +32,8 @@
 package com.treilhes.emc4j.boot.maven.client.impl;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.treilhes.emc4j.boot.api.maven.Artifact;
 import com.treilhes.emc4j.boot.api.maven.Classifier;
@@ -54,6 +59,8 @@ import com.treilhes.emc4j.boot.maven.api.RepositoryMapper;
 
 public class RedirectedRepositoryClientImpl implements RepositoryClient {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedirectedRepositoryClientImpl.class);
+
     private final RepositoryClient client;
     private final MavenConfig config;
     private final RepositoryMapper mappers;
@@ -67,7 +74,7 @@ public class RedirectedRepositoryClientImpl implements RepositoryClient {
     }
 
     private Optional<Redirect> findMatch(Artifact artifact) {
-        return config.getRedirect().stream()
+        var redirect = config.getRedirect().stream()
                 .filter(r -> Objects.equals(artifact.getGroupId(), r.groupId()))
                 .filter(r -> {
                     if (r.useRegex()) {
@@ -86,6 +93,12 @@ public class RedirectedRepositoryClientImpl implements RepositoryClient {
                         if (matcher.matches()) {
                             // Replace placeholders with captured groups
                             var path = matcher.replaceAll(r.path());
+
+                            if (!Files.exists(Path.of(path))) {
+                                LOGGER.warn("Redirection exist for artifact {}:{} but lead to a non existing path {}", artifact.getGroupId(), artifact.getArtifactId(),
+                                        Path.of(r.path()).toAbsolutePath().normalize());
+                                return null;
+                            }
                             return new Redirect(groupId, artifactId, path, true);
                         }
                         return null;
@@ -95,6 +108,11 @@ public class RedirectedRepositoryClientImpl implements RepositoryClient {
                 })
                 .filter(Objects::nonNull)
                 .findAny();
+
+        redirect.ifPresent(r -> LOGGER.info("Redirecting artifact {}:{} to path {}", artifact.getGroupId(), artifact.getArtifactId(),
+              Path.of(r.path()).toAbsolutePath().normalize()));
+
+        return redirect;
     }
 
     @Override

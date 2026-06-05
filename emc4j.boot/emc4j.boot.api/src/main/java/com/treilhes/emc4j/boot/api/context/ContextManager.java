@@ -35,6 +35,8 @@ import java.util.UUID;
 
 public interface ContextManager {
 
+    EmContext getBootContext();
+
     EmContext get(UUID contextId);
 
     EmContext get(ModuleLayer moduleLayer);
@@ -43,8 +45,12 @@ public interface ContextManager {
 
     EmContext create(ContextConfiguration configuration);
 
+    EmContext createInstance(UUID contextId);
+
     void clear();
 
     void close(UUID id);
+
+
 
 }

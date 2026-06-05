@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.core.metrics.ApplicationStartup;
 import org.springframework.stereotype.Component;
 
@@ -55,6 +56,9 @@ import com.treilhes.emc4j.boot.api.loader.ExtensionReport;
 import com.treilhes.emc4j.boot.api.loader.LoadType;
 import com.treilhes.emc4j.boot.api.loader.LoaderProperties;
 import com.treilhes.emc4j.boot.api.loader.OpenCommandEvent;
+import com.treilhes.emc4j.boot.api.loader.RestartCommandEvent;
+import com.treilhes.emc4j.boot.api.loader.RestartedCommandEvent;
+import com.treilhes.emc4j.boot.api.loader.StopCommandEvent;
 import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
 import com.treilhes.emc4j.boot.api.splash.SplashScreenProvider;
 import com.treilhes.emc4j.boot.api.utils.ProgressListener;
@@ -222,15 +226,15 @@ public class ApplicationManagerImpl implements ApplicationManager {
     /**
      * Stop editor.
      *
-     * @param editorId the editor id
+     * @param applicationId the editor id
      */
     @Override
-    public void stopApplication(UUID editorId) {
+    public void stopApplication(UUID applicationId) {
 
-        var application = startedApplications.get(editorId);
+        var application = startedApplications.get(applicationId);
 
         if (application == null) {
-            logger.warn("Application not started for {}", editorId);
+            logger.warn("Application not started for {}", applicationId);
             return;
         }
 
@@ -239,10 +243,13 @@ public class ApplicationManagerImpl implements ApplicationManager {
             return;
         }
 
-        stopExtensionTree(Set.of(application));
-        unloadApplication(editorId);
+        send(applicationId, new StopCommandEvent(applicationId, List.of()));
 
-        startedApplications.remove(editorId);
+        stopExtensionTree(Set.of(application));
+        System.gc();
+        unloadApplication(applicationId);
+
+        startedApplications.remove(applicationId);
     }
 
     /**
@@ -282,28 +289,29 @@ public class ApplicationManagerImpl implements ApplicationManager {
             Set<? extends LoadableContent> extensionSet, MultipleProgressListener progressListener) {
 
         var extensionLoadings = extensionSet.stream().map(ext -> (Runnable)() -> {
-                if (ext.getLoadState() != LoadState.Deleted && ext.getLoadState() != LoadState.Disabled) {
-                    logger.info("Loading extension layer {}", ext.getId());
-                    Layer layer = null;
+            if (ext.getLoadState() != LoadState.Deleted && ext.getLoadState() != LoadState.Disabled) {
+                logger.info("Loading extension layer {}", ext.getId());
+                Layer layer = null;
 
-                    try {
-                        layer = layers.load(parentLayer, ext, progressListener);
-                    } catch (Throwable e) {
-                        logger.error("Unable to load extension layer {}", ext.getId(), e);
-                        ext.setLoadState(LoadState.Error);
-                        reportOf(ext.getId()).error("", e);
-                    }
-                    logger.info("Loading extension layer {} done", ext.getId());
-
-                    if (layer != null) {
-                        ext.setLoadState(LoadState.Loaded);
-                        loadExtensionTree(executor, layer, ext.getExtensions(), progressListener);
-                    }
+                try {
+                    layer = layers.load(parentLayer, ext, progressListener);
+                } catch (Throwable e) {
+                    logger.error("Unable to load extension layer {}", ext.getId(), e);
+                    ext.setLoadState(LoadState.Error);
+                    reportOf(ext.getId()).error("", e);
                 }
-            }).toList();
+                logger.info("Loading extension layer {} done", ext.getId());
+
+                if (layer != null) {
+                    ext.setLoadState(LoadState.Loaded);
+                    loadExtensionTree(executor, layer, ext.getExtensions(), progressListener);
+                }
+            }
+        }).toList();
 
         try {
             var loadKey = parentLayer == null ? "ROOT" : parentLayer.getId().toString();
+            loadKey = loadKey + "-Load";
             executor.submitGroupTasks(loadKey, extensionLoadings);
         } catch (InterruptedException e) {
             logger.error("Unable to load extension, interrupted", e);
@@ -361,17 +369,19 @@ public class ApplicationManagerImpl implements ApplicationManager {
             Set<? extends LoadableContent> extensionSet, MultipleProgressListener progressListener) {
 
         var extensionStartings = extensionSet.stream().map(ext -> (Runnable)() -> {
-                try {
-                    List<Object> singletonInstances = List.of();
-                    EmContext extContext = contexts.create(parentContext, ext, singletonInstances, progressListener);
-                    launchExtensionTree(executor, extContext, ext.getExtensions(), progressListener);
-                } catch (Throwable e) {
-                    ext.setLoadState(LoadState.Error);
-                    reportOf(ext.getId()).error("", e);
-                }
-            }).toList();
+            try {
+                List<Object> singletonInstances = List.of();
+                EmContext extContext = contexts.create(parentContext, ext, singletonInstances, progressListener);
+                launchExtensionTree(executor, extContext, ext.getExtensions(), progressListener);
+            } catch (Throwable e) {
+                ext.setLoadState(LoadState.Error);
+                reportOf(ext.getId()).error("", e);
+            }
+        }).toList();
         try {
-            executor.submitGroupTasks(parentContext == null ? "ROOT" : parentContext.getId(), extensionStartings);
+            var launchKey = parentContext == null ? "ROOT" : parentContext.getId();
+            launchKey = launchKey + "-Launch";
+            executor.submitGroupTasks(launchKey, extensionStartings);
         } catch (InterruptedException e) {
             logger.error("Unable to start extension, interrupted", e);
         }
@@ -384,8 +394,8 @@ public class ApplicationManagerImpl implements ApplicationManager {
      */
     private void stopExtensionTree(Set<? extends LoadableContent> extensionSet) {
         extensionSet.forEach(ext -> {
-            contexts.close(ext);
             stopExtensionTree(ext.getExtensions());
+            contexts.close(ext);
         });
 
     }
@@ -412,11 +422,6 @@ public class ApplicationManagerImpl implements ApplicationManager {
 
         if (application == null) {
             logger.warn("Application not started for {}", applicationId);
-            return;
-        }
-
-        if (!contexts.exists(application)) {
-            logger.warn("Editor context does not exists for {}", application.getId());
             return;
         }
 
@@ -554,7 +559,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
      * @param editorId   the editor id
      * @param parameters the parameters
      */
-    private void send(UUID editorId, OpenCommandEvent parameters) {
+    private void send(UUID editorId, ApplicationEvent parameters) {
         getContext(editorId).ifPresent(c -> c.publishEvent(parameters));
     }
 
@@ -571,6 +576,14 @@ public class ApplicationManagerImpl implements ApplicationManager {
             startApplication(id);
             send(new OpenCommandEvent(id, List.of()));
         });
+    }
+
+    @Override
+    public void reloadApplication(UUID applicationId) {
+        send(applicationId, new RestartCommandEvent(applicationId, List.of()));
+        stopApplication(applicationId);
+        startApplication(applicationId);
+        send(applicationId, new RestartedCommandEvent(applicationId, List.of()));
     }
 
 }

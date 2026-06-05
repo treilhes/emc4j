@@ -129,7 +129,11 @@ public class ExtensionBootstrapper {
      * @return true, if successful
      */
     public boolean exists(com.treilhes.emc4j.boot.loader.model.LoadableContent extension) {
-        return contextManager.exists(extension.getId());
+        return exists(extension.getId());
+    }
+
+    public boolean exists(UUID extensionId) {
+        return contextManager.exists(extensionId);
     }
 
     /**
@@ -175,7 +179,9 @@ public class ExtensionBootstrapper {
             throws InvalidExtensionException, LayerNotFoundException {
 
         var id = content.getId();
+        System.out.println("Creating context for extension " + id);
         var parentContextId = parent == null ? null : parent.getUuid();
+        var firstRun = parentContextId == null ? true : parentContextId.equals(Extension.BOOT_ID);
         var layer = layerManager.get(id);
 
         if (layer == null) {
@@ -188,7 +194,7 @@ public class ExtensionBootstrapper {
 
         validateExtensions(id, parentContextId, mainExtDefinition, childrenExtDefinitions);
 
-        initializeExtensions(mainExtDefinition, childrenExtDefinitions);
+        initializeExtensions(mainExtDefinition, childrenExtDefinitions, firstRun);
 
         var frameworkExtensionClasses = loadFrameworkClasses(parent);
 
@@ -199,6 +205,7 @@ public class ExtensionBootstrapper {
         singletons.add(mainExtDefinition);
 
         var configuration = new ContextConfiguration();
+        configuration.setExtension(mainExtDefinition.getExtension());
         configuration.setId(id);
         configuration.setParentContext(parent);
         configuration.setSealed(isSealed);
@@ -212,9 +219,42 @@ public class ExtensionBootstrapper {
         return contextManager.create(configuration);
     }
 
-    private void initializeExtensions(ExtensionDefinition extension, Set<ExtensionDefinition> extensions)
+
+    public EmContext createInstance(EmContext appContext) throws LayerNotFoundException {
+
+        var parentContextId = appContext.getUuid();
+        var id = UUID.randomUUID();
+
+        logger.info("Creating instance context for extension {} with id {}", parentContextId, id);
+
+        var layer = layerManager.get(parentContextId);
+
+        if (layer == null) {
+            throw new LayerNotFoundException(parentContextId, "Unable to find application layer for id %s");
+        }
+
+        var registered = appContext.getRegisteredClasses();
+        var frameworkExtensionClasses = loadFrameworkClasses(appContext);
+
+        var configuration = new ContextConfiguration();
+        //configuration.setExtension(mainExtDefinition.getExtension());
+        configuration.setId(id);
+        configuration.setParentContext(appContext);
+        configuration.setSealed(true);
+        configuration.setLayer(layer);
+        configuration.addClasses(frameworkExtensionClasses);
+        //configuration.setProgressListener(progressListener);
+
+        return contextManager.create(configuration);
+    }
+
+    private void initializeExtensions(ExtensionDefinition extension, Set<ExtensionDefinition> extensions, boolean firstRun)
             throws LayerNotFoundException {
-        initializeExtension(extension);
+        //if (firstRun) {
+            // For the first run we initialize the extension
+            // for subsequent run we don't as the previous run did
+            initializeExtension(extension);
+        //}
         for (var childExtension : extensions) {
             initializeExtension(childExtension);
         }
@@ -330,9 +370,9 @@ public class ExtensionBootstrapper {
 
             ExtensionDefinition descriptor = loadDescriptor(loader, layer);
 
-            if (descriptor.getExtension() instanceof OpenExtension) {
+            //if (descriptor.getExtension() instanceof OpenExtension) {
                 extensions.add(descriptor);
-            }
+            //}
         }
 
         return extensions;
@@ -408,7 +448,7 @@ public class ExtensionBootstrapper {
     }
 
     private void initializeExtension(Layer layer, Extension extension) {
-
+System.out.println("Initialize extension " + extension + " in layer " + layer.getId());
         var module = extension.getClass().getModule();
 
         logger.info("Add read to spring.core for {}", module.getName());
@@ -418,6 +458,7 @@ public class ExtensionBootstrapper {
         com.treilhes.emc4j.hibernate.core.patch.PatchLink.addRead(module);
 
         extension.initializeModule(layer);
+
     }
 
     /**
@@ -440,4 +481,5 @@ public class ExtensionBootstrapper {
     public interface ServiceLoader {
         <T> Set<T> loadService(Layer layer, Class<T> serviceClass);
     }
+
 }

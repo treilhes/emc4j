@@ -61,12 +61,14 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
+import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.utils.CompositeClassloader;
+import com.treilhes.emc4j.spring.core.patch.PatchLink;
 
 public class EmcAnnotationConfigServletWebApplicationContext extends ServletWebServerApplicationContext
         implements AnnotationConfigRegistry {
 
-    private final CompositeClassloader compositeClassloader = new CompositeClassloader();
+    private final CompositeClassloader compositeClassloader;
 
     private final EmcAnnotatedBeanDefinitionReader reader;
 
@@ -85,8 +87,14 @@ public class EmcAnnotationConfigServletWebApplicationContext extends ServletWebS
 
     public EmcAnnotationConfigServletWebApplicationContext(DefaultListableBeanFactory beanFactory, WebApplicationType webApplicationType) {
         super(beanFactory);
-        super.setClassLoader(compositeClassloader);
 
+        String id = null;
+        if (beanFactory instanceof EmcBeanFactory emcBeanFactory) {
+            id = emcBeanFactory.getUuid().toString();
+        }
+
+        this.compositeClassloader = new CompositeClassloader(id  + this.getClass().getSimpleName());
+        super.setClassLoader(compositeClassloader);
         this.reader = new EmcAnnotatedBeanDefinitionReader(this);
         this.scanner = new EmcClassPathBeanDefinitionScanner(this);
 
@@ -209,6 +217,12 @@ public class EmcAnnotationConfigServletWebApplicationContext extends ServletWebS
             super.onRefresh();
         }
 
+    }
+
+    @Override
+    public void close() {
+        PatchLink.clearFactoriesCache(compositeClassloader);
+        super.close();
     }
 
     static class EmcClassPathBeanDefinitionScanner extends ClassPathBeanDefinitionScanner {

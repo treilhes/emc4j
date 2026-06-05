@@ -54,6 +54,7 @@ import com.treilhes.emc4j.boot.api.context.annotation.Lazy;
 import com.treilhes.emc4j.boot.api.context.annotation.PreferedConstructor;
 import com.treilhes.emc4j.boot.api.context.annotation.Primary;
 import com.treilhes.emc4j.boot.api.context.annotation.Singleton;
+import com.treilhes.emc4j.boot.api.loader.extension.SealedExtension;
 import com.treilhes.emc4j.boot.context.impl.ContextManagerImpl;
 import com.treilhes.emc4j.boot.context.impl.EmContextFactoryImpl;
 
@@ -74,6 +75,7 @@ class EmContextFrameworkTest {
 
     private ContextConfiguration newContextConfiguration(Set<Class<?>> classes) {
         ContextConfiguration config = new ContextConfiguration();
+        config.setExtension(Mockito.mock(SealedExtension.class));
         config.setId(UUID.randomUUID());
         config.addChildrenClasses(Set.of());
         config.addClasses(classes);

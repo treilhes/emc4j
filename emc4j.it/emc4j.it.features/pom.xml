@@ -53,6 +53,11 @@
                     </dependency>
                     <dependency>
                         <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>spring.aop.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
                         <artifactId>org.hibernate.orm.core.patch</artifactId>
                         <version>${emc4j.version}</version>
                     </dependency>
@@ -70,6 +75,8 @@
                                 ${argLine}
                                 --patch-module
                                 spring.core=${com.treilhes.emc4j:spring.core.patch:jar}
+                                --patch-module
+                                spring.aop=${com.treilhes.emc4j:spring.aop.patch:jar}
                                 --patch-module
                                 org.hibernate.orm.core=${com.treilhes.emc4j:org.hibernate.orm.core.patch:jar}
                                 --patch-module

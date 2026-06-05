@@ -39,8 +39,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.treilhes.emc4j.boot.api.layer.Layer;
+import com.treilhes.emc4j.boot.api.loader.extension.Extension;
 
 public class ContextConfiguration {
+    Extension extension;
     UUID id;
     EmContext parentContext;
     Layer layer;
@@ -50,6 +52,12 @@ public class ContextConfiguration {
     MultipleProgressListener progressListener;
     private boolean sealed;
 
+    public Extension getExtension() {
+        return extension;
+    }
+    public void setExtension(Extension extension) {
+        this.extension = extension;
+    }
     public UUID getId() {
         return id;
     }

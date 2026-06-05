@@ -42,10 +42,11 @@ import com.treilhes.emc4j.boot.api.utils.CompositeClassloader;
 
 public class ResolvablePersistenceManagedTypes implements PersistenceManagedTypes {
 
-    private final CompositeClassloader classloader = new CompositeClassloader();
+    private final CompositeClassloader classloader;
     private final List<String> managedClassNames = new ArrayList<>();
 
-    public ResolvablePersistenceManagedTypes(List<Class<?>> managedTypes) {
+    public ResolvablePersistenceManagedTypes(String ownerId, List<Class<?>> managedTypes) {
+        classloader = new CompositeClassloader(ownerId + this.getClass().getSimpleName());
         managedTypes.forEach(type -> {
             managedClassNames.add(type.getName());
             classloader.addClassLoader(type.getClassLoader());

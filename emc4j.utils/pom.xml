@@ -9,5 +9,6 @@
   <packaging>pom</packaging>
   <modules>
       <module>emc4j-dependency-plugin</module>
+      <module>emc4j-helper-plugin</module>
   </modules>
 </project>

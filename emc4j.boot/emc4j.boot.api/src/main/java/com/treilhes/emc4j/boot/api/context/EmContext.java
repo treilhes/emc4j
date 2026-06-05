@@ -54,10 +54,6 @@ public interface EmContext extends ConfigurableWebApplicationContext {
 
     Object parseExpression(String text, Object rootContext);
 
-    boolean isApplicationScope(Class<?> cls);
-
-    boolean isApplicationInstanceScope(Class<?> cls);
-
     //<T> void registerBean(Class<T> class1, Supplier<T> tSupplier);
 
     List<Class<?>> getBeanClassesForAnnotation(Class<? extends Annotation> annotationType);
@@ -79,9 +75,13 @@ public interface EmContext extends ConfigurableWebApplicationContext {
 
     void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
+    /**
+     * Remove the instance of the provided bean from the context, if it exists.
+     * The bean definition is not removed, so the next time the bean is requested
+     * a new instance will be created.
+     * @param existingBean
+     */
     void destroyBean(Object existingBean);
-
-    void destroyScopedBean(String beanName);
 
     <T> void registerBean(Class<T> class1, Supplier<T> object);
 
@@ -90,10 +90,6 @@ public interface EmContext extends ConfigurableWebApplicationContext {
     <T> void registerBean(Class<T> class1, Supplier<T> object, BeanDefinitionCustomizer... customizers);
 
     <T> void registerBean(String name, Class<T> cls, Supplier<T> supplier, BeanDefinitionCustomizer... customizers);
-
-    ScopedExecutor<Application> getApplicationExecutor();
-
-    ScopedExecutor<ApplicationInstance> getApplicationInstanceExecutor();
 
     /**
      * Get a bean from the {@link EmContext} associated to the {@link ModuleLayer} of the provided layerClass.
@@ -108,6 +104,8 @@ public interface EmContext extends ConfigurableWebApplicationContext {
     <T> void registerBean(Class<T> cls, BeanDefinitionCustomizer... customizers);
 
     <T> void registerBean(String name, Class<T> cls, BeanDefinitionCustomizer... customizers);
+
+    void destroySingleton(Object existingBean);
 
 
 }

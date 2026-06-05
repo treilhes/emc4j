@@ -10,11 +10,8 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.treilhes.emc4j.boot.api.context.Application;
-import com.treilhes.emc4j.boot.api.context.ApplicationInstance;
 import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.MultipleProgressListener;
-import com.treilhes.emc4j.boot.api.context.ScopedExecutor;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -109,18 +106,6 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     }
 
     @Override
-    public boolean isApplicationScope(Class<?> cls) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean isApplicationInstanceScope(Class<?> cls) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
     public List<Class<?>> getBeanClassesForAnnotation(Class<? extends Annotation> annotationType) {
         // TODO Auto-generated method stub
         return null;
@@ -175,12 +160,6 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     }
 
     @Override
-    public void destroyScopedBean(String beanName) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public <T> void registerBean(Class<T> class1, Supplier<T> object) {
         // TODO Auto-generated method stub
 
@@ -193,20 +172,14 @@ class SemiMockTestContext extends AnnotationConfigApplicationContext implements 
     }
 
     @Override
-    public ScopedExecutor<Application> getApplicationExecutor() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ScopedExecutor<ApplicationInstance> getApplicationInstanceExecutor() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public <T> T getLayerBean(Class<?> layerClass, Class<T> cls) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void destroySingleton(Object existingBean) {
+        // TODO Auto-generated method stub
+
     }
 }
