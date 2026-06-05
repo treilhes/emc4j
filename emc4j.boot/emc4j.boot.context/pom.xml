@@ -29,10 +29,11 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>resolve-jar-path</id>
                         <goals>
                             <goal>properties</goal>
                         </goals>
@@ -40,10 +41,30 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>emc4j-helper-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>argline</id>
+                        <goals>
+                            <goal>argline</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>emc4jArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>${argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+                    <useModulePath>true</useModulePath>
+                    <argLine>
+                        ${argLine} 
+                        ${emc4jArgLine}
+                        -javaagent:${org.mockito:mockito-core:jar}
+                    </argLine>
                 </configuration>
             </plugin>
         </plugins>

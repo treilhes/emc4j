@@ -29,19 +29,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.treilhes.emc4j.boot.context.scope;
+package com.treilhes.emc4j.spring.aop.patch;
 
-import com.treilhes.emc4j.boot.api.context.Application;
-import com.treilhes.emc4j.boot.api.context.ApplicationInstance;
+import org.springframework.aop.framework.AopProxyFactory;
 
-public class ApplicationInstanceScopeHolder extends ObjectScopeHolder<Application, ApplicationInstance, Object> {
+public class PatchLink {
 
-    /** The temporary thread scope id. */
-    private static ThreadLocal<ScopeContext<ObjectScope<Application, ApplicationInstance, Object>, Application, ApplicationInstance, Object>> threadLocalContext = new ThreadLocal<>();
-
-    public ApplicationInstanceScopeHolder(ApplicationScopeHolder parent) {
-        super(parent, ApplicationInstanceScope.SCOPE_NAME, ApplicationInstanceScopeHolder.threadLocalContext);
-        parent.registerDependentScopeHolder(this);
+    public static AopProxyFactory defaultAopProxyFactory() {
+        return org.springframework.aop.framework.NoCacheAopProxyFactory.INSTANCE;
     }
 
 }

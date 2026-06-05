@@ -12,6 +12,8 @@
     <modules>
         <module>spring.core.patch</module>
         <module>spring.core.patch.link</module>
+        <module>spring.aop.patch</module>
+        <module>spring.aop.patch.link</module>
         <module>org.hibernate.orm.core.patch</module>
         <module>org.hibernate.orm.core.patch.link</module>
         <module>java.base.patch</module>

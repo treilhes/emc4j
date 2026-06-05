@@ -120,9 +120,11 @@ import com.treilhes.emc4j.boot.api.context.annotation.Lazy;
 import com.treilhes.emc4j.boot.api.context.annotation.LocalContextOnly;
 import com.treilhes.emc4j.boot.api.platform.EmcPlatform;
 import com.treilhes.emc4j.boot.api.web.client.InternalRestClient;
+import com.treilhes.emc4j.spring.aop.patch.PatchLink;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import jakarta.annotation.PreDestroy;
 //import app.root.rest.RootRestController;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -183,8 +185,9 @@ public class WebExtensionConfig {
     @Bean
     public ExtensionWebContext extensionWebContext(EmContext context,
             @Value(InternalRestClient.CONTEXT_PATH_PROP) String contextPath,
-            @Value(InternalRestClient.SERVLET_PATH_PROP) String servletPath) {
-        return new ExtensionWebContext(context, contextPath, servletPath);
+            @Value(InternalRestClient.SERVLET_PATH_PROP) String servletPath,
+            ServletContext servletContext) {
+        return new ExtensionWebContext(context, contextPath, servletPath, servletContext);
     }
 
     @Configuration
@@ -498,13 +501,15 @@ public class WebExtensionConfig {
         private final String basePath;
         private final String internalContextPath;
         private final String externalContextPath;
+        private final ServletContext servletContext;
 
-        public ExtensionWebContext(EmContext context, String contextPath, String servletPath) {
+        public ExtensionWebContext(EmContext context, String contextPath, String servletPath, ServletContext servletContext) {
             super();
             this.context = context;
             this.basePath = buildBasePath(contextPath, servletPath);
             this.internalContextPath = "/" + EmcPlatform.EXTENSION_REST_PATH_PREFIX + "/" + context.getId();
             this.externalContextPath = basePath + this.internalContextPath;
+            this.servletContext = servletContext;
         }
 
         public EmContext getContext() {
@@ -527,6 +532,13 @@ public class WebExtensionConfig {
             return ((StringUtils.hasText(contextPath) ? "/" + contextPath : "")
                     + (StringUtils.hasText(servletPath) ? "/" + servletPath : "")).replaceAll("/+", "/");
         }
+
+        @PreDestroy
+        protected void destroy() {
+            // Remove the redirector dispatcher servlet from the servlet context to avoid memory leaks
+            // this leak prevents deleting the moduleLayer of the extension and thus prevents unloading the extension
+            servletContext.removeAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.redirector");
+        }
     }
 
     public static class MyAsyncAnnotationBeanPostProcessor extends AsyncAnnotationBeanPostProcessor {
@@ -536,6 +548,9 @@ public class WebExtensionConfig {
         @Override
         protected ProxyFactory prepareProxyFactory(Object bean, String beanName) {
             final var factory = super.prepareProxyFactory(bean, beanName);
+
+            factory.setAopProxyFactory(PatchLink.defaultAopProxyFactory());
+
             final var wrappedFactory = new ProxyFactoryWrapper(factory, bean);
             return wrappedFactory;
         }

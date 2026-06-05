@@ -34,14 +34,16 @@ package com.treilhes.emc4j.boot.api.utils;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.util.ClassUtils;
+import java.util.Objects;
 
 public class CompositeClassloader extends ClassLoader {
 
+    private final String ownerId;
     private final List<ClassLoader> classLoaders = new ArrayList<>();
 
-    public CompositeClassloader() {
+    public CompositeClassloader(String ownerId) {
+        Objects.requireNonNull(ownerId, "ownerId must not be null");
+        this.ownerId = ownerId;
     }
 
     public void addClassLoader(ClassLoader classLoader) {
@@ -88,6 +90,11 @@ public class CompositeClassloader extends ClassLoader {
 //        }
 
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "CompositeClassloader [ownerId=" + ownerId + ", classLoaders=" + classLoaders + "]";
     }
 
 }

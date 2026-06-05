@@ -31,23 +31,14 @@
  */
 package app.app1;
 
-import org.springframework.context.ApplicationListener;
-
 import com.treilhes.emc4j.boot.api.context.Application;
 import com.treilhes.emc4j.boot.api.context.annotation.ApplicationSingleton;
-import com.treilhes.emc4j.boot.api.loader.OpenCommandEvent;
 
 @ApplicationSingleton("app1Application")
-public class App1Application implements Application, ApplicationListener<OpenCommandEvent> {
+public class App1Application implements Application {
 
     public App1Application() {
         super();
-    }
-
-    @Override
-    public void onApplicationEvent(OpenCommandEvent event) {
-        // TODO Auto-generated method stub
-
     }
 
 }

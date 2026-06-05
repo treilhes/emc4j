@@ -16,6 +16,10 @@
         </dependency>
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>spring.aop.patch.link</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
             <artifactId>org.hibernate.orm.core.patch.link</artifactId>
         </dependency>
         <dependency>

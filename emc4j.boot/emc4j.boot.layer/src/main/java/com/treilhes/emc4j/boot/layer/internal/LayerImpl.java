@@ -121,7 +121,13 @@ public class LayerImpl implements Layer {
 
     private WeakReference<ClassLoader> classloader;
 
-    private WeakReference<Controller> moduleController;
+    /**
+     * The module controller. We need to keep a reference on the controller to be able
+     * to let extension initialize the layer and then release it to allow the layer to be unlocked and garbage collected
+     * No weak reference here as the controller is nullified early by the jvm.
+     * To prevent retention of the layer, the controller is nullified as soon as possible by calling consumeController() method
+     */
+    private Controller moduleController;
 
     /**
      * Instantiates a new layer impl.
@@ -130,17 +136,18 @@ public class LayerImpl implements Layer {
      * @param tempDirectory        the directory
      * @param moduleLayer      the module layer
      * @param moduleReferences the module references
-     * @param moduleController 
+     * @param moduleController
      */
     public LayerImpl(UUID id, List<Path> paths, Path tempDirectory, ModuleLayer moduleLayer,
             Map<String, ModuleReference> moduleReferences, Controller moduleController) {
         super();
+        LOGGER.warn("Creating layer " + id + " with moduleController " + moduleController);
         this.id = id;
         this.paths = paths != null ? new ArrayList<>(paths) : Collections.emptyList();
         this.tempDirectory = tempDirectory;
         this.moduleLayerLock = moduleLayer;
         this.moduleLayer = new WeakReference<>(moduleLayer);
-        this.moduleController = new WeakReference<>(moduleController);
+        this.moduleController = moduleController;
 
         this.parents = new HashSet<>();
         this.children = new HashSet<>();
@@ -182,10 +189,11 @@ public class LayerImpl implements Layer {
     public ModuleLayer getModuleLayer() {
         return moduleLayer.get();
     }
-    
+
     @Override
     public Controller getModuleController() {
-        return moduleController.get();
+        LOGGER.warn("Access layer " + id + " with moduleController " + moduleController);
+        return moduleController;
     }
 
     /**
@@ -293,6 +301,8 @@ public class LayerImpl implements Layer {
         jars().forEach(this::trickToClearJarFileCache);
 
         this.moduleLayerLock = null;
+        LOGGER.warn("Nullify layer " + id + " with moduleController " + moduleController);
+        this.moduleController = null;
         this.moduleLayer.clear();
         this.moduleReferences.clear();
 
@@ -493,7 +503,9 @@ public class LayerImpl implements Layer {
     @Override
     public boolean clean() throws IOException {
         if (getTempDirectory() != null && Files.isDirectory(getTempDirectory())) {
-            Files.walk(getTempDirectory()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            try(var stream = Files.walk(getTempDirectory())){
+                stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
             return !Files.exists(getTempDirectory());
         }
         return true;
@@ -509,7 +521,5 @@ public class LayerImpl implements Layer {
     public ClassLoader getLoader() {
         return classloader.get();
     }
-
-
 
 }

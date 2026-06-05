@@ -47,6 +47,7 @@ open module emc4j.boot.web {
     requires spring.boot.validation;
     requires spring.boot.data.commons;
     requires spring.boot.tomcat;
+    requires emc4j.spring.aop.patch.link;
 
     provides BootContextConfigClasses with WebBootClasses;
     provides ExtensionContextConfigClasses with WebExtensionClasses;

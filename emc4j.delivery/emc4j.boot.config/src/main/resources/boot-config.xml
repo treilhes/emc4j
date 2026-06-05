@@ -12,6 +12,9 @@
 	<patch-module module="spring.core">
 		<artifact groupId="com.treilhes.emc4j" artifactId="spring.core.patch"/>
 	</patch-module>
+    <patch-module module="spring.aop">
+        <artifact groupId="com.treilhes.emc4j" artifactId="spring.aop.patch"/>
+    </patch-module>
 	<patch-module module="org.hibernate.orm.core">
 		<artifact groupId="com.treilhes.emc4j" artifactId="org.hibernate.orm.core.patch"/>
 	</patch-module>
@@ -36,6 +39,7 @@
         <dependency groupId="com.treilhes.emc4j" artifactId="emc4j.boot.main" classifier="jar" />
         <dependency groupId="com.treilhes.emc4j" artifactId="emc4j.boot.api" classifier="jar" />
         <dependency groupId="com.treilhes.emc4j" artifactId="spring.core.patch.link" classifier="jar" />
+        <dependency groupId="com.treilhes.emc4j" artifactId="spring.aop.patch.link" classifier="jar" />
         <dependency groupId="com.treilhes.emc4j" artifactId="org.hibernate.orm.core.patch.link" classifier="jar" />
         <dependency groupId="com.treilhes.emc4j" artifactId="emc4j.boot.aop" classifier="jar" />
         <dependency groupId="com.treilhes.emc4j" artifactId="emc4j.boot.jpa" classifier="jar" />

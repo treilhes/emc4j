@@ -139,7 +139,11 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
 
             layers.put(layer.getId(), layer);
 
-            logger.info("Created layer {} from  {}", layerId, tempDirectory);
+            if (logger.isInfoEnabled()) {
+                var moduleList = moduleReferences.values().stream().map(ModuleReference::descriptor).map(d -> d.name()).sorted().toArray();
+                logger.info("Created layer {} from  {} containing modules {}", layerId, tempDirectory, moduleList);
+            }
+
 
             return layer;
         } catch (IOException e) {
@@ -196,6 +200,7 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
             Set<Layer> children = new HashSet<>(layer.getChildren());
             for (Layer l : children) {
                 if (!remove(l)) {
+                    logger.error("Unable to remove child layer {} of layer {}", l.getId(), layer.getId());
                     return false;
                 }
             }
@@ -211,8 +216,10 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
         var unlocked = layer.unlockLayer();
 
         if (!unlocked) {
-            logger.warn("Layer is still in use {} (possible class leak), trying delete", layer.getId());
+            logger.error("Layer is still in use {} (possible class leak), trying delete", layer.getId());
         }
+
+        layer.getParents().forEach(l -> l.getChildren().remove(layer));
 
         return layer.clean();
     }
@@ -445,7 +452,7 @@ public class ModuleLayerManagerImpl implements ModuleLayerManager {
          *
          * @param moduleLayer      the module layer
          * @param moduleReferences the module references
-         * @param controller 
+         * @param controller
          */
         public ModuleLayerWithRef(ModuleLayer moduleLayer, Map<String, ModuleReference> moduleReferences, Controller controller) {
             super();

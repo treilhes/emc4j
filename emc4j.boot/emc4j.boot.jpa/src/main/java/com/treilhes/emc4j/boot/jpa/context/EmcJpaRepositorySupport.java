@@ -34,6 +34,7 @@ package com.treilhes.emc4j.boot.jpa.context;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -61,16 +63,17 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.data.repository.config.RepositoryConfigurationDelegate;
 import org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes;
 
-import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.context.EmContext;
+import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.context.EmcBeanNameGenerator;
 import com.treilhes.emc4j.boot.api.jpa.ResolvablePersistenceManagedTypes;
 import com.treilhes.emc4j.boot.api.utils.CompositeClassloader;
+import com.treilhes.emc4j.spring.core.patch.PatchLink;
 
 import jakarta.persistence.Entity;
 
-public class EmcJpaRepositorySupport
-        implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware, BeanFactoryAware, EnvironmentAware, ResourceLoaderAware {
+public class EmcJpaRepositorySupport implements BeanDefinitionRegistryPostProcessor, ApplicationContextAware,
+        BeanFactoryAware, EnvironmentAware, ResourceLoaderAware, DisposableBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EmcJpaRepositorySupport.class);
 
@@ -78,6 +81,8 @@ public class EmcJpaRepositorySupport
     private BeanFactory beanFactory;
     private Environment environment;
     private ResourceLoader resourceLoader;
+
+    private List<ClassLoader> repositoryClassLoaders = new ArrayList<>();
 
     @EnableJpaRepositories
     private class DefaultConfiguration{
@@ -95,10 +100,11 @@ public class EmcJpaRepositorySupport
             var managedTypes = new ArrayList<Class<?>>();
             var repositoriyCandidates = new ArrayList<BeanDefinition>();
 
-            var compositeLoader = new CompositeClassloader();
-
             if (beanFactory instanceof EmcBeanFactory emcBeanFactory
                     && applicationContext instanceof EmContext emContext) {
+
+                var id = emcBeanFactory.getUuid().toString() + this.getClass().getSimpleName() ;
+                var compositeLoader = new CompositeClassloader(id);
 
                 for (var name:registry.getBeanDefinitionNames()) {
 
@@ -123,7 +129,8 @@ public class EmcJpaRepositorySupport
                 }
 
                 if (!managedTypes.isEmpty()) {
-                    var resolvableManagedTypes = new ResolvablePersistenceManagedTypes(managedTypes);
+
+                    var resolvableManagedTypes = new ResolvablePersistenceManagedTypes(id, managedTypes);
 
                     if (registry.containsBeanDefinition(PersistenceManagedTypes.class.getName())) {
                         registry.removeBeanDefinition(PersistenceManagedTypes.class.getName());
@@ -132,31 +139,36 @@ public class EmcJpaRepositorySupport
                         registry.removeBeanDefinition("persistenceManagedTypes");
                     }
 
+                    registerClassLoader(resolvableManagedTypes.getClassLoader());
+
                     emContext.registerBean(ResolvablePersistenceManagedTypes.class, () -> resolvableManagedTypes);
                 }
+
+
+                // test
+                Class<? extends Annotation> annotation = EnableJpaRepositories.class;
+                boolean inMultiStoreMode = false;
+
+                SimpleMetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
+                MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(DefaultConfiguration.class.getName());
+                AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
+
+                var compositeResourceLoader = new DefaultResourceLoader(compositeLoader);
+
+                EmcAnnotationRepositoryConfigurationSource configurationSource = new EmcAnnotationRepositoryConfigurationSource(metadata,
+                        annotation, resourceLoader, environment, registry, nameGenerator, repositoriyCandidates);
+
+
+                EmcJpaRepositoryConfigExtension jpaRepositoryConfigExtension = new EmcJpaRepositoryConfigExtension(
+                        applicationContext, registry, resourceLoader);
+
+                RepositoryConfigurationDelegate delegate = new RepositoryConfigurationDelegate(configurationSource,
+                        resourceLoader, environment);
+
+                delegate.registerRepositoriesIn(registry, jpaRepositoryConfigExtension);
+
+                registerClassLoader(compositeLoader);
             }
-
-            // test
-            Class<? extends Annotation> annotation = EnableJpaRepositories.class;
-            boolean inMultiStoreMode = false;
-
-            SimpleMetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();
-            MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(DefaultConfiguration.class.getName());
-            AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();
-
-            var compositeResourceLoader = new DefaultResourceLoader(compositeLoader);
-
-            EmcAnnotationRepositoryConfigurationSource configurationSource = new EmcAnnotationRepositoryConfigurationSource(metadata,
-                    annotation, resourceLoader, environment, registry, nameGenerator, repositoriyCandidates);
-
-
-            EmcJpaRepositoryConfigExtension jpaRepositoryConfigExtension = new EmcJpaRepositoryConfigExtension(
-                    applicationContext, registry, resourceLoader);
-
-            RepositoryConfigurationDelegate delegate = new RepositoryConfigurationDelegate(configurationSource,
-                    resourceLoader, environment);
-
-            delegate.registerRepositoriesIn(registry, jpaRepositoryConfigExtension);
 
         } catch (BeanDefinitionStoreException | NoSuchBeanDefinitionException | IOException e) {
             LOGGER.error("Error processing JPA repositories", e);
@@ -198,11 +210,17 @@ public class EmcJpaRepositorySupport
         this.resourceLoader = resourceLoader;
     }
 
-//    @Bean
-//    JpaRepositoryFactoryBean<RepositoryRepository, Repository, String> repositoryRepository() {
-//        JpaRepositoryFactoryBean factory = new JpaRepositoryFactoryBean(RepositoryRepository.class);
-//        factory.getRepositoryInformation().
-//        return factory;
-//    }
+    @Override
+    public void destroy() throws Exception {
+        LOGGER.debug("Cleaning up EmcJpaRepositorySupport");
+        repositoryClassLoaders.forEach(PatchLink::clearFactoriesCache);
+    }
+
+    private void registerClassLoader(ClassLoader classLoader) {
+        if (classLoader != null && !repositoryClassLoaders.contains(classLoader)) {
+            repositoryClassLoaders.add(classLoader);
+        }
+    }
+
 
 }

@@ -38,7 +38,6 @@ open module emc4j.boot.context {
 
     exports com.treilhes.emc4j.boot.context.bpp;
     exports com.treilhes.emc4j.boot.context.config;
-    exports com.treilhes.emc4j.boot.context.scope;
 
     exports com.treilhes.emc4j.boot.context.impl to spring.beans;
     exports com.treilhes.emc4j.boot.context.boot;
@@ -46,6 +45,7 @@ open module emc4j.boot.context {
     requires transitive emc4j.boot.api;
     requires emc4j.boot.starter;
     requires spring.boot.web.server;
+    requires emc4j.spring.core.patch.link;
 
     provides BootContextConfigClasses with ContextBootClasses;
     provides ExtensionContextConfigClasses with ContextExtensionClasses;
