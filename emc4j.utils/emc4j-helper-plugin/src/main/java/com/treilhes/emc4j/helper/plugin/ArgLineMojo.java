@@ -77,6 +77,7 @@ public class ArgLineMojo extends AbstractMojo {
         "java.base","com.treilhes.emc4j:java.base.patch",
         "org.hibernate.orm.core", "com.treilhes.emc4j:org.hibernate.orm.core.patch",
         "spring.aop", "com.treilhes.emc4j:spring.aop.patch",
+        "spring.data.commons", "com.treilhes.emc4j:spring.data.commons.patch",
         "spring.core", "com.treilhes.emc4j:spring.core.patch"
     );
     //@formatter:on

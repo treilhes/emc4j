@@ -507,6 +507,16 @@
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>spring.aop.patch</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
+                <artifactId>spring.aop.patch.link</artifactId>
+                <version>${emc4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.treilhes.emc4j</groupId>
                 <artifactId>spring.core.patch</artifactId>
                 <version>${emc4j.version}</version>
             </dependency>
@@ -517,12 +527,12 @@
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
-                <artifactId>spring.aop.patch</artifactId>
+                <artifactId>spring.data.commons.patch</artifactId>
                 <version>${emc4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.treilhes.emc4j</groupId>
-                <artifactId>spring.aop.patch.link</artifactId>
+                <artifactId>spring.data.commons.patch.link</artifactId>
                 <version>${emc4j.version}</version>
             </dependency>
             <dependency>

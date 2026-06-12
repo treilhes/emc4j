@@ -17,5 +17,7 @@ open module emc4j.boot.api {
     exports com.treilhes.emc4j.boot.api.web.client;
 
     requires emc4j.boot.starter;
+    requires emc4j.spring.core.patch.link;
+    requires spring.data.commons.patch.link;
 
 }

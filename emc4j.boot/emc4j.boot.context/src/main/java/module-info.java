@@ -46,6 +46,7 @@ open module emc4j.boot.context {
     requires emc4j.boot.starter;
     requires spring.boot.web.server;
     requires emc4j.spring.core.patch.link;
+    requires spring.data.commons.patch.link;
 
     provides BootContextConfigClasses with ContextBootClasses;
     provides ExtensionContextConfigClasses with ContextExtensionClasses;

@@ -332,11 +332,13 @@ public class ContextManagerImpl implements ContextManager {
         }
 
         if (ctx != null) {
+            logger.info("Execute closing hooks for context {}", ctx.getId());
             holder.executeInheritedHooks();
             holder.executeHooks();
             if (holder.getExtension() != null) {
                 holder.getExtension().finalizeContext(ctx);
             }
+            logger.info("Close context {}", ctx.getId());
             ctx.close();
         }
 

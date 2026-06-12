@@ -53,6 +53,11 @@
                     </dependency>
                     <dependency>
                         <groupId>com.treilhes.emc4j</groupId>
+                        <artifactId>spring.data.commons.patch</artifactId>
+                        <version>${emc4j.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.treilhes.emc4j</groupId>
                         <artifactId>spring.aop.patch</artifactId>
                         <version>${emc4j.version}</version>
                     </dependency>
@@ -81,6 +86,8 @@
                                 org.hibernate.orm.core=${com.treilhes.emc4j:org.hibernate.orm.core.patch:jar}
                                 --patch-module
                                 java.base=${com.treilhes.emc4j:java.base.patch:jar}
+                                --patch-module
+                                spring.data.commons=${com.treilhes.emc4j:spring.data.commons.patch:jar}
                                 --add-exports
                                 java.base/javapatch.lang.module=java.base.patch.link
                                 --add-exports

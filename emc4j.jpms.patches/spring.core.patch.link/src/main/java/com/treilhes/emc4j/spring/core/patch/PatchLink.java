@@ -31,6 +31,7 @@
  */
 package com.treilhes.emc4j.spring.core.patch;
 
+import org.springframework.core.BridgeMethodResolverCacheCleaner;
 import org.springframework.core.io.support.SpringFactoriesLoaderCacheCleaner;
 
 public class PatchLink {
@@ -43,7 +44,9 @@ public class PatchLink {
         return org.springframework.core.Patch.addOpen(module, packageName);
     }
 
-    public static void clearFactoriesCache(ClassLoader classLoader) {
+    public static void clearCaches(ClassLoader classLoader) {
         SpringFactoriesLoaderCacheCleaner.clearCache(classLoader);
+        BridgeMethodResolverCacheCleaner.clean(classLoader);
     }
+
 }

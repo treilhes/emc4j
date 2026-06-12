@@ -20,6 +20,10 @@
         </dependency>
         <dependency>
             <groupId>com.treilhes.emc4j</groupId>
+            <artifactId>spring.data.commons.patch.link</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.treilhes.emc4j</groupId>
             <artifactId>org.hibernate.orm.core.patch.link</artifactId>
         </dependency>
         <dependency>

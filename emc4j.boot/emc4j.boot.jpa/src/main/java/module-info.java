@@ -42,6 +42,7 @@ open module emc4j.boot.jpa {
     requires emc4j.boot.starter;
     requires spring.boot.h2console;
     requires emc4j.spring.core.patch.link;
+    requires spring.data.commons.patch.link;
 
     provides BootContextConfigClasses with JpaBootClasses;
     provides ExtensionContextConfigClasses with JpaExtensionClasses;

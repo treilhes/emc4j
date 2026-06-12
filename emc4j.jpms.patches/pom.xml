@@ -18,5 +18,7 @@
         <module>org.hibernate.orm.core.patch.link</module>
         <module>java.base.patch</module>
         <module>java.base.patch.link</module>
+        <module>spring.data.commons.patch</module>
+        <module>spring.data.commons.patch.link</module>
     </modules>
 </project>

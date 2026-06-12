@@ -62,8 +62,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
 import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
+import com.treilhes.emc4j.boot.api.utils.CacheCleaner;
 import com.treilhes.emc4j.boot.api.utils.CompositeClassloader;
-import com.treilhes.emc4j.spring.core.patch.PatchLink;
 
 public class EmcAnnotationConfigServletWebApplicationContext extends ServletWebServerApplicationContext
         implements AnnotationConfigRegistry {
@@ -221,7 +221,7 @@ public class EmcAnnotationConfigServletWebApplicationContext extends ServletWebS
 
     @Override
     public void close() {
-        PatchLink.clearFactoriesCache(compositeClassloader);
+        CacheCleaner.clearCaches(compositeClassloader);
         super.close();
     }
 

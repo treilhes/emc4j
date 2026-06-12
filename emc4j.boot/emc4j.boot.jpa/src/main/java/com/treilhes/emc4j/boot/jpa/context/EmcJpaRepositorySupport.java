@@ -67,8 +67,8 @@ import com.treilhes.emc4j.boot.api.context.EmContext;
 import com.treilhes.emc4j.boot.api.context.EmcBeanFactory;
 import com.treilhes.emc4j.boot.api.context.EmcBeanNameGenerator;
 import com.treilhes.emc4j.boot.api.jpa.ResolvablePersistenceManagedTypes;
+import com.treilhes.emc4j.boot.api.utils.CacheCleaner;
 import com.treilhes.emc4j.boot.api.utils.CompositeClassloader;
-import com.treilhes.emc4j.spring.core.patch.PatchLink;
 
 import jakarta.persistence.Entity;
 
@@ -213,7 +213,8 @@ public class EmcJpaRepositorySupport implements BeanDefinitionRegistryPostProces
     @Override
     public void destroy() throws Exception {
         LOGGER.debug("Cleaning up EmcJpaRepositorySupport");
-        repositoryClassLoaders.forEach(PatchLink::clearFactoriesCache);
+        repositoryClassLoaders.forEach(CacheCleaner::clearCaches);
+        repositoryClassLoaders.clear();
     }
 
     private void registerClassLoader(ClassLoader classLoader) {

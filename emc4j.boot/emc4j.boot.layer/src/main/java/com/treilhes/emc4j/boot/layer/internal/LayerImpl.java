@@ -324,7 +324,7 @@ public class LayerImpl implements Layer {
                         LOGGER.debug("layer unlock check failed");
                         Thread.sleep(200);
                     } else {
-                        LOGGER.debug("layer unlocked");
+                        LOGGER.info("layer unlocked");
                         return true;
                     }
 

@@ -246,7 +246,7 @@ public class ApplicationManagerImpl implements ApplicationManager {
         send(applicationId, new StopCommandEvent(applicationId, List.of()));
 
         stopExtensionTree(Set.of(application));
-        System.gc();
+//        System.gc();
         unloadApplication(applicationId);
 
         startedApplications.remove(applicationId);
