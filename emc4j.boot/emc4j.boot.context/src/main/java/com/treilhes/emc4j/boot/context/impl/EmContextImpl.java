@@ -190,10 +190,14 @@ public class EmContextImpl extends EmcAnnotationConfigServletWebApplicationConte
         }
 
         Map<String, T> globalMap = getBeansOfType(cls);
-        Map<String, T> parentMap = getParent().getBeansOfType(cls);
-
         Set<T> result = new HashSet<>(globalMap.values());
-        result.removeAll(parentMap.values());
+
+        try {
+            Map<String, T> parentMap = getParent().getBeansOfType(cls);
+            result.removeAll(parentMap.values());
+        } catch (Exception e) {
+            // if the parent context does not have the bean or is inactive, we ignore the exception
+        }
 
         if (result.size() == 1) {
             return result.iterator().next();
